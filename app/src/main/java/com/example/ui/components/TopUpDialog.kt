@@ -23,13 +23,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.AlertDialog
@@ -174,14 +178,30 @@ fun TopUpDialog(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "ระบบเติมเงิน & สมาชิก",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0F172A)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0xFF10B981).copy(alpha = 0.15f),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.4f))
+                                ) {
+                                    Text(
+                                        text = "ทดสอบ v4.0",
+                                        color = Color(0xFF047857),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                             Text(
-                                text = "ระบบเติมเงิน & สมาชิก",
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
-                            )
-                            Text(
-                                text = "ทดลองใช้ฟรี 3 ครั้ง • โฆษณาไม่บังหน้าจอ",
+                                text = "โหมดทดสอบ (Sandbox) • จำลองการชำระเงินและรับสิทธิ์ทันที",
                                 fontSize = 11.sp,
                                 color = Color(0xFF64748B)
                             )
@@ -250,6 +270,56 @@ fun TopUpDialog(
                                         else if (walletState.totalAvailableUses > 0) Color(0xFF0284C7)
                                         else Color(0xFFEF4444)
                                     )
+                                }
+                            }
+                        }
+
+                        // Sandbox Fast Test Actions
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFE0F2FE),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBAE6FD)),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        WalletManager.addTestCredits(50)
+                                        Toast.makeText(context, "⚡ เพิ่มเครดิตทดสอบ +50 ครั้ง สำเร็จแล้ว!", Toast.LENGTH_SHORT).show()
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(Icons.Default.FlashOn, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(15.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("เติมเครดิตทดสอบ (+50)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0369A1))
+                                }
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFF1F5F9),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1)),
+                                modifier = Modifier
+                                    .clickable {
+                                        WalletManager.resetTestQuota()
+                                        Toast.makeText(context, "🔄 รีเซ็ตสิทธิ์เริ่มต้น (ฟรี 3 ครั้ง) แล้ว", Toast.LENGTH_SHORT).show()
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(15.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("รีเซ็ตสิทธิ์", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
                                 }
                             }
                         }
@@ -411,21 +481,28 @@ fun TopUpDialog(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // Real Pay with PromptPay
+                    // Primary Sandbox Action: Instant Payment Simulation
                     Button(
-                        onClick = { showPaymentStep = true },
+                        onClick = {
+                            val plan = selectedPlan
+                            if (plan != null) {
+                                WalletManager.activatePlan(plan)
+                                Toast.makeText(context, "🎉 [โหมดทดสอบ] เปิดใช้งาน ${plan.title} เรียบร้อยแล้ว!", Toast.LENGTH_LONG).show()
+                                onDismiss()
+                            }
+                        },
                         enabled = selectedPlan != null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
-                            .testTag("continue_to_payment_button"),
+                            .testTag("simulate_instant_payment_button"),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
                     ) {
-                        Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.FlashOn, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "ชำระเงินผ่าน PromptPay QR (฿${selectedPlan?.priceThb?.toInt() ?: 0})",
+                            text = "⚡ จำลองการชำระเงินสำเร็จ (เปิดใช้งานทันที)",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -433,13 +510,36 @@ fun TopUpDialog(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Real Google Play Billing Check
+                    // Secondary Action: Test PromptPay Flow
+                    OutlinedButton(
+                        onClick = { showPaymentStep = true },
+                        enabled = selectedPlan != null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                            .testTag("continue_to_payment_button"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF0B2853))
+                    ) {
+                        Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFF0B2853))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "📱 แสดง QR พร้อมเพย์ (ทดสอบขั้นตอนสแกนจ่าย)",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF0B2853)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Google Play Billing Compatibility Check
                     OutlinedButton(
                         onClick = {
                             val support = WalletManager.checkGooglePlayBillingSupport(context)
                             when (support) {
                                 is BillingSupportResult.Supported -> {
-                                    statusDialogTitle = "Google Play Billing"
+                                    statusDialogTitle = "Google Play Billing (Sandbox)"
                                     statusDialogMessage = "เชื่อมต่อระบบ Google Play สำเร็จ กำลังเริ่มกระบวนการชำระเงิน"
                                 }
                                 is BillingSupportResult.NotSupported -> {
@@ -450,14 +550,14 @@ fun TopUpDialog(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(44.dp)
+                            .height(42.dp)
                             .testTag("google_play_billing_button"),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("ชำระเงินผ่าน Google Play In-App Purchase", fontSize = 12.sp, color = Color(0xFF334155))
+                        Text("Google Play In-App Purchase (ตรวจสอบระบบ)", fontSize = 12.sp, color = Color(0xFF475569))
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     // Option to watch 30s ad to use for free
                     OutlinedButton(
@@ -470,7 +570,7 @@ fun TopUpDialog(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(46.dp)
                             .testTag("watch_30s_ad_for_free_button"),
                         shape = RoundedCornerShape(14.dp),
                         border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF10B981)),
@@ -526,7 +626,7 @@ fun TopUpDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "THAI QR PAYMENT • สแกนจ่ายพร้อมเพย์",
+                                    text = "THAI QR PAYMENT • สแกนจ่ายพร้อมเพย์ (โหมดทดสอบ)",
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp
@@ -632,7 +732,7 @@ fun TopUpDialog(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Real Slip Verification Check (ตรวจไม่ได้ให้บอกว่าไม่รองรับ)
+                    // Test Slip Verification / Instant Activation
                     Button(
                         onClick = {
                             val result = WalletManager.verifySlipOnline(refCode)
@@ -657,12 +757,12 @@ fun TopUpDialog(
                             .height(50.dp)
                             .testTag("verify_slip_button"),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
                     ) {
-                        Icon(Icons.Default.Verified, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "ตรวจสอบสถานะการชำระเงิน (Online Slip Check)",
+                            text = "⚡ ยืนยันสลิป / อนุมัติสิทธิ์ทันที (โหมดทดสอบ)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )

@@ -63,6 +63,9 @@ object WalletManager {
     const val INITIAL_FREE_USES = 3
     const val SUPPORT_EMAIL = "chenkung12@gmail.com"
 
+    // Sandbox Test Mode Flag
+    var isSandboxTestMode: Boolean = true
+
     // Preset Pricing Plans
     val PLANS = listOf(
         PricingPlan(
@@ -165,13 +168,49 @@ object WalletManager {
     }
 
     /**
-     * Real check for online bank slip verification.
-     * Returns Unsupported if automated backend slip server is not configured.
+     * Check for online bank slip verification.
+     * In Sandbox Test Mode, it simulates successful verification to facilitate testing.
+     * Otherwise returns Unsupported when automated bank API is not hooked.
      */
     fun verifySlipOnline(refCode: String): SlipVerificationResult {
-        return SlipVerificationResult.Unsupported(
-            "ระบบตรวจสอบสลิปอัตโนมัติ: ยังไม่รองรับในอุปกรณ์/บิลด์ออฟไลน์นี้ (กรุณาส่งหลักฐานสลิปโอนเงินพร้อมรหัสอ้างอิง $refCode ไปที่อีเมล $SUPPORT_EMAIL เพื่อให้อนุมัติสิทธิ์)"
+        return if (isSandboxTestMode) {
+            SlipVerificationResult.Success(
+                "🎉 [โหมดทดสอบ Sandbox] ยืนยันการชำระเงินสำเร็จ! สิทธิ์และเครดิตได้รับการอนุมัติทันที"
+            )
+        } else {
+            SlipVerificationResult.Unsupported(
+                "ระบบตรวจสอบสลิปอัตโนมัติ: ยังไม่รองรับในอุปกรณ์/บิลด์ออฟไลน์นี้ (กรุณาส่งหลักฐานสลิปโอนเงินพร้อมรหัสอ้างอิง $refCode ไปที่อีเมล $SUPPORT_EMAIL เพื่อให้อนุมัติสิทธิ์)"
+            )
+        }
+    }
+
+    /**
+     * Resets quota back to initial state (3 free uses, 0 paid, no VIP) for clean testing.
+     */
+    fun resetTestQuota() {
+        prefs?.edit()
+            ?.putInt(KEY_FREE_USES, INITIAL_FREE_USES)
+            ?.putInt(KEY_PAID_CREDITS, 0)
+            ?.putBoolean(KEY_IS_MONTHLY_VIP, false)
+            ?.putLong(KEY_VIP_EXPIRY, 0L)
+            ?.apply()
+        _walletState.value = WalletState(
+            freeUsesLeft = INITIAL_FREE_USES,
+            paidCredits = 0,
+            walletBalance = 0.0,
+            isMonthlyVip = false,
+            vipExpiryTimestamp = 0L
         )
+    }
+
+    /**
+     * Adds test credits directly for testing.
+     */
+    fun addTestCredits(amount: Int = 50) {
+        val state = _walletState.value
+        val newCredits = state.paidCredits + amount
+        prefs?.edit()?.putInt(KEY_PAID_CREDITS, newCredits)?.apply()
+        _walletState.value = state.copy(paidCredits = newCredits)
     }
 
     /**

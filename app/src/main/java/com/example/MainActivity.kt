@@ -164,12 +164,28 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text(
-                                text = localizedString("app_title"),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = Color(0xFF0F172A)
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = localizedString("app_title"),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF0F172A)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0xFF0284C7).copy(alpha = 0.12f),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.3f))
+                                ) {
+                                    Text(
+                                        text = "v4.0",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0284C7),
+                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                    )
+                                }
+                            }
                             Text(
                                 text = localizedString("app_subtitle"),
                                 fontSize = 11.sp,
@@ -292,42 +308,51 @@ fun MainAppScreen(viewModel: MainViewModel) {
             )
         },
         bottomBar = {
-            // Clean Navigation Bar - No blocking ads!
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp,
-                modifier = Modifier.height(72.dp)
+            Surface(
+                color = Color.White,
+                shadowElevation = 8.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
             ) {
+                NavigationBar(
+                    containerColor = Color.White,
+                    tonalElevation = 0.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(76.dp)
+                ) {
                     navItems.forEachIndexed { index, (label, icon, tag) ->
                         val isSelected = currentTab == index
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = { viewModel.setTab(index) },
+                            alwaysShowLabel = true,
                             icon = {
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = label,
-                                    modifier = Modifier.size(22.dp)
+                                    modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
                                 )
                             },
                             label = {
                                 Text(
                                     text = label,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    fontSize = if (isSelected) 12.sp else 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                    maxLines = 1
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF0B2853),
-                                selectedTextColor = Color(0xFF0B2853),
+                                selectedIconColor = Color(0xFF0284C7),
+                                selectedTextColor = Color(0xFF0369A1),
                                 unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B),
-                                indicatorColor = Color(0xFF0284C7).copy(alpha = 0.15f)
+                                unselectedTextColor = Color(0xFF475569),
+                                indicatorColor = Color(0xFFE0F2FE)
                             ),
                             modifier = Modifier.testTag(tag)
                         )
                     }
                 }
+            }
         }
     ) { innerPadding ->
         Box(

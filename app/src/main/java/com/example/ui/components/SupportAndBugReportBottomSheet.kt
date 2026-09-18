@@ -599,7 +599,7 @@ fun AdminContactSupportView() {
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "ZipQR เวอร์ชั่น 3.0 (Build 3)",
+            text = "ZipQR เวอร์ชั่น 4.0 (Build 4)",
             fontSize = 11.sp,
             color = Color(0xFF94A3B8),
             modifier = Modifier.align(Alignment.CenterHorizontally)
