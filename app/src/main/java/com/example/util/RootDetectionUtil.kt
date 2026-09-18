@@ -212,9 +212,20 @@ object RootSecurityManager {
     private val _rootState = MutableStateFlow<RootCheckResult?>(null)
     val rootState: StateFlow<RootCheckResult?> = _rootState.asStateFlow()
 
+    private val _isBypassedForTesting = MutableStateFlow(false)
+    val isBypassedForTesting: StateFlow<Boolean> = _isBypassedForTesting.asStateFlow()
+
     fun verifyDeviceIntegrity(context: Context): RootCheckResult {
         val result = RootDetectionUtil.performFullCheck(context)
         _rootState.value = result
         return result
+    }
+
+    fun acknowledgeAndBypassWarning() {
+        _isBypassedForTesting.value = true
+    }
+
+    fun resetBypass() {
+        _isBypassedForTesting.value = false
     }
 }
