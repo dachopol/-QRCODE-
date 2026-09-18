@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -156,7 +159,7 @@ object RootDetectionUtil {
     /**
      * Comprehensive scan running all checks.
      */
-    fun performFullCheck(context: Context): RootCheckResult {
+    suspend fun performFullCheck(context: Context): RootCheckResult = withContext(Dispatchers.IO) {
         val reasons = mutableListOf<String>()
         val unsupported = mutableListOf<String>()
 
@@ -191,7 +194,7 @@ object RootDetectionUtil {
 
         val isRooted = suBin || rootApp || suExec || rwMounts
 
-        return RootCheckResult(
+        RootCheckResult(
             isRooted = isRooted,
             reasons = reasons,
             unsupportedChecks = unsupported,
@@ -215,10 +218,16 @@ object RootSecurityManager {
     private val _isBypassedForTesting = MutableStateFlow(false)
     val isBypassedForTesting: StateFlow<Boolean> = _isBypassedForTesting.asStateFlow()
 
-    fun verifyDeviceIntegrity(context: Context): RootCheckResult {
+    suspend fun verifyDeviceIntegrity(context: Context): RootCheckResult {
         val result = RootDetectionUtil.performFullCheck(context)
         _rootState.value = result
         return result
+    }
+
+    fun verifyDeviceIntegrityAsync(context: Context, scope: kotlinx.coroutines.CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            verifyDeviceIntegrity(context)
+        }
     }
 
     fun acknowledgeAndBypassWarning() {

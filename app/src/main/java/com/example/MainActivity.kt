@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -54,6 +55,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.example.admob.AdMobBannerView
 import com.example.admob.AdMobInterstitialDialog
 import com.example.admob.AdMobManager
@@ -87,8 +90,8 @@ class MainActivity : ComponentActivity() {
         CurrencyManager.initialize(this)
         WalletManager.initialize(this)
 
-        // Anti-Root Security: Initial inspection on startup
-        RootSecurityManager.verifyDeviceIntegrity(this)
+        // Anti-Root Security: Initial inspection on startup (Async to avoid black screen)
+        RootSecurityManager.verifyDeviceIntegrityAsync(this, lifecycleScope)
 
         setContent {
             MyApplicationTheme {
@@ -100,7 +103,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         // Anti-Root Security: Continuous verification whenever app returns to foreground
-        RootSecurityManager.verifyDeviceIntegrity(this)
+        RootSecurityManager.verifyDeviceIntegrityAsync(this, lifecycleScope)
     }
 }
 
@@ -179,8 +182,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     // Language & Google Currency Selector Button
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFEFF6FF),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBAE6FD)),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                         modifier = Modifier
                             .padding(end = 6.dp)
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
@@ -215,7 +218,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     // Contact Admin & Bug Report Button
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF1F5F9),
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                         modifier = Modifier
                             .padding(end = 6.dp)
                             .clickable { viewModel.openSupportSheet() }
@@ -228,7 +231,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ContactSupport,
                                 contentDescription = localizedString("contact_admin"),
-                                tint = Color(0xFF0F172A),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -236,7 +239,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 text = localizedString("contact_admin"),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                     }
@@ -291,7 +294,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
         bottomBar = {
             // Clean Navigation Bar - No blocking ads!
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 6.dp,
                 modifier = Modifier.height(72.dp)
             ) {
