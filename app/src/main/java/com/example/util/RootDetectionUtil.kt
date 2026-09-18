@@ -18,15 +18,15 @@ import java.io.InputStreamReader
  * Result of comprehensive device root and integrity inspection.
  */
 data class RootCheckResult(
-    val isRooted: Boolean,
-    val reasons: List<String>,
+    val isRooted: Boolean = false,
+    val reasons: List<String> = emptyList(),
     val unsupportedChecks: List<String> = emptyList(),
-    val testKeysFound: Boolean,
-    val suBinaryFound: Boolean,
-    val rootAppFound: Boolean,
-    val dangerousPropsFound: Boolean,
-    val suExecutionSucceeded: Boolean,
-    val rwMountsFound: Boolean,
+    val testKeysFound: Boolean = false,
+    val suBinaryFound: Boolean = false,
+    val rootAppFound: Boolean = false,
+    val dangerousPropsFound: Boolean = false,
+    val suExecutionSucceeded: Boolean = false,
+    val rwMountsFound: Boolean = false,
     val timestamp: Long = System.currentTimeMillis()
 )
 
@@ -159,7 +159,7 @@ object RootDetectionUtil {
     /**
      * Comprehensive scan running all checks.
      */
-    suspend fun performFullCheck(context: Context): RootCheckResult = withContext(Dispatchers.IO) {
+    fun performFullCheck(context: Context): RootCheckResult {
         val reasons = mutableListOf<String>()
         val unsupported = mutableListOf<String>()
 
@@ -194,7 +194,7 @@ object RootDetectionUtil {
 
         val isRooted = suBin || rootApp || suExec || rwMounts
 
-        RootCheckResult(
+        return RootCheckResult(
             isRooted = isRooted,
             reasons = reasons,
             unsupportedChecks = unsupported,
@@ -218,15 +218,24 @@ object RootSecurityManager {
     private val _isBypassedForTesting = MutableStateFlow(false)
     val isBypassedForTesting: StateFlow<Boolean> = _isBypassedForTesting.asStateFlow()
 
-    suspend fun verifyDeviceIntegrity(context: Context): RootCheckResult {
-        val result = RootDetectionUtil.performFullCheck(context)
-        _rootState.value = result
-        return result
+    private val backgroundScope = kotlinx.coroutines.CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
+
+    fun verifyDeviceIntegrity(context: Context): RootCheckResult {
+        backgroundScope.launch {
+            val result = RootDetectionUtil.performFullCheck(context)
+            _rootState.value = result
+        }
+        return _rootState.value ?: RootCheckResult(
+            isRooted = false,
+            reasons = emptyList(),
+            unsupportedChecks = emptyList()
+        )
     }
 
-    fun verifyDeviceIntegrityAsync(context: Context, scope: kotlinx.coroutines.CoroutineScope) {
+    fun verifyDeviceIntegrityAsync(context: Context, scope: kotlinx.coroutines.CoroutineScope = backgroundScope) {
         scope.launch(Dispatchers.IO) {
-            verifyDeviceIntegrity(context)
+            val result = RootDetectionUtil.performFullCheck(context)
+            _rootState.value = result
         }
     }
 

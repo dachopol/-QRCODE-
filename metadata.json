@@ -1,6 +1,6 @@
 {
   "name": "ZipQR",
-  "description": "ZipQR - แอปสแกนและสร้าง QR Code พร้อมเพย์ นามบัตรดิจิทัล Wi-Fi ลิงก์ร้านค้า พร้อมระบบความปลอดภัยและการจัดการประวัติแบบออฟไลน์",
+  "description": "ZipQR v3.0 - แอปสแกนและสร้าง QR Code พร้อมเพย์ นามบัตรดิจิทัล Wi-Fi ลิงก์ร้านค้า พร้อมระบบความปลอดภัยและการจัดการประวัติแบบออฟไลน์",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
