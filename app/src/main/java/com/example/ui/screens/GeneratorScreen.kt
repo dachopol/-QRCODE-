@@ -18,12 +18,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ContactSupport
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
@@ -255,6 +258,54 @@ fun GeneratorScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Quick Actions: Wallet Quota & แจ้งแอดมิน
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF1F5F9),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { viewModel.openTopUpDialog() }
+                        .testTag("generator_quick_wallet_button")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = Color(0xFF0B2853), modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("กระเป๋าเงิน & โควตา", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0B2853), maxLines = 1, softWrap = false)
+                    }
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFF0284C7).copy(alpha = 0.1f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.25f)),
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .clickable { viewModel.openSupportSheet() }
+                        .testTag("generator_quick_admin_button")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ContactSupport, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text("แจ้งแอดมิน", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7), maxLines = 1, softWrap = false)
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(14.dp))
 
             // Color customization controls for QR code
@@ -451,7 +502,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                                 softWrap = false
                             )
                         },
-                        modifier = Modifier.defaultMinSize(minWidth = 58.dp),
+                        modifier = Modifier.wrapContentWidth(),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF059669),
                             selectedLabelColor = Color.White
@@ -512,7 +563,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun WifiForm(viewModel: MainViewModel) {
     val ssid by viewModel.wifiSsid.collectAsState()
@@ -593,9 +644,10 @@ private fun WifiForm(viewModel: MainViewModel) {
             // Security Type Chips
             Text("ประเภทความปลอดภัย", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
             Spacer(modifier = Modifier.height(6.dp))
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WifiSecurity.values().forEach { sec ->
                     FilterChip(
@@ -609,7 +661,7 @@ private fun WifiForm(viewModel: MainViewModel) {
                                 softWrap = false
                             )
                         },
-                        modifier = Modifier.defaultMinSize(minWidth = 62.dp),
+                        modifier = Modifier.wrapContentWidth(),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF0284C7),
                             selectedLabelColor = Color.White
@@ -652,6 +704,7 @@ private fun WifiForm(viewModel: MainViewModel) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StoreLinkForm(viewModel: MainViewModel) {
     val platform by viewModel.storePlatform.collectAsState()
@@ -682,58 +735,37 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Platform Buttons Grid
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf(StorePlatform.LINE_OA, StorePlatform.SHOPEE, StorePlatform.TIKTOK).forEach { p ->
-                        val isSel = platform == p
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = if (isSel) Color(0xFF0B2853) else Color(0xFFF1F5F9),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { viewModel.setStorePlatform(p) }
-                        ) {
-                            Text(
-                                text = p.title,
-                                color = if (isSel) Color.White else Color(0xFF334155),
-                                fontSize = 12.sp,
-                                fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false,
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf(StorePlatform.FACEBOOK, StorePlatform.LAZADA, StorePlatform.WEBSITE).forEach { p ->
-                        val isSel = platform == p
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = if (isSel) Color(0xFF0B2853) else Color(0xFFF1F5F9),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { viewModel.setStorePlatform(p) }
-                        ) {
-                            Text(
-                                text = p.title,
-                                color = if (isSel) Color.White else Color(0xFF334155),
-                                fontSize = 12.sp,
-                                fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false,
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf(
+                    StorePlatform.LINE_OA,
+                    StorePlatform.SHOPEE,
+                    StorePlatform.TIKTOK,
+                    StorePlatform.FACEBOOK,
+                    StorePlatform.LAZADA,
+                    StorePlatform.WEBSITE
+                ).forEach { p ->
+                    val isSel = platform == p
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isSel) Color(0xFF0B2853) else Color(0xFFF1F5F9),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isSel) Color(0xFF0B2853) else Color(0xFFE2E8F0)),
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .clickable { viewModel.setStorePlatform(p) }
+                    ) {
+                        Text(
+                            text = p.title,
+                            color = if (isSel) Color.White else Color(0xFF334155),
+                            fontSize = 12.sp,
+                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                            maxLines = 1,
+                            softWrap = false,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                        )
                     }
                 }
             }

@@ -9,6 +9,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,10 +29,12 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,6 +46,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -64,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.ui.theme.appTextFieldColors
+import com.example.util.PrivacyProtection
 import com.example.util.RootSecurityManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -367,6 +374,7 @@ fun SecurityStatusView() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BugReportForm(
     viewModel: MainViewModel,
@@ -438,29 +446,32 @@ fun BugReportForm(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                categories.chunked(2).forEach { rowList ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        rowList.forEach { cat ->
-                            val isSelected = category == cat
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = { category = cat },
-                                label = { Text(cat, fontSize = 11.sp, maxLines = 1, softWrap = false) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF0284C7).copy(alpha = 0.15f),
-                                    selectedLabelColor = Color(0xFF0284C7)
-                                ),
-                                modifier = Modifier.weight(1f)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                categories.forEach { cat ->
+                    val isSelected = category == cat
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { category = cat },
+                        label = {
+                            Text(
+                                text = cat,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                softWrap = false
                             )
-                        }
-                        if (rowList.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFF0284C7).copy(alpha = 0.15f),
+                            selectedLabelColor = Color(0xFF0284C7)
+                        ),
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier.wrapContentWidth()
+                    )
                 }
             }
 
@@ -499,6 +510,7 @@ fun BugReportForm(
             Button(
                 onClick = {
                     if (description.isNotBlank()) {
+                        contactInfo = PrivacyProtection.sanitizeEmail(contactInfo)
                         isSubmitted = true
                     }
                 },
@@ -512,7 +524,7 @@ fun BugReportForm(
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("ส่งรายงานแจ้งบัคให้แอดมิน", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("แจ้งแอดมิน (ส่งรายงานปัญหา)", fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
@@ -537,50 +549,86 @@ fun AdminContactSupportView() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF0284C7)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Email, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.SupportAgent, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("ฝ่ายดูแลลูกค้า & แอดมิน", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
-                        Text("อีเมล: chenkung12@gmail.com", fontSize = 12.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.SemiBold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("ฝ่ายดูแลลูกค้า & แอดมิน", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = Color(0xFF0284C7).copy(alpha = 0.15f)
+                            ) {
+                                Text(
+                                    text = "Official Support",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0284C7),
+                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                        Text("อีเมล: ${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}", fontSize = 12.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.SemiBold)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "หากพบปัญหาการสร้าง QR, การสแกน, นามบัตรดิจิทัล หรือต้องการความช่วยเหลือ สามารถส่งอีเมลหาทีมงานได้โดยตรง เราพร้อมให้บริการตรวจสอบและแก้ไขตลอด 24 ชั่วโมง",
+                    text = "หากพบปัญหาการสร้าง QR, การสแกน, นามบัตรดิจิทัล หรือต้องการความช่วยเหลือ สามารถส่งข้อความหาทีมงานแอดมินได้โดยตรง เราพร้อมให้บริการตลอด 24 ชั่วโมง",
                     fontSize = 12.sp,
                     color = Color(0xFF334155),
                     lineHeight = 18.sp
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
-                Button(
-                    onClick = {
-                        try {
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:chenkung12@gmail.com")
-                                putExtra(Intent.EXTRA_SUBJECT, "[QR PromptPay] สอบถามปัญหา / ติดต่อแอดมิน")
-                            }
-                            context.startActivity(intent)
-                        } catch (_: Exception) {
-                            Toast.makeText(context, "กรุณาส่งอีเมลไปที่: chenkung12@gmail.com", Toast.LENGTH_LONG).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(42.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("ส่งอีเมลหาทีมงานโดยตรง", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = Uri.parse("mailto:${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}")
+                                    putExtra(Intent.EXTRA_SUBJECT, "[ZipQR v8.0] แจ้งปัญหา / ติดต่อแอดมิน")
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {
+                                Toast.makeText(context, "กรุณาส่งอีเมลไปที่: ${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}", Toast.LENGTH_LONG).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+                    ) {
+                        Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("แจ้งแอดมินโดยตรง", fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Admin Email", PrivacyProtection.OFFICIAL_ADMIN_EMAIL))
+                            Toast.makeText(context, "คัดลอกอีเมลแอดมินเรียบร้อย", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .height(44.dp),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("คัดลอก", fontSize = 12.sp, maxLines = 1, softWrap = false)
+                    }
                 }
             }
         }

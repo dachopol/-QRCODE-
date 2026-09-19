@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -202,13 +203,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                         modifier = Modifier
-                            .padding(end = 6.dp)
-                            .defaultMinSize(minWidth = 76.dp)
+                            .padding(end = 4.dp)
+                            .wrapContentWidth()
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
                             .testTag("open_language_currency_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -219,13 +220,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 maxLines = 1,
                                 softWrap = false
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text(
                                 text = "•",
                                 fontSize = 9.sp,
                                 color = Color(0xFF94A3B8)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text(
                                 text = "${currentCurrency.symbol} ${currentCurrency.code}",
                                 fontSize = 11.sp,
@@ -237,32 +238,33 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         }
                     }
 
-                    // Contact Admin & Bug Report Button
+                    // Contact Admin & Bug Report Button (ปุ่มแจ้งแอดมิน)
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                        color = Color(0xFF0284C7).copy(alpha = 0.12f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.25f)),
                         modifier = Modifier
-                            .padding(end = 6.dp)
-                            .defaultMinSize(minWidth = 92.dp)
+                            .padding(end = 4.dp)
+                            .wrapContentWidth()
                             .clickable { viewModel.openSupportSheet() }
                             .testTag("support_admin_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ContactSupport,
                                 contentDescription = localizedString("contact_admin"),
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.size(16.dp)
+                                tint = Color(0xFF0284C7),
+                                modifier = Modifier.size(15.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = localizedString("contact_admin"),
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0284C7),
                                 maxLines = 1,
                                 softWrap = false
                             )
@@ -282,13 +284,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             else Color(0xFFEF4444).copy(alpha = 0.3f)
                         ),
                         modifier = Modifier
-                            .padding(end = 12.dp)
-                            .defaultMinSize(minWidth = 84.dp)
+                            .padding(end = 8.dp)
+                            .wrapContentWidth()
                             .clickable { viewModel.openTopUpDialog() }
                             .testTag("wallet_topup_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -297,15 +299,15 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 tint = if (walletState.isUnlimitedVip) Color(0xFF059669)
                                 else if (walletState.totalAvailableUses > 0) Color(0xFF0284C7)
                                 else Color(0xFFEF4444),
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(15.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = if (walletState.isUnlimitedVip) "VIP ไม่จำกัด"
+                                text = if (walletState.isUnlimitedVip) "VIP ฟรี"
                                 else if (walletState.paidCredits > 0) "${walletState.paidCredits} เครดิต"
                                 else if (walletState.freeUsesLeft > 0) "ฟรี ${walletState.freeUsesLeft}/3"
                                 else "เติมเงิน",
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (walletState.isUnlimitedVip) Color(0xFF059669)
                                 else if (walletState.totalAvailableUses > 0) Color(0xFF0284C7)

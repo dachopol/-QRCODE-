@@ -133,7 +133,7 @@ object LocalizationManager {
             "es" to "PromptPay y Tarjetas Digitales", "fr" to "PromptPay et Cartes Numériques", "de" to "PromptPay & Visitenkarten"
         ),
         "contact_admin" to mapOf(
-            "th" to "ติดต่อแอดมิน", "en" to "Support", "zh_CN" to "联系客服", "zh_TW" to "聯絡客服",
+            "th" to "แจ้งแอดมิน", "en" to "Support", "zh_CN" to "联系客服", "zh_TW" to "聯絡客服",
             "ja" to "サポート", "ko" to "고객지원", "es" to "Soporte", "fr" to "Support",
             "de" to "Support", "ru" to "Поддержка", "vi" to "Hỗ trợ", "id" to "Bantuan"
         ),
