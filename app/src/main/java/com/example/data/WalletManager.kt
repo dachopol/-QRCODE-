@@ -11,8 +11,8 @@ data class WalletState(
     val freeUsesLeft: Int = 3,
     val paidCredits: Int = 0,
     val walletBalance: Double = 0.0,
-    val isMonthlyVip: Boolean = false,
-    val vipExpiryTimestamp: Long = 0L
+    val isMonthlyVip: Boolean = true, // premium=on default
+    val vipExpiryTimestamp: Long = System.currentTimeMillis() + 365L * 24 * 60 * 60 * 1000L
 ) {
     val isUnlimitedVip: Boolean
         get() = isMonthlyVip && System.currentTimeMillis() < vipExpiryTimestamp
@@ -22,7 +22,7 @@ data class WalletState(
 
     val displayStatusText: String
         get() = when {
-            isUnlimitedVip -> "VIP รายเดือน (ไม่จำกัด)"
+            isUnlimitedVip -> "VIP พรีเมียม (GEN_QR v8 • ปลดล็อกทุกฟังก์ชัน)"
             paidCredits > 0 -> "เครดิตคงเหลือ: $paidCredits ครั้ง"
             freeUsesLeft > 0 -> "ทดลองใช้ฟรี: เหลือ $freeUsesLeft/3 ครั้ง"
             else -> "สิทธิ์หมดแล้ว (กรุณาเติมเงิน หรือดูโฆษณา)"
@@ -130,8 +130,9 @@ object WalletManager {
         val free = p?.getInt(KEY_FREE_USES, INITIAL_FREE_USES) ?: INITIAL_FREE_USES
         val credits = p?.getInt(KEY_PAID_CREDITS, 0) ?: 0
         val balance = p?.getFloat(KEY_WALLET_BALANCE, 0f)?.toDouble() ?: 0.0
-        val isVip = p?.getBoolean(KEY_IS_MONTHLY_VIP, false) ?: false
-        val expiry = p?.getLong(KEY_VIP_EXPIRY, 0L) ?: 0L
+        val defaultExpiry = System.currentTimeMillis() + 365L * 24 * 3600 * 1000L
+        val isVip = p?.getBoolean(KEY_IS_MONTHLY_VIP, true) ?: true
+        val expiry = p?.getLong(KEY_VIP_EXPIRY, defaultExpiry) ?: defaultExpiry
 
         val activeVip = isVip && System.currentTimeMillis() < expiry
 
@@ -140,6 +141,22 @@ object WalletManager {
             paidCredits = credits,
             walletBalance = balance,
             isMonthlyVip = activeVip,
+            vipExpiryTimestamp = expiry
+        )
+    }
+
+    /**
+     * Toggles Premium VIP mode directly (e.g. for testing premium vs free trial).
+     */
+    fun setPremiumMode(enabled: Boolean) {
+        val expiry = if (enabled) System.currentTimeMillis() + 365L * 24 * 3600 * 1000L else 0L
+        prefs?.edit()
+            ?.putBoolean(KEY_IS_MONTHLY_VIP, enabled)
+            ?.putLong(KEY_VIP_EXPIRY, expiry)
+            ?.apply()
+
+        _walletState.value = _walletState.value.copy(
+            isMonthlyVip = enabled,
             vipExpiryTimestamp = expiry
         )
     }

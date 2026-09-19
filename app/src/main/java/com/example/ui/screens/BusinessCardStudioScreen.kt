@@ -291,7 +291,7 @@ fun BusinessCardStudioScreen(
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("ดู QR นามบัตร", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("ดู QR นามบัตร", fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
 
             Button(
@@ -305,7 +305,7 @@ fun BusinessCardStudioScreen(
             ) {
                 Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("บันทึกเป็นค่าหลัก", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("บันทึกเป็นค่าหลัก", fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
         }
 

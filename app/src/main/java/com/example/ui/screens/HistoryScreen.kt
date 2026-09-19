@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -130,7 +131,15 @@ fun HistoryScreen(
                 FilterChip(
                     selected = selectedFilter == index,
                     onClick = { selectedFilter = index },
-                    label = { Text(label, fontSize = 12.sp) },
+                    label = {
+                        Text(
+                            text = label,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    },
+                    modifier = Modifier.defaultMinSize(minWidth = 74.dp),
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF0B2853),
                         selectedLabelColor = Color.White

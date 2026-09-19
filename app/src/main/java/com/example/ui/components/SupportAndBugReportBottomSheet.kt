@@ -142,10 +142,19 @@ fun SupportAndBugReportBottomSheet(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        ) {
                             Icon(Icons.Default.BugReport, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("แจ้งบัค", fontSize = 12.sp, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal)
+                            Text(
+                                text = "แจ้งบัค",
+                                fontSize = 12.sp,
+                                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 )
@@ -153,10 +162,19 @@ fun SupportAndBugReportBottomSheet(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        ) {
                             Icon(Icons.AutoMirrored.Filled.ContactSupport, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("ติดต่อแอดมิน", fontSize = 12.sp, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
+                            Text(
+                                text = "ติดต่อแอดมิน",
+                                fontSize = 12.sp,
+                                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 )
@@ -164,10 +182,19 @@ fun SupportAndBugReportBottomSheet(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        ) {
                             Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("ความปลอดภัย", fontSize = 12.sp, fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal)
+                            Text(
+                                text = "ความปลอดภัย",
+                                fontSize = 12.sp,
+                                fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 )
@@ -422,7 +449,7 @@ fun BugReportForm(
                             FilterChip(
                                 selected = isSelected,
                                 onClick = { category = cat },
-                                label = { Text(cat, fontSize = 11.sp) },
+                                label = { Text(cat, fontSize = 11.sp, maxLines = 1, softWrap = false) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = Color(0xFF0284C7).copy(alpha = 0.15f),
                                     selectedLabelColor = Color(0xFF0284C7)
@@ -599,7 +626,7 @@ fun AdminContactSupportView() {
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "ZipQR เวอร์ชั่น 4.0 (Build 4)",
+            text = "ZipQR เวอร์ชั่น 8.0 (Build 8) • GEN_QR v8 (qrcode1.5.4)",
             fontSize = 11.sp,
             color = Color(0xFF94A3B8),
             modifier = Modifier.align(Alignment.CenterHorizontally)

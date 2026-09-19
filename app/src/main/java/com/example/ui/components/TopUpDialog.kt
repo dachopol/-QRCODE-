@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -192,10 +193,12 @@ fun TopUpDialog(
                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.4f))
                                 ) {
                                     Text(
-                                        text = "ทดสอบ v4.0",
+                                        text = "ทดสอบ v8.0",
                                         color = Color(0xFF047857),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        softWrap = false,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
@@ -278,27 +281,71 @@ fun TopUpDialog(
                         Spacer(modifier = Modifier.height(10.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (walletState.isUnlimitedVip) Color(0xFFDCFCE7) else Color(0xFFFEF3C7),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (walletState.isUnlimitedVip) Color(0xFF86EFAC) else Color(0xFFFDE68A)),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .defaultMinSize(minWidth = 72.dp)
+                                    .clickable {
+                                        val newState = !walletState.isUnlimitedVip
+                                        WalletManager.setPremiumMode(newState)
+                                        Toast.makeText(context, if (newState) "⭐ เปิดโหมด Premium VIP แล้ว" else "🔄 สลับกลับสู่โหมดทดลองใช้ฟรี (Trial)", Toast.LENGTH_SHORT).show()
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = if (walletState.isUnlimitedVip) Color(0xFF059669) else Color(0xFFD97706),
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = if (walletState.isUnlimitedVip) "Premium: ON" else "Premium: OFF",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (walletState.isUnlimitedVip) Color(0xFF059669) else Color(0xFFB45309),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                }
+                            }
+
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
                                 color = Color(0xFFE0F2FE),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBAE6FD)),
                                 modifier = Modifier
                                     .weight(1f)
+                                    .defaultMinSize(minWidth = 72.dp)
                                     .clickable {
                                         WalletManager.addTestCredits(50)
                                         Toast.makeText(context, "⚡ เพิ่มเครดิตทดสอบ +50 ครั้ง สำเร็จแล้ว!", Toast.LENGTH_SHORT).show()
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 8.dp),
+                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    Icon(Icons.Default.FlashOn, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(15.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("เติมเครดิตทดสอบ (+50)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0369A1))
+                                    Icon(Icons.Default.FlashOn, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "+50 เครดิต",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0369A1),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
                                 }
                             }
 
@@ -307,19 +354,27 @@ fun TopUpDialog(
                                 color = Color(0xFFF1F5F9),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1)),
                                 modifier = Modifier
+                                    .defaultMinSize(minWidth = 56.dp)
                                     .clickable {
                                         WalletManager.resetTestQuota()
                                         Toast.makeText(context, "🔄 รีเซ็ตสิทธิ์เริ่มต้น (ฟรี 3 ครั้ง) แล้ว", Toast.LENGTH_SHORT).show()
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 10.dp),
+                                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(15.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("รีเซ็ตสิทธิ์", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "รีเซ็ต",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF475569),
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
                                 }
                             }
                         }
@@ -423,7 +478,9 @@ fun TopUpDialog(
                                                 text = plan.title,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
-                                                color = Color(0xFF0F172A)
+                                                color = Color(0xFF0F172A),
+                                                maxLines = 1,
+                                                softWrap = false
                                             )
                                             plan.badge?.let { badge ->
                                                 Spacer(modifier = Modifier.width(6.dp))
@@ -436,6 +493,8 @@ fun TopUpDialog(
                                                         color = Color.White,
                                                         fontSize = 9.sp,
                                                         fontWeight = FontWeight.Bold,
+                                                        maxLines = 1,
+                                                        softWrap = false,
                                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                                     )
                                                 }
@@ -455,13 +514,17 @@ fun TopUpDialog(
                                         text = selectedCurrency.format(plan.priceThb),
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0284C7)
+                                        color = Color(0xFF0284C7),
+                                        maxLines = 1,
+                                        softWrap = false
                                     )
                                     if (selectedCurrency.code != "THB") {
                                         Text(
                                             text = "(~฿${plan.priceThb.toInt()})",
                                             fontSize = 10.sp,
-                                            color = Color(0xFF64748B)
+                                            color = Color(0xFF64748B),
+                                            maxLines = 1,
+                                            softWrap = false
                                         )
                                     }
                                     plan.originalPriceThb?.let { orig ->

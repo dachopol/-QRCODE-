@@ -14,31 +14,38 @@ import java.util.EnumMap
 
 object QrCodeUtil {
 
+    // --- GEN_QR v8 Specification Constants (lib=qrcode1.5.4) ---
+    const val SPEC_LIB = "qrcode1.5.4"
+    const val SPEC_QR_VERSION = 8
+    const val SPEC_GRID_SIZE = "49x49"
+    const val SPEC_ERROR_CORRECTION = "H"
+    const val SPEC_MARGIN = 4
+    const val SPEC_SIZE = 512
+    const val SPEC_LOGO_PERCENT = 0.20f // 20%
+    const val SPEC_LOGO_SIZE_PX = 102 // 20% of 512 = 102.4px
+    const val SPEC_PAD_PX = 12 // pad=12
+
     /**
-     * Generates a QR Code Bitmap from text with customizable colors.
+     * Generates a QR Code Bitmap strictly adhering to the GEN_QR specification:
+     * v8 49x49 grid, Error Correction H, Margin 4, BW, Size 512x512,
+     * with optional center logo (logo=20%=102px, pad=12px).
      */
     fun generateQrBitmap(
         content: String,
-        size: Int = 800,
+        size: Int = SPEC_SIZE,
         darkColor: Int = Color.BLACK,
         lightColor: Int = Color.WHITE,
-        margin: Int = 2
+        margin: Int = SPEC_MARGIN,
+        errorCorrection: ErrorCorrectionLevel = ErrorCorrectionLevel.H,
+        qrVersion: Int? = SPEC_QR_VERSION,
+        centerLogo: Bitmap? = null,
+        logoSizePx: Int = SPEC_LOGO_SIZE_PX,
+        logoPaddingPx: Int = SPEC_PAD_PX
     ): Bitmap? {
         if (content.isBlank()) return null
         return try {
-            val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
-                put(EncodeHintType.CHARACTER_SET, "UTF-8")
-                put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H)
-                put(EncodeHintType.MARGIN, margin)
-            }
-
-            val bitMatrix = QRCodeWriter().encode(
-                content,
-                BarcodeFormat.QR_CODE,
-                size,
-                size,
-                hints
-            )
+            val bitMatrix = encodeMatrix(content, size, margin, errorCorrection, qrVersion)
+                ?: return null
 
             val width = bitMatrix.width
             val height = bitMatrix.height
@@ -51,12 +58,154 @@ object QrCodeUtil {
                 }
             }
 
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-            bitmap
+            val baseBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            baseBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+
+            if (centerLogo != null) {
+                overlayCenterLogo(baseBitmap, centerLogo, logoSizePx, logoPaddingPx)
+            } else {
+                baseBitmap
+            }
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun encodeMatrix(
+        content: String,
+        size: Int,
+        margin: Int,
+        errorCorrection: ErrorCorrectionLevel,
+        qrVersion: Int?
+    ): com.google.zxing.common.BitMatrix? {
+        // First attempt with forced QR version (e.g. v8 49x49)
+        if (qrVersion != null && qrVersion > 0) {
+            try {
+                val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
+                    put(EncodeHintType.CHARACTER_SET, "UTF-8")
+                    put(EncodeHintType.ERROR_CORRECTION, errorCorrection)
+                    put(EncodeHintType.MARGIN, margin)
+                    put(EncodeHintType.QR_VERSION, qrVersion)
+                }
+                return QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, size, size, hints)
+            } catch (_: Exception) {
+                // If content length requires a larger version than 8, fallback gracefully to auto-sizing
+            }
+        }
+
+        // Fallback standard encoding
+        val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
+            put(EncodeHintType.CHARACTER_SET, "UTF-8")
+            put(EncodeHintType.ERROR_CORRECTION, errorCorrection)
+            put(EncodeHintType.MARGIN, margin)
+        }
+        return QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, size, size, hints)
+    }
+
+    /**
+     * Overlays center logo adhering to GEN_QR specification:
+     * logo=20%=102px with pad=12px rounded protective white backing.
+     */
+    fun overlayCenterLogo(
+        qrBitmap: Bitmap,
+        logoBitmap: Bitmap,
+        logoSizePx: Int = SPEC_LOGO_SIZE_PX,
+        paddingPx: Int = SPEC_PAD_PX
+    ): Bitmap {
+        val result = qrBitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(result)
+        val qrSize = result.width
+        val centerX = qrSize / 2f
+        val centerY = qrSize / 2f
+
+        // Protective background card = logo + (padding * 2) = 102 + 24 = 126px
+        val cardSize = (logoSizePx + paddingPx * 2).toFloat()
+        val cardLeft = centerX - cardSize / 2f
+        val cardTop = centerY - cardSize / 2f
+        val cardRect = RectF(cardLeft, cardTop, cardLeft + cardSize, cardTop + cardSize)
+
+        // Draw white rounded background with crisp border
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.FILL
+        }
+        canvas.drawRoundRect(cardRect, 18f, 18f, bgPaint)
+
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#E2E8F0")
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+        canvas.drawRoundRect(cardRect, 18f, 18f, borderPaint)
+
+        // Draw the logo centered inside the padded card
+        val logoLeft = centerX - logoSizePx / 2f
+        val logoTop = centerY - logoSizePx / 2f
+        val destRect = Rect(
+            logoLeft.toInt(),
+            logoTop.toInt(),
+            (logoLeft + logoSizePx).toInt(),
+            (logoTop + logoSizePx).toInt()
+        )
+        val logoPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+        canvas.drawBitmap(logoBitmap, null, destRect, logoPaint)
+
+        return result
+    }
+
+    /**
+     * Generates a clean vector-based default center logo for various QR types.
+     */
+    fun createDefaultCenterLogo(type: String, sizePx: Int = SPEC_LOGO_SIZE_PX): Bitmap {
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        when (type.uppercase()) {
+            "PROMPTPAY" -> {
+                paint.color = Color.parseColor("#0B2853")
+                canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2f, paint)
+
+                paint.color = Color.WHITE
+                paint.textAlign = Paint.Align.CENTER
+                paint.textSize = sizePx * 0.28f
+                paint.isFakeBoldText = true
+                canvas.drawText("THAI", sizePx / 2f, sizePx * 0.42f, paint)
+                paint.textSize = sizePx * 0.24f
+                canvas.drawText("QR", sizePx / 2f, sizePx * 0.72f, paint)
+            }
+            "WIFI" -> {
+                paint.color = Color.parseColor("#0284C7")
+                canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2f, paint)
+
+                paint.color = Color.WHITE
+                paint.textAlign = Paint.Align.CENTER
+                paint.textSize = sizePx * 0.32f
+                paint.isFakeBoldText = true
+                canvas.drawText("Wi-Fi", sizePx / 2f, sizePx * 0.60f, paint)
+            }
+            "STORE" -> {
+                paint.color = Color.parseColor("#059669")
+                canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2f, paint)
+
+                paint.color = Color.WHITE
+                paint.textAlign = Paint.Align.CENTER
+                paint.textSize = sizePx * 0.30f
+                paint.isFakeBoldText = true
+                canvas.drawText("SHOP", sizePx / 2f, sizePx * 0.60f, paint)
+            }
+            else -> {
+                paint.color = Color.parseColor("#0F172A")
+                canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2f, paint)
+
+                paint.color = Color.WHITE
+                paint.textAlign = Paint.Align.CENTER
+                paint.textSize = sizePx * 0.34f
+                paint.isFakeBoldText = true
+                canvas.drawText("QR", sizePx / 2f, sizePx * 0.62f, paint)
+            }
+        }
+        return bitmap
     }
 
     /**

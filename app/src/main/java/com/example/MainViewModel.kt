@@ -144,6 +144,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _qrBackgroundColor = MutableStateFlow(Color.White)
     val qrBackgroundColor: StateFlow<Color> = _qrBackgroundColor.asStateFlow()
 
+    // GEN_QR Spec Center Logo State (logo=20%=102px pad=12)
+    private val _includeCenterLogo = MutableStateFlow(true)
+    val includeCenterLogo: StateFlow<Boolean> = _includeCenterLogo.asStateFlow()
+
+    fun setIncludeCenterLogo(enabled: Boolean) {
+        _includeCenterLogo.value = enabled
+    }
+
     // History flows from Room - Lazily loaded on demand when user opens History tab
     val historyItems: StateFlow<List<QrItemEntity>> = dao.getAllQrItems()
         .catch { emit(emptyList()) }
@@ -355,11 +363,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         executeWithFreeOrVipPolicy("สร้าง QR พร้อมเพย์") {
             val amount = _promptPayAmount.value.toDoubleOrNull()
             val payload = PromptPayGenerator.generatePayload(target, amount)
+            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("PROMPTPAY") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
-                size = 900,
+                size = QrCodeUtil.SPEC_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb()
+                lightColor = _qrBackgroundColor.value.toArgb(),
+                centerLogo = centerLogo
             ) ?: return@executeWithFreeOrVipPolicy
             val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
                 qrBitmap = qrBitmap,
@@ -421,11 +431,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 security = _wifiSecurity.value.code,
                 isHidden = _wifiHidden.value
             )
+            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("WIFI") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
-                size = 900,
+                size = QrCodeUtil.SPEC_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb()
+                lightColor = _qrBackgroundColor.value.toArgb(),
+                centerLogo = centerLogo
             ) ?: return@executeWithFreeOrVipPolicy
 
             WalletManager.consumeUsage()
@@ -464,11 +476,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         executeWithFreeOrVipPolicy("สร้าง QR ลิงก์ร้านค้า") {
+            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("STORE") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = fullUrl,
-                size = 900,
+                size = QrCodeUtil.SPEC_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb()
+                lightColor = _qrBackgroundColor.value.toArgb(),
+                centerLogo = centerLogo
             ) ?: return@executeWithFreeOrVipPolicy
 
             WalletManager.consumeUsage()
@@ -506,11 +520,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         executeWithFreeOrVipPolicy("สร้าง QR ข้อความ") {
+            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("TEXT") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = text,
-                size = 900,
+                size = QrCodeUtil.SPEC_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb()
+                lightColor = _qrBackgroundColor.value.toArgb(),
+                centerLogo = centerLogo
             ) ?: return@executeWithFreeOrVipPolicy
 
             WalletManager.consumeUsage()
@@ -560,10 +576,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 note = noteContent
             )
 
+            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("VCARD") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = vcard,
-                size = 900,
-                darkColor = card.cardTheme.primaryColorHex.toInt()
+                size = QrCodeUtil.SPEC_SIZE,
+                darkColor = card.cardTheme.primaryColorHex.toInt(),
+                centerLogo = centerLogo
             ) ?: return@executeWithFreeOrVipPolicy
 
             WalletManager.consumeUsage()

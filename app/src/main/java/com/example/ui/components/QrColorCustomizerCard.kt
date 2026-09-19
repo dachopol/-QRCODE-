@@ -28,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -74,6 +75,8 @@ fun QrColorCustomizerCard(
     lightColor: Color,
     onDarkColorChange: (Color) -> Unit,
     onLightColorChange: (Color) -> Unit,
+    includeCenterLogo: Boolean = true,
+    onIncludeCenterLogoChange: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isBgDark = lightColor == Color(0xFF18181B)
@@ -110,14 +113,32 @@ fun QrColorCustomizerCard(
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "ปรับแต่งสี & รูปแบบ QR",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = Color(0xFF0F172A)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFFF1F5F9),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1))
+                            ) {
+                                Text(
+                                    text = "GEN_QR v8",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF475569),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                )
+                            }
+                        }
                         Text(
-                            text = "ปรับแต่งสี & จุดเปลี่ยนสีพื้นหลัง",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = Color(0xFF0F172A)
-                        )
-                        Text(
-                            text = "เลือกสีลวดลายและสีพื้นหลังได้ตามต้องการ",
+                            text = "49x49 H m4 BW sz=512 logo=20%=102px pad=12",
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )
@@ -144,6 +165,42 @@ fun QrColorCustomizerCard(
             }
 
             Spacer(modifier = Modifier.height(14.dp))
+
+            if (onIncludeCenterLogoChange != null) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF8FAFC),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "ตราสัญลักษณ์ตรงกลาง (logo 102px pad 12px)",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E293B)
+                            )
+                            Text(
+                                text = if (includeCenterLogo) "เปิดใช้งาน (พร้อมกรอบการ์ดป้องกัน)" else "ปิด (แสดงคิวอาร์ล้วน)",
+                                fontSize = 10.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                        Switch(
+                            checked = includeCenterLogo,
+                            onCheckedChange = { onIncludeCenterLogoChange(it) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             // LIVE PREVIEW BADGE
             Surface(
@@ -202,6 +259,8 @@ fun QrColorCustomizerCard(
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isBgDark) Color.White else Color(0xFF0F172A),
+                            maxLines = 1,
+                            softWrap = false,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                         )
                     }

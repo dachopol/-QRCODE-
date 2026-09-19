@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -99,6 +100,7 @@ fun GeneratorScreen(
 
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
+    val includeCenterLogo by viewModel.includeCenterLogo.collectAsState()
     val walletState by WalletManager.walletState.collectAsState()
 
     val catPromptpay = localizedString("cat_promptpay")
@@ -137,7 +139,12 @@ fun GeneratorScreen(
                     selected = category == index,
                     onClick = { viewModel.setGeneratorCategory(index) },
                     text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .defaultMinSize(minWidth = 104.dp)
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
                             Icon(
                                 imageVector = pair.second,
                                 contentDescription = null,
@@ -147,7 +154,9 @@ fun GeneratorScreen(
                             Text(
                                 text = pair.first,
                                 fontWeight = if (category == index) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     },
@@ -230,13 +239,16 @@ fun GeneratorScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF0B2853)
+                        color = Color(0xFF0B2853),
+                        modifier = Modifier.defaultMinSize(minWidth = 56.dp)
                     ) {
                         Text(
                             text = "เติมเงิน",
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                         )
                     }
@@ -250,7 +262,9 @@ fun GeneratorScreen(
                 darkColor = qrDarkColor,
                 lightColor = qrLightColor,
                 onDarkColorChange = { viewModel.setQrForegroundColor(it) },
-                onLightColorChange = { viewModel.setQrBackgroundColor(it) }
+                onLightColorChange = { viewModel.setQrBackgroundColor(it) },
+                includeCenterLogo = includeCenterLogo,
+                onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -429,7 +443,15 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                     FilterChip(
                         selected = amount == preset,
                         onClick = { viewModel.setPromptPayAmount(preset) },
-                        label = { Text("฿$preset", fontSize = 12.sp) },
+                        label = {
+                            Text(
+                                text = "฿$preset",
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        },
+                        modifier = Modifier.defaultMinSize(minWidth = 58.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF059669),
                             selectedLabelColor = Color.White
@@ -481,7 +503,9 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                     text = "สร้าง QR พร้อมเพย์ทันที",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
@@ -577,7 +601,15 @@ private fun WifiForm(viewModel: MainViewModel) {
                     FilterChip(
                         selected = security == sec,
                         onClick = { viewModel.setWifiSecurity(sec) },
-                        label = { Text(sec.name, fontSize = 12.sp) },
+                        label = {
+                            Text(
+                                text = sec.name,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        },
+                        modifier = Modifier.defaultMinSize(minWidth = 62.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF0284C7),
                             selectedLabelColor = Color.White
@@ -614,7 +646,7 @@ private fun WifiForm(viewModel: MainViewModel) {
             ) {
                 Icon(Icons.Default.Wifi, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("สร้าง QR Wi-Fi ทันที", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("สร้าง QR Wi-Fi ทันที", fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -669,7 +701,9 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                                 color = if (isSel) Color.White else Color(0xFF334155),
                                 fontSize = 12.sp,
                                 fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                modifier = Modifier.padding(vertical = 10.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
@@ -694,7 +728,9 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                                 color = if (isSel) Color.White else Color(0xFF334155),
                                 fontSize = 12.sp,
                                 fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                modifier = Modifier.padding(vertical = 10.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
@@ -740,7 +776,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("สร้าง QR ลิงก์ร้านค้า", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("สร้าง QR ลิงก์ร้านค้า", fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -797,7 +833,7 @@ private fun TextForm(viewModel: MainViewModel) {
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("สร้าง QR ข้อความ", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("สร้าง QR ข้อความ", fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
         }
     }

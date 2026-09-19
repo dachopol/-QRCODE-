@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -178,7 +179,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.3f))
                                 ) {
                                     Text(
-                                        text = "v4.0",
+                                        text = "v8.0",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF0284C7),
@@ -202,6 +203,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                         modifier = Modifier
                             .padding(end = 6.dp)
+                            .defaultMinSize(minWidth = 76.dp)
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
                             .testTag("open_language_currency_button")
                     ) {
@@ -213,7 +215,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 text = "${currentLanguage.flagEmoji} ${currentLanguage.code.uppercase()}",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0369A1)
+                                color = Color(0xFF0369A1),
+                                maxLines = 1,
+                                softWrap = false
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
@@ -226,7 +230,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 text = "${currentCurrency.symbol} ${currentCurrency.code}",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF059669)
+                                color = Color(0xFF059669),
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -237,6 +243,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                         modifier = Modifier
                             .padding(end = 6.dp)
+                            .defaultMinSize(minWidth = 92.dp)
                             .clickable { viewModel.openSupportSheet() }
                             .testTag("support_admin_button")
                     ) {
@@ -255,7 +262,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 text = localizedString("contact_admin"),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -274,6 +283,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         ),
                         modifier = Modifier
                             .padding(end = 12.dp)
+                            .defaultMinSize(minWidth = 84.dp)
                             .clickable { viewModel.openTopUpDialog() }
                             .testTag("wallet_topup_button")
                     ) {
@@ -299,7 +309,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 fontWeight = FontWeight.Bold,
                                 color = if (walletState.isUnlimitedVip) Color(0xFF059669)
                                 else if (walletState.totalAvailableUses > 0) Color(0xFF0284C7)
-                                else Color(0xFFEF4444)
+                                else Color(0xFFEF4444),
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -338,7 +350,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     text = label,
                                     fontSize = if (isSelected) 12.sp else 11.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                    maxLines = 1
+                                    maxLines = 1,
+                                    softWrap = false
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
