@@ -107,12 +107,16 @@ object QrScannerUtil {
             if (parsed != null) {
                 val target = parsed.first
                 val amount = parsed.second
-                val amountText = if (amount != null) "จำนวนเงิน: ฿${String.format("%,.2f", amount)}" else "ไม่ระบุยอดเงิน"
+                val amountText = if (amount != null) {
+                    localizedNow("จำนวนเงิน: ฿${String.format("%,.2f", amount)}", "Amount: ฿${String.format("%,.2f", amount)}")
+                } else {
+                    localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
+                }
                 return ParsedQrResult(
                     rawText = raw,
                     type = ParsedQrType.PROMPTPAY,
-                    title = "พร้อมเพย์ (Thai QR Payment)",
-                    subtitle = "บัญชีรับเงิน: $target | $amountText",
+                    title = localizedNow("พร้อมเพย์", "PromptPay"),
+                    subtitle = localizedNow("บัญชีรับเงิน: $target | $amountText", "Payee: $target | $amountText"),
                     promptPayId = target,
                     amount = amount
                 )
@@ -135,8 +139,8 @@ object QrScannerUtil {
             return ParsedQrResult(
                 rawText = raw,
                 type = ParsedQrType.WIFI,
-                title = "เครือข่าย Wi-Fi",
-                subtitle = "ชื่อ: $ssid (ความปลอดภัย: $sec)",
+                title = localizedNow("เครือข่าย Wi-Fi", "Wi-Fi network"),
+                subtitle = localizedNow("ชื่อ: $ssid • ความปลอดภัย: $sec", "SSID: $ssid • Security: $sec"),
                 wifiSsid = ssid,
                 wifiPass = pass,
                 wifiSecurity = sec
@@ -167,7 +171,7 @@ object QrScannerUtil {
             return ParsedQrResult(
                 rawText = raw,
                 type = ParsedQrType.VCARD,
-                title = "นามบัตรดิจิทัล (Contact Card)",
+                title = localizedNow("นามบัตรดิจิทัล", "Contact card"),
                 subtitle = listOfNotNull(fn.ifBlank { null }, org.ifBlank { null }, tel.ifBlank { null }).joinToString(" • "),
                 contactName = fn,
                 contactPhone = tel,
@@ -185,7 +189,7 @@ object QrScannerUtil {
             return ParsedQrResult(
                 rawText = raw,
                 type = ParsedQrType.URL,
-                title = "ลิงก์เว็บไซต์ / ร้านค้า",
+                title = localizedNow("ลิงก์เว็บไซต์ / ร้านค้า", "Website / store link"),
                 subtitle = url,
                 url = url
             )
@@ -197,7 +201,7 @@ object QrScannerUtil {
             return ParsedQrResult(
                 rawText = raw,
                 type = ParsedQrType.PHONE,
-                title = "เบอร์โทรศัพท์",
+                title = localizedNow("เบอร์โทรศัพท์", "Phone number"),
                 subtitle = phone,
                 contactPhone = phone
             )
@@ -207,7 +211,7 @@ object QrScannerUtil {
         return ParsedQrResult(
             rawText = raw,
             type = ParsedQrType.TEXT,
-            title = "ข้อความทั่วไป",
+            title = localizedNow("ข้อความทั่วไป", "Text"),
             subtitle = if (trimmed.length > 50) trimmed.take(50) + "..." else trimmed
         )
     }
