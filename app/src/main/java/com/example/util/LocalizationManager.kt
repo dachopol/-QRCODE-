@@ -54,6 +54,8 @@ object LocalizationManager {
     val currentLanguage: StateFlow<SupportedLanguage> = _currentLanguage.asStateFlow()
 
     private val COMPLETE_UI_LANGUAGES = setOf("th", "en")
+    val AVAILABLE_UI_LANGUAGES: List<SupportedLanguage> =
+        ALL_LANGUAGES.filter { it.code in COMPLETE_UI_LANGUAGES }
 
     fun effectiveLanguageCode(code: String = _currentLanguage.value.code): String =
         if (code in COMPLETE_UI_LANGUAGES) code else "en"
@@ -66,8 +68,10 @@ object LocalizationManager {
             prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val savedCode = prefs?.getString(KEY_LANG_CODE, null)
             if (savedCode != null) {
-                val match = ALL_LANGUAGES.find { it.code.equals(savedCode, ignoreCase = true) } ?: ALL_LANGUAGES.first()
-                _currentLanguage.value = match
+                val saved = ALL_LANGUAGES.find { it.code.equals(savedCode, ignoreCase = true) }
+                _currentLanguage.value =
+                    if (saved != null && saved.code in COMPLETE_UI_LANGUAGES) saved
+                    else AVAILABLE_UI_LANGUAGES.first { it.code == "en" }
             } else {
                 // Auto detect based on system locale
                 val systemLocale = java.util.Locale.getDefault()
@@ -78,18 +82,22 @@ object LocalizationManager {
                     sysLang == "zh" -> "zh_CN"
                     else -> sysLang
                 }
-                val match = ALL_LANGUAGES.find { it.code.equals(candidateCode, ignoreCase = true) }
-                    ?: ALL_LANGUAGES.find { it.code.startsWith(sysLang, ignoreCase = true) }
-                    ?: ALL_LANGUAGES.find { it.code == "en" }
-                    ?: ALL_LANGUAGES.first()
+                val match = AVAILABLE_UI_LANGUAGES.find { it.code.equals(candidateCode, ignoreCase = true) }
+                    ?: AVAILABLE_UI_LANGUAGES.find { it.code.startsWith(sysLang, ignoreCase = true) }
+                    ?: AVAILABLE_UI_LANGUAGES.first { it.code == "en" }
                 _currentLanguage.value = match
             }
         }
     }
 
     fun setLanguage(language: SupportedLanguage) {
-        _currentLanguage.value = language
-        prefs?.edit()?.putString(KEY_LANG_CODE, language.code)?.apply()
+        val effective = if (language.code in COMPLETE_UI_LANGUAGES) {
+            language
+        } else {
+            AVAILABLE_UI_LANGUAGES.first { it.code == "en" }
+        }
+        _currentLanguage.value = effective
+        prefs?.edit()?.putString(KEY_LANG_CODE, effective.code)?.apply()
     }
 
     fun setLanguageByCode(code: String) {
@@ -129,8 +137,8 @@ object LocalizationManager {
             "it" to "Cronologia", "tr" to "Geçmiş", "nl" to "Geschiedenis", "tl" to "Kasaysayan"
         ),
         "app_title" to mapOf(
-            "th" to "QR PromptPay", "en" to "QR PromptPay Pro", "zh_CN" to "PromptPay二维码", "zh_TW" to "PromptPay QR碼",
-            "ja" to "QR PromptPay", "ko" to "QR 프롬프트페이", "es" to "QR PromptPay", "fr" to "QR PromptPay"
+            "th" to "QuickQR Business",
+            "en" to "QuickQR Business"
         ),
         "app_subtitle" to mapOf(
             "th" to "พร้อมเพย์ & นามบัตรดิจิทัล", "en" to "PromptPay & Digital Cards", "zh_CN" to "PromptPay与数字名片",
@@ -138,9 +146,8 @@ object LocalizationManager {
             "es" to "PromptPay y Tarjetas Digitales", "fr" to "PromptPay et Cartes Numériques", "de" to "PromptPay & Visitenkarten"
         ),
         "contact_admin" to mapOf(
-            "th" to "แจ้งแอดมิน", "en" to "Support", "zh_CN" to "联系客服", "zh_TW" to "聯絡客服",
-            "ja" to "サポート", "ko" to "고객지원", "es" to "Soporte", "fr" to "Support",
-            "de" to "Support", "ru" to "Поддержка", "vi" to "Hỗ trợ", "id" to "Bantuan"
+            "th" to "ช่วยเหลือ",
+            "en" to "Support"
         ),
 
         // Language & Currency Selector Dialog
