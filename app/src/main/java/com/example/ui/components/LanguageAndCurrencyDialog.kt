@@ -309,34 +309,6 @@ fun LanguageAndCurrencyDialog(
                 } else {
                     // GOOGLE SUPPORTED CURRENCIES LIST
                     Column(modifier = Modifier.weight(1f)) {
-                        Surface(
-                            shape = AppSectionShape,
-                            color = Color(0xFFECFDF5),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Verified,
-                                    contentDescription = null,
-                                    tint = Color(0xFF059669),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = localizedString("google_certified_badge"),
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF065F46)
-                                )
-                            }
-                        }
-
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
