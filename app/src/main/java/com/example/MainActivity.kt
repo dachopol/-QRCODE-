@@ -74,6 +74,9 @@ import com.example.ui.screens.BusinessCardStudioScreen
 import com.example.ui.screens.GeneratorScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.ScannerScreen
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.GlassAccent
+import com.example.ui.theme.GlassBorder
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.CurrencyManager
 import com.example.util.LocalizationManager
@@ -175,7 +178,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Surface(
-                                    shape = RoundedCornerShape(6.dp),
+                                    shape = AppPillShape,
                                     color = Color(0xFF0284C7).copy(alpha = 0.12f),
                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.3f))
                                 ) {
@@ -194,9 +197,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 actions = {
                     // Language & Google Currency Selector Button
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                        shape = AppPillShape,
+                        color = GlassAccent,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                         modifier = Modifier
                             .padding(end = 4.dp)
                             .wrapContentWidth()
@@ -245,7 +248,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     }
 
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White.copy(alpha = 0.96f))
             )
         },
         bottomBar = {
@@ -288,7 +291,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                 selectedTextColor = Color(0xFF0369A1),
                                 unselectedIconColor = Color(0xFF64748B),
                                 unselectedTextColor = Color(0xFF475569),
-                                indicatorColor = Color(0xFFE0F2FE)
+                                indicatorColor = GlassAccent
                             ),
                             modifier = Modifier.testTag(tag)
                         )
