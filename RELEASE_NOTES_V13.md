@@ -41,3 +41,19 @@
 - Added a subtle 40dp blurred glass accent to the QR customizer only, keeping blur away from text and controls.
 - Set base letter spacing to 0sp for Thai readability.
 - Preserved existing routes, QR functions, PromptPay logic, scanner, history, localization, and region/currency rules.
+
+
+## Project-wide cleanup
+- Removed legacy AdMob, Wallet, TopUp, fake quota and simulated payment source paths.
+- Removed hardcoded user/business defaults; user-entered fields now start blank.
+- Removed hardcoded FX conversion rates; region selection maps to a currency without pretending to provide live exchange rates.
+- Limited selectable UI languages to complete TH/EN so one screen does not mix languages.
+- Removed stale v12 documents and obsolete Gemini environment template.
+- Removed unused INTERNET and legacy external-storage permissions.
+- Disabled Android cloud backup for local QR history and business profiles.
+- Improved camera QR scanning for Y-plane row stride, device rotation and duplicate scans.
+- Reworked PromptPay parsing to deterministic EMVCo TLV parsing with terminal CRC verification.
+- Added PromptPay round-trip/CRC unit tests.
+- Kept business-card QR containers rounded-square so the QR pattern is not clipped by pill styling.
+- Replaced misleading legacy QR implementation labels with neutral defaults.
+- Current source still requires a fresh AI Studio Build/Preview verification before publishing.
