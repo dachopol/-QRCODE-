@@ -8,8 +8,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.admob.AdMobManager
-import com.example.data.WalletManager
 import com.example.data.AppDatabase
 import com.example.data.MerchantProfileEntity
 import com.example.data.QrItemEntity
@@ -60,20 +58,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val generatorCategory: StateFlow<Int> = _generatorCategory.asStateFlow()
 
     // PromptPay State
-    private val _promptPayTarget = MutableStateFlow("0812345678")
+    private val _promptPayTarget = MutableStateFlow("")
     val promptPayTarget: StateFlow<String> = _promptPayTarget.asStateFlow()
 
     private val _promptPayAmount = MutableStateFlow("")
     val promptPayAmount: StateFlow<String> = _promptPayAmount.asStateFlow()
 
-    private val _promptPayShopName = MutableStateFlow("ร้านค้า / ช่าง / ฟรีแลนซ์")
+    private val _promptPayShopName = MutableStateFlow("")
     val promptPayShopName: StateFlow<String> = _promptPayShopName.asStateFlow()
 
     // Wi-Fi State
-    private val _wifiSsid = MutableStateFlow("Shop-Free-WiFi")
+    private val _wifiSsid = MutableStateFlow("")
     val wifiSsid: StateFlow<String> = _wifiSsid.asStateFlow()
 
-    private val _wifiPassword = MutableStateFlow("12345678")
+    private val _wifiPassword = MutableStateFlow("")
     val wifiPassword: StateFlow<String> = _wifiPassword.asStateFlow()
 
     private val _wifiSecurity = MutableStateFlow(WifiSecurity.WPA)
@@ -86,7 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _storePlatform = MutableStateFlow(StorePlatform.LINE_OA)
     val storePlatform: StateFlow<StorePlatform> = _storePlatform.asStateFlow()
 
-    private val _storeValue = MutableStateFlow("@myshop")
+    private val _storeValue = MutableStateFlow("")
     val storeValue: StateFlow<String> = _storeValue.asStateFlow()
 
     // Text State
@@ -94,20 +92,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val rawText: StateFlow<String> = _rawText.asStateFlow()
 
     // Digital Business Card State
-    private val _businessCard = MutableStateFlow(
-        DigitalBusinessCard(
-            fullName = "สมชาย รับเหมาบริการ",
-            businessName = "สมชาย การช่าง & ซ่อมบำรุง",
-            profession = "ช่างรับเหมา / ไฟฟ้า-ประปา",
-            phoneNumber = "0812345678",
-            promptPayId = "0812345678",
-            lineId = "@somchai_service",
-            facebook = "สมชายการช่างรับเหมา",
-            email = "somchai.service@gmail.com",
-            services = "รับเหมาต่อเติมบ้าน ระบบไฟฟ้า ประปา แอร์ ซ่อมแซมด่วน 24 ชม.",
-            cardTheme = CardColorTheme.NAVY_BLUE
-        )
-    )
+    private val _businessCard = MutableStateFlow(DigitalBusinessCard())
     val businessCard: StateFlow<DigitalBusinessCard> = _businessCard.asStateFlow()
 
     // Active Preview Modal
@@ -117,14 +102,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Scan Result Modal
     private val _activeScanResult = MutableStateFlow<ParsedQrResult?>(null)
     val activeScanResult: StateFlow<ParsedQrResult?> = _activeScanResult.asStateFlow()
-
-    // TopUp and Subscription Dialog
-    private val _showTopUpDialog = MutableStateFlow(false)
-    val showTopUpDialog: StateFlow<Boolean> = _showTopUpDialog.asStateFlow()
-
-    // Ad Stats Dialog
-    private val _showAdStats = MutableStateFlow(false)
-    val showAdStats: StateFlow<Boolean> = _showAdStats.asStateFlow()
 
     // Support and Bug Report Dialog
     private val _showSupportSheet = MutableStateFlow(false)
@@ -162,9 +139,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
 
     init {
-        // Initialize Wallet and Quota Manager
-        WalletManager.initialize(application)
-
         // Asynchronously load stored profile on IO thread to avoid main thread startup latency
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -282,23 +256,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun closeScanResult() {
         _activeScanResult.value = null
     }
-
-    fun openTopUpDialog() {
-        _showTopUpDialog.value = true
-    }
-
-    fun closeTopUpDialog() {
-        _showTopUpDialog.value = false
-    }
-
-    fun openAdStats() {
-        _showAdStats.value = true
-    }
-
-    fun closeAdStats() {
-        _showAdStats.value = false
-    }
-
     fun openSupportSheet() {
         _showSupportSheet.value = true
     }
@@ -325,29 +282,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Policy for Free vs VIP users:
-     * - VIP users: Instant generation without any ads.
-     * - Free users: "ใช้ฟรีต้องดูโฆษณา 30 วิ แล้วกดข้ามได้" -> shows 30s ad, user watches 30s and can skip to generate.
-     * - If quota is exhausted: Watching 30s ad grants the free usage!
+     * Executes a QR action directly.
+     * Monetization is intentionally disabled in this testing build.
      */
-    private fun executeWithFreeOrVipPolicy(
-        actionName: String,
-        onExecute: () -> Unit
-    ) {
-        val state = WalletManager.walletState.value
-        if (state.isUnlimitedVip) {
-            onExecute()
-            return
-        }
-
-        // Free tier user: must watch 30-second ad and can then skip
-        com.example.admob.AdMobManager.show30sFreeAd(triggerReason = actionName) {
-            if (!WalletManager.canUse()) {
-                // Reward 1 free use for completing the 30-second ad
-                WalletManager.addFreeUse(1)
-            }
-            onExecute()
-        }
+    private fun executeQrAction(onExecute: () -> Unit) {
+        onExecute()
     }
 
     /**
@@ -360,7 +299,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeWithFreeOrVipPolicy("สร้าง QR พร้อมเพย์") {
+        executeQrAction {
             val amount = _promptPayAmount.value.toDoubleOrNull()
             val payload = PromptPayGenerator.generatePayload(target, amount)
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("PROMPTPAY") else null
@@ -370,7 +309,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
-            ) ?: return@executeWithFreeOrVipPolicy
+            ) ?: return@executeQrAction
             val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
                 qrBitmap = qrBitmap,
                 title = "THAI QR PAYMENT",
@@ -381,9 +320,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             // Consume quota
-            WalletManager.consumeUsage()
-
-            val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", amount)}" else "ไม่ระบุยอดเงิน"
+val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", amount)}" else "ไม่ระบุยอดเงิน"
             val subtitle = "เบอร์/เลขบัตร: $target ($amountStr)"
 
             _activePreview.value = ActiveQrPreview(
@@ -424,7 +361,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeWithFreeOrVipPolicy("สร้าง QR Wi-Fi") {
+        executeQrAction {
             val payload = QrCodeUtil.buildWifiPayload(
                 ssid = ssid,
                 pass = _wifiPassword.value,
@@ -438,11 +375,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
-            ) ?: return@executeWithFreeOrVipPolicy
-
-            WalletManager.consumeUsage()
-
-            _activePreview.value = ActiveQrPreview(
+            ) ?: return@executeQrAction
+_activePreview.value = ActiveQrPreview(
                 title = "Wi-Fi: $ssid",
                 subtitle = "รหัสผ่าน: ${_wifiPassword.value.ifBlank { "(ไม่มี)" }}",
                 rawContent = payload,
@@ -475,7 +409,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeWithFreeOrVipPolicy("สร้าง QR ลิงก์ร้านค้า") {
+        executeQrAction {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("STORE") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = fullUrl,
@@ -483,11 +417,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
-            ) ?: return@executeWithFreeOrVipPolicy
-
-            WalletManager.consumeUsage()
-
-            _activePreview.value = ActiveQrPreview(
+            ) ?: return@executeQrAction
+_activePreview.value = ActiveQrPreview(
                 title = "ลิงก์ร้าน ${_storePlatform.value.title}",
                 subtitle = fullUrl,
                 rawContent = fullUrl,
@@ -519,7 +450,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeWithFreeOrVipPolicy("สร้าง QR ข้อความ") {
+        executeQrAction {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("TEXT") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = text,
@@ -527,11 +458,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
-            ) ?: return@executeWithFreeOrVipPolicy
-
-            WalletManager.consumeUsage()
-
-            _activePreview.value = ActiveQrPreview(
+            ) ?: return@executeQrAction
+_activePreview.value = ActiveQrPreview(
                 title = "ข้อความ QR",
                 subtitle = if (text.length > 40) text.take(40) + "..." else text,
                 rawContent = text,
@@ -559,7 +487,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun generateBusinessCardPreview() {
         val card = _businessCard.value
 
-        executeWithFreeOrVipPolicy("สร้าง QR นามบัตรดิจิทัล") {
+        executeQrAction {
             val noteContent = buildString {
                 if (card.profession.isNotBlank()) append("บริการ: ${card.profession}\n")
                 if (card.promptPayId.isNotBlank()) append("พร้อมเพย์: ${card.promptPayId}\n")
@@ -582,11 +510,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 size = QrCodeUtil.SPEC_SIZE,
                 darkColor = card.cardTheme.primaryColorHex.toInt(),
                 centerLogo = centerLogo
-            ) ?: return@executeWithFreeOrVipPolicy
-
-            WalletManager.consumeUsage()
-
-            _activePreview.value = ActiveQrPreview(
+            ) ?: return@executeQrAction
+_activePreview.value = ActiveQrPreview(
                 title = "นามบัตรดิจิทัล: ${card.businessName.ifBlank { card.fullName }}",
                 subtitle = "${card.profession} • ${card.phoneNumber}",
                 rawContent = vcard,
