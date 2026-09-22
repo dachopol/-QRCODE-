@@ -80,10 +80,10 @@ fun LanguageAndCurrencyDialog(
 
     val filteredLanguages = remember(languageSearchQuery) {
         if (languageSearchQuery.isBlank()) {
-            LocalizationManager.ALL_LANGUAGES
+            LocalizationManager.AVAILABLE_UI_LANGUAGES
         } else {
             val q = languageSearchQuery.trim().lowercase()
-            LocalizationManager.ALL_LANGUAGES.filter {
+            LocalizationManager.AVAILABLE_UI_LANGUAGES.filter {
                 it.displayName.lowercase().contains(q) ||
                 it.nativeName.lowercase().contains(q) ||
                 it.code.lowercase().contains(q)
