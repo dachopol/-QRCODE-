@@ -24,4 +24,4 @@
 - Core QR features remain in runtime source.
 
 ## Build verification status
-The source this package is based on was reported as building successfully in Google AI Studio after removal of the invalid `weight` import. This final package only removes unreferenced legacy/test/IDE/toolchain files and the Java 25 pin. A local Android SDK/Gradle compile was not available in this environment, so this file records static compatibility checks rather than claiming a fresh local build.
+Current `main` has received additional v13 refactoring after the earlier successful AI Studio build, including scanner, PromptPay, privacy, localization, and build-file cleanup. Static checks are recorded here, but a fresh Google AI Studio Build/Preview is still required before Play Console submission. Do not treat this document as proof of a successful current compile.
