@@ -61,6 +61,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
+import com.example.util.localizedText
+import com.example.util.localizedNow
 import com.example.data.QrItemEntity
 import com.example.util.PromptPayGenerator
 import com.example.util.QrCodeUtil
@@ -89,7 +91,7 @@ fun HistoryScreen(
     val copyToClipboard = { text: String ->
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("QR Code", text))
-        Toast.makeText(context, "คัดลอกเรียบร้อย", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, localizedNow("คัดลอกแล้ว", "Copied"), Toast.LENGTH_SHORT).show()
     }
 
     Column(
@@ -107,13 +109,13 @@ fun HistoryScreen(
         ) {
             Column {
                 Text(
-                    text = "ประวัติ & รายการบันทึก",
+                    text = localizedText("ประวัติ", "History"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
                 Text(
-                    text = "รายการที่สร้างและสแกนไว้ทั้งหมด (${filteredItems.size} รายการ)",
+                    text = localizedText("รายการทั้งหมด ${filteredItems.size} รายการ", "${filteredItems.size} saved items"),
                     fontSize = 12.sp,
                     color = Color(0xFF64748B)
                 )
@@ -166,13 +168,13 @@ fun HistoryScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "ยังไม่มีประวัติในหมวดหมู่นี้",
+                        text = localizedText("ยังไม่มีประวัติในหมวดหมู่นี้", "No history in this category"),
                         color = Color(0xFF64748B),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "ลองสร้าง QR พร้อมเพย์ หรือสแกนเพื่อเริ่มต้น",
+                        text = localizedText("ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น", "Create or scan a QR code to get started"),
                         color = Color(0xFF94A3B8),
                         fontSize = 12.sp
                     )
@@ -216,8 +218,8 @@ fun HistoryScreen(
         itemToDelete?.let { item ->
             AlertDialog(
                 onDismissRequest = { itemToDelete = null },
-                title = { Text("ลบรายการนี้?") },
-                text = { Text("ต้องการลบ \"${item.title}\" ออกจากประวัติใช่หรือไม่?") },
+                title = { Text(localizedText("ลบรายการนี้?", "Delete this item?")) },
+                text = { Text(localizedText("ต้องการลบ \"${item.title}\" ออกจากประวัติใช่หรือไม่?", "Delete \"${item.title}\" from history?")) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -225,12 +227,12 @@ fun HistoryScreen(
                             itemToDelete = null
                         }
                     ) {
-                        Text("ลบ", color = Color(0xFFEF4444), fontWeight = FontWeight.Bold)
+                        Text(localizedText("ลบ", "Delete"), color = Color(0xFFEF4444), fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { itemToDelete = null }) {
-                        Text("ยกเลิก")
+                        Text(localizedText("ยกเลิก", "Cancel"))
                     }
                 }
             )
@@ -311,7 +313,7 @@ private fun HistoryItemCard(
                                 modifier = Modifier.padding(start = 6.dp)
                             ) {
                                 Text(
-                                    text = "สแกน",
+                                    text = localizedText("สแกน", "Scanned"),
                                     fontSize = 9.sp,
                                     color = Color(0xFF3730A3),
                                     fontWeight = FontWeight.Bold,
@@ -343,7 +345,7 @@ private fun HistoryItemCard(
                 IconButton(onClick = onCopy) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "คัดลอก",
+                        contentDescription = localizedText("คัดลอก", "Copy"),
                         tint = Color(0xFF0284C7),
                         modifier = Modifier.size(18.dp)
                     )
@@ -352,7 +354,7 @@ private fun HistoryItemCard(
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "ลบ",
+                        contentDescription = localizedText("ลบ", "Delete"),
                         tint = Color(0xFFEF4444),
                         modifier = Modifier.size(18.dp)
                     )
