@@ -188,11 +188,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     )
                                 }
                             }
-                            Text(
-                                text = localizedString("app_subtitle"),
-                                fontSize = 11.sp,
-                                color = Color(0xFF64748B)
-                            )
                         }
                     }
                 },
