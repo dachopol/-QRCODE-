@@ -53,6 +53,11 @@ object LocalizationManager {
     private val _currentLanguage = MutableStateFlow(ALL_LANGUAGES.first())
     val currentLanguage: StateFlow<SupportedLanguage> = _currentLanguage.asStateFlow()
 
+    private val COMPLETE_UI_LANGUAGES = setOf("th", "en")
+
+    fun effectiveLanguageCode(code: String = _currentLanguage.value.code): String =
+        if (code in COMPLETE_UI_LANGUAGES) code else "en"
+
     val isCurrentLanguageRtl: Boolean
         get() = _currentLanguage.value.code in listOf("ar", "fa", "he", "ur")
 
@@ -308,7 +313,7 @@ object LocalizationManager {
     )
 
     fun getString(key: String, vararg args: Any): String {
-        val currentCode = _currentLanguage.value.code
+        val currentCode = effectiveLanguageCode()
         val entry = translations[key]
         val raw = entry?.get(currentCode)
             ?: entry?.get("en")
@@ -333,6 +338,14 @@ object LocalizationManager {
 @Composable
 fun localizedString(key: String, vararg args: Any): String {
     val lang by LocalizationManager.currentLanguage.collectAsState()
-    // Trigger recomposition on language change
     return LocalizationManager.getString(key, *args)
 }
+
+@Composable
+fun localizedText(th: String, en: String): String {
+    val lang by LocalizationManager.currentLanguage.collectAsState()
+    return if (LocalizationManager.effectiveLanguageCode(lang.code) == "th") th else en
+}
+
+fun localizedNow(th: String, en: String): String =
+    if (LocalizationManager.effectiveLanguageCode() == "th") th else en
