@@ -180,7 +180,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.3f))
                                 ) {
                                     Text(
-                                        text = "v8.0",
+                                        text = "v${BuildConfig.VERSION_NAME}",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF0284C7),
