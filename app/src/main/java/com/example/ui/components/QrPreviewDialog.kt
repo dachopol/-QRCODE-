@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -213,7 +214,7 @@ fun QrPreviewDialog(
                         },
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp)
+                            .defaultMinSize(minHeight = 48.dp)
                             .testTag("save_qr_button"),
                         shape = AppPillShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
@@ -230,7 +231,7 @@ fun QrPreviewDialog(
                         },
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp)
+                            .defaultMinSize(minHeight = 48.dp)
                             .testTag("share_qr_button"),
                         shape = AppPillShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
@@ -251,7 +252,7 @@ fun QrPreviewDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(44.dp)
+                        .defaultMinSize(minHeight = 44.dp)
                         .testTag("copy_payload_button"),
                     shape = AppPillShape
                 ) {
