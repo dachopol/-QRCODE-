@@ -1,10 +1,10 @@
-# QuickQR Business v12 — Final compatibility check
+# QuickQR Business v13 — Final compatibility check
 
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `12`
-- versionName: `12.0`
+- versionCode: `13`
+- versionName: `13.0`
 - JDK source/target: `17`
 
 ## AI Studio / Kotlin rules checked
