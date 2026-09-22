@@ -59,6 +59,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.ActiveQrPreview
 import com.example.util.ImageExporter
+import com.example.util.localizedText
+import com.example.util.localizedNow
 
 @Composable
 fun QrPreviewDialog(
@@ -113,7 +115,7 @@ fun QrPreviewDialog(
                     }
 
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "ปิด", tint = Color(0xFF64748B))
+                        Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = Color(0xFF64748B))
                     }
                 }
 
@@ -128,7 +130,7 @@ fun QrPreviewDialog(
                         FilterChip(
                             selected = showStandee,
                             onClick = { showStandee = true },
-                            label = { Text("ป้ายพร้อมเพย์ (Standee)", fontSize = 12.sp) },
+                            label = { Text(localizedText("ป้ายพร้อมเพย์", "PromptPay standee"), fontSize = 12.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF0B2853),
                                 selectedLabelColor = Color.White
@@ -138,7 +140,7 @@ fun QrPreviewDialog(
                         FilterChip(
                             selected = !showStandee,
                             onClick = { showStandee = false },
-                            label = { Text("คิวอาร์เดี่ยว (QR Code)", fontSize = 12.sp) },
+                            label = { Text(localizedText("คิวอาร์เดี่ยว", "QR code only"), fontSize = 12.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF0B2853),
                                 selectedLabelColor = Color.White
@@ -160,7 +162,7 @@ fun QrPreviewDialog(
                 ) {
                     Image(
                         bitmap = activeBitmap.asImageBitmap(),
-                        contentDescription = "คิวอาร์โค้ด",
+                        contentDescription = localizedText("คิวอาร์โค้ด", "QR code"),
                         modifier = Modifier
                             .fillMaxWidth(if (showStandee && preview.standeeBitmap != null) 0.95f else 0.8f)
                             .clip(RoundedCornerShape(8.dp))
@@ -187,7 +189,7 @@ fun QrPreviewDialog(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "บันทึกภาพความคมชัดสูง พร้อมพิมพ์หรือแชร์ได้ทันที ไม่มีโฆษณามาบัง",
+                            text = localizedText("บันทึกภาพความคมชัดสูงสำหรับพิมพ์หรือแชร์", "Save a high-resolution image for printing or sharing"),
                             fontSize = 11.sp,
                             color = Color(0xFF065F46)
                         )
@@ -214,7 +216,7 @@ fun QrPreviewDialog(
                     ) {
                         Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("บันทึกรูปภาพ", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(localizedText("บันทึกรูปภาพ", "Save image"), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Button(
@@ -231,7 +233,7 @@ fun QrPreviewDialog(
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("แชร์ให้ลูกค้า", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(localizedText("แชร์", "Share"), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -241,7 +243,7 @@ fun QrPreviewDialog(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("QR Code", preview.rawContent))
-                        Toast.makeText(context, "คัดลอกข้อมูลเรียบร้อย", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, localizedNow("คัดลอกข้อมูลแล้ว", "QR text copied"), Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -251,7 +253,7 @@ fun QrPreviewDialog(
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("คัดลอกข้อความในคิวอาร์", fontSize = 13.sp)
+                    Text(localizedText("คัดลอกข้อความในคิวอาร์", "Copy QR text"), fontSize = 13.sp)
                 }
             }
         }
