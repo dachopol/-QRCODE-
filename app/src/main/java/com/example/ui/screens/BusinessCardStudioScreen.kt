@@ -73,6 +73,7 @@ import com.example.model.DigitalBusinessCard
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.ImageExporter
 import com.example.util.QrCodeUtil
+import com.example.util.localizedText
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -120,13 +121,13 @@ fun BusinessCardStudioScreen(
         ) {
             Column {
                 Text(
-                    text = "นามบัตรดิจิทัล (Digital Card)",
+                    text = localizedText("นามบัตรดิจิทัล", "Digital Business Card"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
                 Text(
-                    text = "ส่งให้ลูกค้าทาง LINE / Facebook หรือพิมพ์ติดหน้าร้าน",
+                    text = localizedText("ส่งให้ลูกค้าทาง LINE / Facebook หรือพิมพ์ติดหน้าร้าน", "Share via LINE / Facebook or print for your shop"),
                     fontSize = 12.sp,
                     color = Color(0xFF64748B)
                 )
@@ -162,7 +163,7 @@ fun BusinessCardStudioScreen(
                             color = Color.White.copy(alpha = 0.2f)
                         ) {
                             Text(
-                                text = "DIGITAL BUSINESS CARD",
+                                text = localizedText("นามบัตรดิจิทัล", "DIGITAL BUSINESS CARD"),
                                 color = Color.White,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -171,13 +172,13 @@ fun BusinessCardStudioScreen(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = card.businessName.ifBlank { "ชื่อร้าน / กิจการ" },
+                            text = card.businessName.ifBlank { localizedText("ชื่อร้าน / กิจการ", "Shop / Business") },
                             color = Color.White,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = card.profession.ifBlank { "อาชีพ / บริการที่รับทำ" },
+                            text = card.profession.ifBlank { localizedText("อาชีพ / บริการที่รับทำ", "Profession / Services") },
                             color = Color.White.copy(alpha = 0.85f),
                             fontSize = 12.sp
                         )
@@ -193,7 +194,7 @@ fun BusinessCardStudioScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = card.fullName.ifBlank { "ชื่อผู้ติดต่อ" },
+                                text = card.fullName.ifBlank { localizedText("ชื่อผู้ติดต่อ", "Contact name") },
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A)
@@ -206,7 +207,7 @@ fun BusinessCardStudioScreen(
                                 ContactItem(icon = Icons.Default.Phone, text = card.phoneNumber, color = primary)
                             }
                             if (card.promptPayId.isNotBlank()) {
-                                ContactItem(icon = Icons.Default.Payment, text = "พร้อมเพย์: ${card.promptPayId}", color = Color(0xFF059669))
+                                ContactItem(icon = Icons.Default.Payment, text = "${localizedText("พร้อมเพย์", "PromptPay")}: ${card.promptPayId}", color = Color(0xFF059669))
                             }
                             if (card.lineId.isNotBlank()) {
                                 ContactItem(icon = Icons.Default.Store, text = "LINE: ${card.lineId}", color = Color(0xFF059669))
@@ -230,14 +231,14 @@ fun BusinessCardStudioScreen(
                                 ) {
                                     Image(
                                         bitmap = bitmap.asImageBitmap(),
-                                        contentDescription = "QR Code บนบัตร",
+                                        contentDescription = localizedText("QR Code บนนามบัตร", "Business card QR code"),
                                         modifier = Modifier
                                             .size(96.dp)
                                             .padding(6.dp)
                                     )
                                 }
                                 Text(
-                                    text = "สแกนเพื่อบันทึก",
+                                    text = localizedText("สแกนเพื่อบันทึก", "Scan to save"),
                                     fontSize = 10.sp,
                                     color = Color(0xFF64748B)
                                 )
@@ -255,7 +256,7 @@ fun BusinessCardStudioScreen(
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
                                 Text(
-                                    text = "บริการและรายละเอียดงาน:",
+                                    text = localizedText("บริการและรายละเอียดงาน:", "Services and details:"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = primary
@@ -291,7 +292,7 @@ fun BusinessCardStudioScreen(
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("ดู QR นามบัตร", fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("ดู QR นามบัตร", "View card QR"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
 
             Button(
@@ -305,7 +306,7 @@ fun BusinessCardStudioScreen(
             ) {
                 Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("บันทึกเป็นค่าหลัก", fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("บันทึกเป็นค่าหลัก", "Save as default"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
             }
         }
 
@@ -313,7 +314,7 @@ fun BusinessCardStudioScreen(
 
         // THEME COLOR SELECTOR
         Text(
-            text = "เลือกโทนสีนามบัตร",
+            text = localizedText("เลือกโทนสีนามบัตร", "Choose card color theme"),
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             color = Color(0xFF1E293B)
@@ -359,7 +360,7 @@ fun BusinessCardStudioScreen(
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "ข้อมูลบนนามบัตรดิจิทัล",
+                    text = localizedText("ข้อมูลบนนามบัตรดิจิทัล", "Digital business card details"),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
                     color = Color(0xFF0F172A)
@@ -368,12 +369,12 @@ fun BusinessCardStudioScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Business Name
-                Text("ชื่อร้านค้า / กิจการ / ธุรกิจ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                Text(localizedText("ชื่อร้านค้า / กิจการ / ธุรกิจ", "Shop / Business name"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = card.businessName,
                     onValueChange = { viewModel.updateBusinessCard(card.copy(businessName = it)) },
-                    placeholder = { Text("เช่น สมชาย การช่าง รับเหมา", color = Color(0xFF94A3B8)) },
+                    placeholder = { Text(localizedText("เช่น สมชาย การช่าง รับเหมา", "e.g. Somchai Service"), color = Color(0xFF94A3B8)) },
                     leadingIcon = { Icon(Icons.Default.Store, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_business_input"),
@@ -385,12 +386,12 @@ fun BusinessCardStudioScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Full Name
-                Text("ชื่อ-นามสกุล / ชื่อเล่น", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                Text(localizedText("ชื่อ-นามสกุล / ชื่อเล่น", "Full name / Nickname"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = card.fullName,
                     onValueChange = { viewModel.updateBusinessCard(card.copy(fullName = it)) },
-                    placeholder = { Text("เช่น ช่างสมชาย, คุณแนน", color = Color(0xFF94A3B8)) },
+                    placeholder = { Text(localizedText("เช่น ช่างสมชาย, คุณแนน", "e.g. Somchai, Nan"), color = Color(0xFF94A3B8)) },
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_name_input"),
@@ -402,12 +403,12 @@ fun BusinessCardStudioScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Profession / Role
-                Text("อาชีพ / ประเภทบริการ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                Text(localizedText("อาชีพ / ประเภทบริการ", "Profession / Services"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = card.profession,
                     onValueChange = { viewModel.updateBusinessCard(card.copy(profession = it)) },
-                    placeholder = { Text("เช่น ช่างรับเหมาต่อเติม, แม่ค้าออนไลน์, ฟรีแลนซ์", color = Color(0xFF94A3B8)) },
+                    placeholder = { Text(localizedText("เช่น ช่างรับเหมาต่อเติม, แม่ค้าออนไลน์, ฟรีแลนซ์", "e.g. Contractor, Online seller, Freelancer"), color = Color(0xFF94A3B8)) },
                     leadingIcon = { Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_profession_input"),
@@ -424,7 +425,7 @@ fun BusinessCardStudioScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("เบอร์โทรศัพท์", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                        Text(localizedText("เบอร์โทรศัพท์", "Phone number"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
                             value = card.phoneNumber,
@@ -439,12 +440,12 @@ fun BusinessCardStudioScreen(
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("พร้อมเพย์รับเงิน", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                        Text(localizedText("พร้อมเพย์รับเงิน", "PromptPay"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
                             value = card.promptPayId,
                             onValueChange = { viewModel.updateBusinessCard(card.copy(promptPayId = it)) },
-                            placeholder = { Text("เบอร์หรือเลขบัตร", color = Color(0xFF94A3B8)) },
+                            placeholder = { Text(localizedText("เบอร์หรือเลขบัตร", "Phone or ID"), color = Color(0xFF94A3B8)) },
                             leadingIcon = { Icon(Icons.Default.Payment, contentDescription = null, tint = Color(0xFF059669)) },
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
@@ -476,12 +477,12 @@ fun BusinessCardStudioScreen(
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Facebook เพจ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                        Text(localizedText("Facebook เพจ", "Facebook page"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedTextField(
                             value = card.facebook,
                             onValueChange = { viewModel.updateBusinessCard(card.copy(facebook = it)) },
-                            placeholder = { Text("ชื่อเพจ", color = Color(0xFF94A3B8)) },
+                            placeholder = { Text(localizedText("ชื่อเพจ", "Page name"), color = Color(0xFF94A3B8)) },
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -493,12 +494,12 @@ fun BusinessCardStudioScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Services / About
-                Text("ขอบเขตงาน / สินค้าแนะนำ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
+                Text(localizedText("ขอบเขตงาน / สินค้าแนะนำ", "Services / Recommended products"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E293B))
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = card.services,
                     onValueChange = { viewModel.updateBusinessCard(card.copy(services = it)) },
-                    placeholder = { Text("เช่น รับงานทั่วกทม.และปริมณฑล ประเมินราคาฟรี...", color = Color(0xFF94A3B8)) },
+                    placeholder = { Text(localizedText("เช่น รับงานทั่วกทม.และปริมณฑล ประเมินราคาฟรี...", "e.g. Service area, free estimate..."), color = Color(0xFF94A3B8)) },
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth().testTag("card_services_input"),
                     shape = RoundedCornerShape(10.dp),
