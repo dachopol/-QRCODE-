@@ -72,6 +72,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +88,9 @@ import com.example.model.StoreLinkModel
 import com.example.model.StorePlatform
 import com.example.model.WifiSecurity
 import com.example.ui.components.QrColorCustomizerCard
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.GlassAccent
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.localizedText
 import com.example.util.LocalizationManager
@@ -121,7 +125,15 @@ fun GeneratorScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.background,
+                        GlassAccent,
+                        MaterialTheme.colorScheme.background
+                    )
+                )
+            )
     ) {
         // Category Selector TabRow
         ScrollableTabRow(
@@ -163,7 +175,10 @@ fun GeneratorScreen(
                             )
                         }
                     },
-                    modifier = Modifier.testTag("generator_tab_$index")
+                    modifier = Modifier
+                        .clip(AppPillShape)
+                        .background(if (category == index) GlassAccent else Color.Transparent)
+                        .testTag("generator_tab_$index")
                 )
             }
         }
@@ -210,7 +225,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
     val presetAmounts = listOf("20", "50", "100", "150", "200", "300", "500", "1000")
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier.fillMaxWidth()
@@ -388,7 +403,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                     .fillMaxWidth()
                     .height(52.dp)
                     .testTag("generate_promptpay_button"),
-                shape = RoundedCornerShape(14.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(20.dp))
@@ -416,7 +431,7 @@ private fun WifiForm(viewModel: MainViewModel) {
     var showPassword by remember { mutableStateOf(false) }
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier.fillMaxWidth()
@@ -531,7 +546,7 @@ private fun WifiForm(viewModel: MainViewModel) {
                     .fillMaxWidth()
                     .height(52.dp)
                     .testTag("generate_wifi_button"),
-                shape = RoundedCornerShape(14.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
             ) {
                 Icon(Icons.Default.Wifi, contentDescription = null)
@@ -549,7 +564,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
     val storeValue by viewModel.storeValue.collectAsState()
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier.fillMaxWidth()
@@ -636,7 +651,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                     .fillMaxWidth()
                     .height(52.dp)
                     .testTag("generate_store_link_button"),
-                shape = RoundedCornerShape(14.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
@@ -652,7 +667,7 @@ private fun TextForm(viewModel: MainViewModel) {
     val text by viewModel.rawText.collectAsState()
 
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier.fillMaxWidth()
@@ -688,7 +703,7 @@ private fun TextForm(viewModel: MainViewModel) {
                     .fillMaxWidth()
                     .height(52.dp)
                     .testTag("generate_text_button"),
-                shape = RoundedCornerShape(14.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
