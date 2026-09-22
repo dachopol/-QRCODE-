@@ -93,3 +93,10 @@
 - ห้ามแสดง metadata ทางเทคนิคใน UI หลักตาม CARD-ONLY RULE
 - ส่งมอบต้องเป็นไฟล์/โค้ดที่ใช้งานต่อได้จริงตามที่ระบุ ไม่ส่ง mockup แทน implementation เว้นแต่ผู้ใช้ขอ mockup
 - ก่อนส่งมอบต้องผ่าน final gate ของ UNIVERSAL AUTO LAYOUT RULE และตรวจข้อความไทย/อังกฤษไม่ปนกันตาม locale rule
+
+
+## PRODUCT BRIEF REFERENCE — 2026-09-23
+- ใช้ `PRODUCT_BRIEF.md` เป็น Product brief หลักของ QuickQR Business
+- Benchmark ที่ใช้: QR & Barcode Scanner (Gamma Play), QR & Barcode Scanner (TeaCapps), QR TIGER QR Code Generator
+- Benchmark ใช้เพื่อกำหนดมาตรฐานด้าน speed, simplicity, scan actions, QR generation/customization และ business utility; ไม่ถือเป็นอันดับทางการของ Google Play
+- ก่อน redesign หรือเพิ่ม feature ให้ตรวจ PROJECT_RULES + PRODUCT_BRIEF + UI_CARD_ONLY_RULE + UNIVERSAL_AUTO_LAYOUT_RULE ร่วมกัน
