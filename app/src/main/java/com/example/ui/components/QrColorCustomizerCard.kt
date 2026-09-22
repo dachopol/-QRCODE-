@@ -69,6 +69,32 @@ val QrLightColorPresets = listOf(
     Pair("ดำมินิมอล", Color(0xFF18181B))
 )
 
+@Composable
+private fun qrColorName(th: String): String = localizedText(
+    th,
+    when (th) {
+        "ดำคลาสสิก" -> "Classic Black"
+        "น้ำเงินเข้ม" -> "Deep Navy"
+        "ฟ้าสดใส" -> "Bright Blue"
+        "เขียวมรกต" -> "Emerald"
+        "ม่วงเข้ม" -> "Deep Purple"
+        "แดงไวน์" -> "Wine Red"
+        "ส้มอิฐ" -> "Brick Orange"
+        "ช็อกโกแลต" -> "Chocolate"
+        "ขาวบริสุทธิ์" -> "Pure White"
+        "ครีมงาช้าง" -> "Ivory"
+        "ฟ้าพาสเทล" -> "Pastel Blue"
+        "เขียวมิ้นต์" -> "Mint"
+        "ชมพูซากุระ" -> "Sakura Pink"
+        "ส้มพีช" -> "Peach"
+        "ม่วงลาเวนเดอร์" -> "Lavender"
+        "เหลืองอ่อน" -> "Soft Yellow"
+        "เทาเงินโมเดิร์น" -> "Silver Gray"
+        "ดำมินิมอล" -> "Minimal Black"
+        else -> th
+    }
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QrColorCustomizerCard(
@@ -107,7 +133,7 @@ fun QrColorCustomizerCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Palette,
-                            contentDescription = "ปรับแต่งสี",
+                            contentDescription = localizedText("ปรับแต่งสี", "Customize colors"),
                             tint = Color(0xFF0284C7),
                             modifier = Modifier.size(20.dp)
                         )
@@ -133,7 +159,7 @@ fun QrColorCustomizerCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "รีเซ็ตสีเริ่มต้น",
+                        contentDescription = localizedText("รีเซ็ตสีเริ่มต้น", "Reset colors"),
                         tint = Color(0xFF64748B),
                         modifier = Modifier.size(20.dp)
                     )
@@ -255,6 +281,7 @@ fun QrColorCustomizerCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 QrLightColorPresets.forEach { (name, color) ->
+                    val displayName = qrColorName(name)
                     val isSelected = lightColor == color
                     val isDotWhite = color == Color.White || color == Color(0xFFFEF9C3)
 
@@ -288,7 +315,7 @@ fun QrColorCustomizerCard(
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = name,
+                                    contentDescription = displayName,
                                     tint = if (color == Color(0xFF18181B)) Color.White else Color(0xFF0B2853),
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -296,7 +323,7 @@ fun QrColorCustomizerCard(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = name,
+                            text = displayName,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
@@ -332,6 +359,7 @@ fun QrColorCustomizerCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 QrDarkColorPresets.forEach { (name, color) ->
+                    val displayName = qrColorName(name)
                     val isSelected = darkColor == color
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -355,7 +383,7 @@ fun QrColorCustomizerCard(
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = name,
+                                    contentDescription = displayName,
                                     tint = if (color == Color(0xFF000000) || color == Color(0xFF0B2853) || color == Color(0xFF451A03) || color == Color(0xFF991B1B) || color == Color(0xFF6D28D9)) Color.White else Color.Black,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -363,7 +391,7 @@ fun QrColorCustomizerCard(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = name,
+                            text = displayName,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
