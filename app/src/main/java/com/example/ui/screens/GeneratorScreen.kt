@@ -249,11 +249,6 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
-                    Text(
-                        text = localizedText("มาตรฐานธนาคารแห่งประเทศไทย (BOT EMVCo)", "Bank of Thailand standard (BOT EMVCo)"),
-                        color = Color(0xFF93C5FD),
-                        fontSize = 11.sp
-                    )
                 }
             }
 
@@ -454,11 +449,6 @@ private fun WifiForm(viewModel: MainViewModel) {
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
             )
-            Text(
-                text = localizedText("ลูกค้าและผู้มาติดต่อสแกนแล้วเชื่อมต่อเน็ตได้ทันที ไม่ต้องบอกรหัสผ่าน", "Let guests scan to connect without typing the password"),
-                fontSize = 12.sp,
-                color = Color(0xFF64748B)
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -592,11 +582,6 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
             )
-            Text(
-                text = localizedText("ส่งให้ลูกค้าเข้าสู่หน้าร้าน Shopee, TikTok, LINE OA หรือเพจได้ง่ายๆ", "Send customers directly to your store or social page"),
-                fontSize = 12.sp,
-                color = Color(0xFF64748B)
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -699,11 +684,6 @@ private fun TextForm(viewModel: MainViewModel) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
-            )
-            Text(
-                text = localizedText("กรอกข้อความ บันทึก หรือรายละเอียดงานเพื่อแปลงเป็นคิวอาร์โค้ด", "Enter text or notes to convert into a QR code"),
-                fontSize = 12.sp,
-                color = Color(0xFF64748B)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
