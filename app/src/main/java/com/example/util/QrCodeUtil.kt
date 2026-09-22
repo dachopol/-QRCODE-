@@ -298,7 +298,7 @@ object QrCodeUtil {
 
         paint.textSize = 34f
         paint.isFakeBoldText = false
-        canvas.drawText("พร้อมเพย์ (PromptPay)", width / 2f, 175f, paint)
+        canvas.drawText(if (LocalizationManager.effectiveLanguageCode() == "th") "พร้อมเพย์" else "PromptPay", width / 2f, 175f, paint)
 
         // Check if background is dark or light to set text color
         val isDarkBg = androidx.core.graphics.ColorUtils.calculateLuminance(backgroundColor) < 0.5
@@ -308,7 +308,7 @@ object QrCodeUtil {
         paint.textSize = 42f
         paint.isFakeBoldText = true
         canvas.drawText(
-            if (merchantName.isNotBlank()) merchantName else "สแกนเพื่อจ่ายเงิน",
+            if (merchantName.isNotBlank()) merchantName else if (LocalizationManager.effectiveLanguageCode() == "th") "สแกนเพื่อจ่ายเงิน" else "Scan to pay",
             width / 2f,
             330f,
             paint
@@ -352,7 +352,7 @@ object QrCodeUtil {
         } else {
             targetId
         }
-        canvas.drawText("บัญชีพร้อมเพย์: $displayTarget", width / 2f, infoY, paint)
+        canvas.drawText((if (LocalizationManager.effectiveLanguageCode() == "th") "บัญชีพร้อมเพย์: " else "PromptPay ID: ") + displayTarget, width / 2f, infoY, paint)
 
         // Amount if specified
         if (amount != null && amount > 0) {
@@ -364,14 +364,14 @@ object QrCodeUtil {
         } else {
             paint.color = if (isDarkBg) Color.parseColor("#A1A1AA") else Color.parseColor("#64748B")
             paint.textSize = 32f
-            canvas.drawText("ไม่ระบุยอดเงิน (ผู้โอนกรอกจำนวนเงินเอง)", width / 2f, infoY + 70f, paint)
+            canvas.drawText(if (LocalizationManager.effectiveLanguageCode() == "th") "ไม่ระบุยอดเงิน (ผู้โอนกรอกจำนวนเงินเอง)" else "Amount not specified", width / 2f, infoY + 70f, paint)
         }
 
         // Bottom Footer
         paint.color = if (isDarkBg) Color.parseColor("#71717A") else Color.parseColor("#94A3B8")
         paint.textSize = 28f
         paint.isFakeBoldText = false
-        canvas.drawText("รองรับโมบายแบงก์กิ้งทุกธนาคารในไทย", width / 2f, height - 60f, paint)
+        canvas.drawText(if (LocalizationManager.effectiveLanguageCode() == "th") "รองรับโมบายแบงก์กิ้งทุกธนาคารในไทย" else "Supported by Thai mobile banking apps", width / 2f, height - 60f, paint)
 
         return result
     }
