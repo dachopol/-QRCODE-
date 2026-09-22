@@ -1,0 +1,60 @@
+# QuickQR Business — ข้อมูลสำหรับกรอก Google Play Console (Testing)
+
+## ข้อมูลแอป
+- ชื่อแอป: QuickQR Business
+- Application ID / Package: `com.aistudio.qrgenerator.kmpzqr`
+- Version name: `12.0`
+- Version code: `12`
+- ประเภท: แอปสแกนและสร้าง QR Code สำหรับธุรกิจ
+
+## คำอธิบายสั้น
+สแกนและสร้าง QR Code สำหรับธุรกิจ รองรับ PromptPay, Wi‑Fi, ลิงก์ร้านค้า, ข้อความ และนามบัตรดิจิทัล
+
+## คำอธิบายสำหรับหน้าร้าน (ร่าง)
+QuickQR Business ช่วยสร้างและสแกน QR Code ที่ใช้บ่อยในงานธุรกิจและร้านค้า เช่น PromptPay, Wi‑Fi, ลิงก์ร้านค้า, ข้อความ และนามบัตรดิจิทัล พร้อมบันทึกประวัติการใช้งานไว้ภายในอุปกรณ์เพื่อเรียกดูภายหลัง
+
+## App access
+- ต้องล็อกอินหรือไม่: ไม่ต้อง
+- ฟังก์ชันหลักเข้าถึงได้โดยไม่ต้องมีบัญชี
+
+## Ads
+- Contains ads: **No** สำหรับ build ทดสอบนี้
+- เหตุผล: ไม่มี Google Mobile Ads SDK ที่ทำงานจริง และเส้นทางโฆษณาจำลองถูกปิดใน build นี้
+
+## In-app purchases / subscriptions
+- ไม่มีการซื้อจริงใน build ทดสอบนี้
+- ไม่มี Google Play Billing flow ที่เปิดใช้งาน
+
+## Permissions
+- Camera: ใช้เพื่อสแกน QR Code
+- Internet: ใช้กับการเปิด/จัดการลิงก์และความสามารถที่ต้องอาศัยเครือข่ายของระบบ
+- WRITE_EXTERNAL_STORAGE: จำกัดเฉพาะ Android รุ่นเก่าตาม `maxSdkVersion=28` สำหรับการบันทึกไฟล์
+
+## Data safety — จุดที่ยืนยันได้จากโค้ดชุดนี้
+- ประวัติ QR ถูกจัดเก็บภายในเครื่องด้วยฐานข้อมูลภายในแอป
+- ไม่มีระบบล็อกอิน
+- ไม่มี AdMob SDK จริงใน build ทดสอบนี้
+- ไม่มี Play Billing SDK/การชำระเงินจริงใน build ทดสอบนี้
+
+## สิ่งที่ต้องกรอกเองก่อนส่ง
+- Project developer identity email: 215334638+AnakinYoo@users.noreply.github.com
+- Play Console support email: [ใส่อีเมลที่รับข้อความได้จริง — ไม่ใช้ GitHub noreply]
+- Privacy policy URL: [ใส่ URL นโยบายความเป็นส่วนตัว]
+- App category: แนะนำเลือก Tools หรือ Business ตามตำแหน่งตลาดที่ต้องการ
+- Store icon 512×512: [ต้องอัปโหลด]
+- Feature graphic 1024×500: [ต้องอัปโหลด]
+- Phone screenshots: [ต้องอัปโหลดภาพจาก build นี้]
+- ประเทศ/พื้นที่สำหรับการทดสอบ: [เลือกตามที่ต้องการ]
+
+## Release notes สำหรับ Internal/Closed testing
+QuickQR Business v12.0 testing build: ปรับชื่อแอปและข้อมูลเวอร์ชันให้ตรงกัน ปิดระบบโฆษณา/กระเป๋าเงิน/การชำระเงินจำลองสำหรับการทดสอบ และเปิดฟังก์ชัน QR หลักให้ผู้ทดสอบใช้งานได้โดยไม่ต้องชำระเงิน
+
+## เช็กลิสต์ก่อนอัปโหลด AAB
+1. สร้าง AAB ด้วย release signing ที่ถูกต้อง
+2. ตรวจว่า package ยังเป็น `com.aistudio.qrgenerator.kmpzqr`
+3. ตรวจว่า versionCode เป็น 12 และมากกว่า build ที่เคยอัปโหลด
+4. ทดสอบกล้องจริง: สแกน QR จากกล้อง
+5. ทดสอบ Generator: PromptPay / Wi‑Fi / Store Link / Text / Business Card
+6. ทดสอบบันทึกและแชร์ภาพ QR
+7. ทดสอบ History
+8. ยืนยัน Privacy Policy และ Data safety ให้ตรงกับ AAB ที่อัปโหลดจริง

@@ -1,6 +1,6 @@
 {
-  "name": "ZipQR",
-  "description": "ZipQR v9.0 - แอปสแกนและสร้าง QR Code พร้อมเพย์ (GEN_QR v9 49x49 H m4 BW 512px) นามบัตรดิจิทัล Wi-Fi ลิงก์ร้านค้า และระบบความปลอดภัยออฟไลน์",
+  "name": "QuickQR Business",
+  "description": "QuickQR Business v12.0 - แอปสแกนและสร้าง QR Code สำหรับธุรกิจ รองรับ PromptPay, Wi-Fi, ลิงก์ร้านค้า, ข้อความ, นามบัตรดิจิทัล และประวัติการใช้งานภายในเครื่อง",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

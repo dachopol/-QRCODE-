@@ -1,0 +1,45 @@
+# QuickQR Business v12 — Google AI Studio import
+
+## Recommended (official) route
+Google AI Studio Build mode officially supports **Import from GitHub**. Import the repository as an **Android** project (Kotlin + Jetpack Compose), not as a Web app.
+
+## ZIP upload route
+ZIP upload behavior can change between AI Studio releases. If using ZIP upload:
+1. Create/open an **Android** app workspace first.
+2. Open Code / Add files.
+3. Remove placeholder source files generated for the blank app if they duplicate this project.
+4. Upload this ZIP so `settings.gradle.kts`, `build.gradle.kts`, `gradle/`, and `app/` are at the project root.
+5. Save, then ask the agent to sync/build without changing the package ID.
+
+## Project identity
+- App: QuickQR Business
+- applicationId: `com.aistudio.qrgenerator.kmpzqr`
+- versionCode: `12`
+- versionName: `12.0`
+
+## Compatibility cleanup in this package
+- Single Android `:app` module
+- Kotlin + Jetpack Compose
+- Removed Java 25/Foojay daemon pinning
+- Removed optional Foojay toolchain plugin
+- Removed Roborazzi/screenshot/Robolectric template tests from this lean import package
+- Kept Room + KSP because app history/database code uses them
+- Removed unused dependency declarations
+- Removed unreferenced legacy AdMob/Wallet/TopUp stubs
+- No Gemini/Firebase/Retrofit/OkHttp requirement
+- Thai UI rules are preserved
+
+## Important
+Do not change `applicationId` if this app already exists in Play Console.
+
+## Build tool baseline
+- Android Gradle Plugin: `9.1.1`
+- Kotlin Gradle Plugin: `2.2.10`
+- JDK runtime/source target: `17`
+
+## Gradle wrapper note
+This package is optimized for **Google AI Studio source import**. The previous archive contained only `gradle-wrapper.properties` without `gradlew`, `gradlew.bat`, or `gradle-wrapper.jar`; that incomplete wrapper set has been removed so AI Studio will use its hosted build environment instead of a partial local wrapper.
+
+If you later need command-line/Android Studio wrapper builds, generate a complete wrapper from a trusted Gradle installation and keep all wrapper files together.
+
+This ZIP does not embed generated build outputs, private signing files, or an incomplete Gradle wrapper.
