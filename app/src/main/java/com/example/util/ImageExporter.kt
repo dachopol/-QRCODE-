@@ -16,8 +16,8 @@ import java.io.OutputStream
 object ImageExporter {
 
     /**
-     * Saves a bitmap to the device's Pictures gallery under "QR_PromptPay".
-     * Returns true if successful.
+     * Saves a bitmap to the device Pictures gallery under "QuickQR_Business".
+     * Returns the saved content URI, or null on failure.
      */
     fun saveBitmapToGallery(context: Context, bitmap: Bitmap, title: String): Uri? {
         val filename = "QR_${System.currentTimeMillis()}.png"
@@ -31,7 +31,7 @@ object ImageExporter {
                     put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
                     put(
                         MediaStore.MediaColumns.RELATIVE_PATH,
-                        "${Environment.DIRECTORY_PICTURES}/QR_PromptPay"
+                        "${Environment.DIRECTORY_PICTURES}/QuickQR_Business"
                     )
                     put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
@@ -49,7 +49,7 @@ object ImageExporter {
                 }
             } else {
                 val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                val appDir = File(picturesDir, "QR_PromptPay")
+                val appDir = File(picturesDir, "QuickQR_Business")
                 if (!appDir.exists()) {
                     appDir.mkdirs()
                 }
@@ -84,11 +84,11 @@ object ImageExporter {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             stream.close()
 
-            val contentUri: Uri = try {
-                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            } catch (_: Exception) {
-                Uri.fromFile(file)
-            }
+            val contentUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
 
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/png"
@@ -96,14 +96,13 @@ object ImageExporter {
                 putExtra(Intent.EXTRA_TEXT, shareText)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(Intent.createChooser(shareIntent, "ส่งต่อคิวอาร์โค้ด"))
+            context.startActivity(Intent.createChooser(shareIntent, localizedNow("แชร์ QR", "Share QR")))
         } catch (_: Exception) {
-            // Fallback to text sharing
             val textIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, shareText)
             }
-            context.startActivity(Intent.createChooser(textIntent, "แชร์ข้อมูล"))
+            context.startActivity(Intent.createChooser(textIntent, localizedNow("แชร์ข้อมูล", "Share data")))
         }
     }
 }
