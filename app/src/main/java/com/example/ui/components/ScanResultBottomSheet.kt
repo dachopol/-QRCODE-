@@ -54,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.ParsedQrResult
+import com.example.util.localizedText
+import com.example.util.localizedNow
 import com.example.model.ParsedQrType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +70,7 @@ fun ScanResultBottomSheet(
     val copyToClipboard = { text: String, label: String ->
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
-        Toast.makeText(context, "คัดลอก $label เรียบร้อย", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, localizedNow("คัดลอก $label แล้ว", "$label copied"), Toast.LENGTH_SHORT).show()
     }
 
     ModalBottomSheet(
@@ -115,7 +117,7 @@ fun ScanResultBottomSheet(
                 }
 
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "ปิด", tint = Color(0xFF64748B))
+                    Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = Color(0xFF64748B))
                 }
             }
 
@@ -155,7 +157,7 @@ fun ScanResultBottomSheet(
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 if (result.amount != null && result.amount > 0) {
-                                    Text("ยอดชำระ:", fontSize = 12.sp, color = Color(0xFF065F46))
+                                    Text(localizedText("ยอดชำระ:", "Amount:"), fontSize = 12.sp, color = Color(0xFF065F46))
                                     Text(
                                         text = "฿ ${String.format("%,.2f", result.amount)}",
                                         fontSize = 28.sp,
@@ -164,7 +166,7 @@ fun ScanResultBottomSheet(
                                     )
                                 } else {
                                     Text(
-                                        text = "ไม่ระบุยอดเงิน (ผู้โอนระบุยอดเอง)",
+                                        text = localizedText("ไม่ระบุยอดเงิน (ผู้โอนระบุยอดเอง)", "Amount not specified"),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFF065F46)
@@ -174,7 +176,7 @@ fun ScanResultBottomSheet(
                                 if (!result.promptPayId.isNullOrBlank()) {
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = "หมายเลขพร้อมเพย์: ${result.promptPayId}",
+                                        text = localizedText("หมายเลขพร้อมเพย์: ", "PromptPay ID: ") + result.promptPayId,
                                         fontSize = 13.sp,
                                         color = Color(0xFF047857),
                                         fontWeight = FontWeight.Medium
@@ -198,7 +200,7 @@ fun ScanResultBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text("รหัสผ่าน Wi-Fi:", fontSize = 11.sp, color = Color(0xFF0369A1))
+                                    Text(localizedText("รหัสผ่าน Wi-Fi:", "Wi-Fi password:"), fontSize = 11.sp, color = Color(0xFF0369A1))
                                     Text(result.wifiPass, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C4A6E))
                                 }
 
@@ -209,7 +211,7 @@ fun ScanResultBottomSheet(
                                 ) {
                                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("คัดลอก", fontSize = 12.sp)
+                                    Text(localizedText("คัดลอก", "Copy"), fontSize = 12.sp)
                                 }
                             }
                         }
@@ -229,7 +231,7 @@ fun ScanResultBottomSheet(
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(result.url))
                                 context.startActivity(intent)
                             } catch (_: Exception) {
-                                Toast.makeText(context, "ไม่สามารถเปิดลิงก์ได้", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, localizedNow("ไม่สามารถเปิดลิงก์ได้", "Could not open link"), Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier
@@ -240,7 +242,7 @@ fun ScanResultBottomSheet(
                     ) {
                         Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("เปิดลิงก์ในเบราว์เซอร์", fontWeight = FontWeight.Bold)
+                        Text(localizedText("เปิดลิงก์ในเบราว์เซอร์", "Open link in browser"), fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -259,7 +261,7 @@ fun ScanResultBottomSheet(
                         ) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("คัดลอกเลขบัญชีพร้อมเพย์", fontWeight = FontWeight.Bold)
+                            Text(localizedText("คัดลอกเลขบัญชีพร้อมเพย์", "Copy PromptPay ID"), fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -280,7 +282,7 @@ fun ScanResultBottomSheet(
                         ) {
                             Icon(Icons.Default.Phone, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("โทรหาผู้ติดต่อ (${result.contactPhone})", fontWeight = FontWeight.Bold)
+                            Text(localizedText("โทรหาผู้ติดต่อ (${result.contactPhone})", "Call contact (${result.contactPhone})"), fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -303,7 +305,7 @@ fun ScanResultBottomSheet(
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("คัดลอกทั้งหมด", fontSize = 13.sp)
+                    Text(localizedText("คัดลอกทั้งหมด", "Copy all"), fontSize = 13.sp)
                 }
 
                 OutlinedButton(
@@ -321,7 +323,7 @@ fun ScanResultBottomSheet(
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("แชร์ข้อความ", fontSize = 13.sp)
+                    Text(localizedText("แชร์ข้อความ", "Share text"), fontSize = 13.sp)
                 }
             }
 
