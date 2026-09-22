@@ -88,7 +88,6 @@ import com.example.model.StorePlatform
 import com.example.model.WifiSecurity
 import com.example.ui.components.QrColorCustomizerCard
 import com.example.ui.theme.appTextFieldColors
-import com.example.util.CurrencyManager
 import com.example.util.localizedText
 import com.example.util.LocalizationManager
 import com.example.util.localizedString
@@ -207,7 +206,6 @@ private fun PromptPayForm(viewModel: MainViewModel) {
     val target by viewModel.promptPayTarget.collectAsState()
     val amount by viewModel.promptPayAmount.collectAsState()
     val shopName by viewModel.promptPayShopName.collectAsState()
-    val selectedCurrency by CurrencyManager.selectedCurrency.collectAsState()
 
     val presetAmounts = listOf("20", "50", "100", "150", "200", "300", "500", "1000")
 
@@ -328,25 +326,6 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                     unfocusedBorderColor = Color(0xFFCBD5E1)
                 )
             )
-
-            // Live Currency Conversion Hint
-            val parsedThb = amount.toDoubleOrNull()
-            if (parsedThb != null && parsedThb > 0 && selectedCurrency.code != "THB") {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFECFDF5),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
-                    modifier = Modifier.padding(top = 6.dp)
-                ) {
-                    Text(
-                        text = "≈ ${selectedCurrency.format(parsedThb)} ${selectedCurrency.code} (${localizedText(selectedCurrency.nameTh, selectedCurrency.nameEn)})",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF065F46),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
 
             // Preset Amount Chips
             Spacer(modifier = Modifier.height(8.dp))
