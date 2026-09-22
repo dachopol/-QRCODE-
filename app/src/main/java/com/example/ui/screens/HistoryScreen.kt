@@ -53,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -61,6 +62,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.GlassAccent
 import com.example.util.localizedText
 import com.example.util.localizedNow
 import com.example.data.QrItemEntity
@@ -97,7 +100,11 @@ fun HistoryScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFF8FAFC), GlassAccent, Color(0xFFF8FAFC))
+                )
+            )
             .padding(16.dp)
             .testTag("history_screen")
     ) {
@@ -261,7 +268,7 @@ private fun HistoryItemCard(
     }
 
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
