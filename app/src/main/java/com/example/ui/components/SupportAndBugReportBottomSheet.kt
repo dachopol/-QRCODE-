@@ -71,6 +71,8 @@ import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.PrivacyProtection
+import com.example.util.localizedText
+import com.example.util.localizedNow
 import com.example.util.RootSecurityManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,13 +120,13 @@ fun SupportAndBugReportBottomSheet(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (selectedTab == 0) "แจ้งปัญหา / บัคการใช้งาน" else if (selectedTab == 1) "ติดต่อแอดมิน & คำถามที่พบบ่อย" else "ความปลอดภัยระบบ",
+                            text = if (selectedTab == 0) localizedText("แจ้งปัญหา", "Report a problem") else if (selectedTab == 1) localizedText("ติดต่อและช่วยเหลือ", "Support") else localizedText("ความปลอดภัยระบบ", "Security"),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = "ทีมงานพร้อมดูแลและปรับปรุงระบบตลอด 24 ชม.",
+                            text = localizedText("ข้อมูลช่วยเหลือ ระบบ และการตรวจสอบความปลอดภัย", "Help, system information and security checks"),
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )
@@ -132,7 +134,7 @@ fun SupportAndBugReportBottomSheet(
                 }
 
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "ปิด", tint = Color(0xFF64748B))
+                    Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = Color(0xFF64748B))
                 }
             }
 
@@ -156,7 +158,7 @@ fun SupportAndBugReportBottomSheet(
                             Icon(Icons.Default.BugReport, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "แจ้งบัค",
+                                text = localizedText("แจ้งบัค", "Report bug"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
                                 maxLines = 1,
@@ -176,7 +178,7 @@ fun SupportAndBugReportBottomSheet(
                             Icon(Icons.AutoMirrored.Filled.ContactSupport, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "ติดต่อแอดมิน",
+                                text = localizedText("ติดต่อแอดมิน", "Support"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
                                 maxLines = 1,
@@ -196,7 +198,7 @@ fun SupportAndBugReportBottomSheet(
                             Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "ความปลอดภัย",
+                                text = localizedText("ความปลอดภัย", "Security"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal,
                                 maxLines = 1,
@@ -261,7 +263,7 @@ fun SecurityStatusView() {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = if (isRooted) "ตรวจพบความเสี่ยง (Rooted)" else "ปลอดภัย • ไม่พบการรูท",
+                            text = if (isRooted) localizedText("ตรวจพบความเสี่ยง", "Risk detected") else localizedText("ปลอดภัย • ไม่พบการรูท", "Safe • No root detected"),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isRooted) Color(0xFF991B1B) else Color(0xFF166534)
@@ -272,7 +274,7 @@ fun SecurityStatusView() {
                             color = if (isRooted) Color(0xFFEF4444) else Color(0xFF10B981)
                         ) {
                             Text(
-                                text = "เปิดใช้งานตลอด",
+                                text = localizedText("เปิดใช้งานตลอด", "Always on"),
                                 color = Color.White,
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
@@ -282,7 +284,7 @@ fun SecurityStatusView() {
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "ระบบ Anti-Root ตรวจสอบความปลอดภัยแบบเรียลไทม์",
+                        text = localizedText("ระบบ Anti-Root ตรวจสอบความปลอดภัยแบบเรียลไทม์", "Anti-Root security checks run in real time"),
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )
@@ -293,7 +295,7 @@ fun SecurityStatusView() {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "รายการตรวจสอบความสมบูรณ์ของระบบ:",
+            text = localizedText("รายการตรวจสอบความสมบูรณ์ของระบบ:", "System integrity checks:"),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF334155)
@@ -342,7 +344,7 @@ fun SecurityStatusView() {
                         color = if (passed) Color(0xFFDCFCE7) else Color(0xFFFEE2E2)
                     ) {
                         Text(
-                            text = if (passed) "✓ ผ่าน" else "✕ เสี่ยง",
+                            text = if (passed) localizedText("✓ ผ่าน", "✓ Pass") else localizedText("✕ เสี่ยง", "✕ Risk"),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (passed) Color(0xFF16A34A) else Color(0xFFDC2626),
@@ -369,7 +371,7 @@ fun SecurityStatusView() {
         ) {
             Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text("ตรวจสอบความปลอดภัยอุปกรณ์ใหม่เดี๋ยวนี้", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(localizedText("ตรวจสอบความปลอดภัยอุปกรณ์ใหม่", "Run security check again"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -416,14 +418,14 @@ fun BugReportForm(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "ส่งรายงานบัคเรียบร้อยแล้ว!",
+                text = localizedText("ส่งรายงานบัคเรียบร้อยแล้ว!", "Bug report submitted!"),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF16A34A)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "ขอบคุณที่แจ้งปัญหาเข้ามา ทีมงานแอดมินจะรีบตรวจสอบและแก้ไขในทันทีครับ",
+                text = localizedText("ขอบคุณที่แจ้งปัญหา", "Thank you for reporting the issue"),
                 fontSize = 13.sp,
                 color = Color(0xFF64748B)
             )
@@ -433,13 +435,13 @@ fun BugReportForm(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
             ) {
-                Text("ตกลงและปิดหน้านี้")
+                Text(localizedText("ตกลงและปิด", "OK and close"))
             }
         }
     } else {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = "เลือกหมวดหมู่ปัญหาที่พบ:",
+                text = localizedText("เลือกหมวดหมู่ปัญหาที่พบ:", "Choose issue category:"),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF334155)
@@ -480,8 +482,8 @@ fun BugReportForm(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("รายละเอียดปัญหาที่เกิดขึ้น") },
-                placeholder = { Text("เช่น ไม่สามารถสแกน QR โค้ดที่บันทึกลงเครื่องได้...") },
+                label = { Text(localizedText("รายละเอียดปัญหาที่เกิดขึ้น", "Issue details")) },
+                placeholder = { Text(localizedText("เช่น ไม่สามารถสแกน QR โค้ดที่บันทึกลงเครื่องได้...", "Describe what went wrong...")) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(110.dp)
@@ -495,8 +497,8 @@ fun BugReportForm(
             OutlinedTextField(
                 value = contactInfo,
                 onValueChange = { contactInfo = it },
-                label = { Text("ข้อมูลติดต่อกลับ (อีเมล / Line ID / เบอร์โทร)") },
-                placeholder = { Text("เพื่อให้ทีมงานแอดมินแจ้งผลการแก้ไข") },
+                label = { Text(localizedText("ข้อมูลติดต่อกลับ", "Contact information")) },
+                placeholder = { Text(localizedText("อีเมล / Line ID / เบอร์โทร", "Email / Line ID / phone")) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("bug_contact_input"),
@@ -524,7 +526,7 @@ fun BugReportForm(
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("แจ้งแอดมิน (ส่งรายงานปัญหา)", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(localizedText("ส่งรายงานปัญหา", "Submit report"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
@@ -559,14 +561,14 @@ fun AdminContactSupportView() {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("ฝ่ายดูแลลูกค้า & แอดมิน", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text(localizedText("ฝ่ายดูแลลูกค้า", "Support"), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
                                 color = Color(0xFF0284C7).copy(alpha = 0.15f)
                             ) {
                                 Text(
-                                    text = "Official Support",
+                                    text = localizedText("ฝ่ายช่วยเหลือ", "Official Support"),
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0284C7),
@@ -574,13 +576,13 @@ fun AdminContactSupportView() {
                                 )
                             }
                         }
-                        Text("อีเมล: ${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}", fontSize = 12.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.SemiBold)
+                        Text(localizedText("อีเมล: ", "Email: ") + PrivacyProtection.OFFICIAL_ADMIN_EMAIL, fontSize = 12.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.SemiBold)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "หากพบปัญหาการสร้าง QR, การสแกน, นามบัตรดิจิทัล หรือต้องการความช่วยเหลือ สามารถส่งข้อความหาทีมงานแอดมินได้โดยตรง เราพร้อมให้บริการตลอด 24 ชั่วโมง",
+                    text = localizedText("หากพบปัญหาการสร้าง QR การสแกน หรือนามบัตรดิจิทัล สามารถติดต่อฝ่ายช่วยเหลือได้", "Contact support for QR generation, scanning, or digital business card issues"),
                     fontSize = 12.sp,
                     color = Color(0xFF334155),
                     lineHeight = 18.sp
@@ -600,7 +602,7 @@ fun AdminContactSupportView() {
                                 }
                                 context.startActivity(intent)
                             } catch (_: Exception) {
-                                Toast.makeText(context, "กรุณาส่งอีเมลไปที่: ${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, localizedNow("กรุณาส่งอีเมลไปที่: ", "Email: ") + PrivacyProtection.OFFICIAL_ADMIN_EMAIL, Toast.LENGTH_LONG).show()
                             }
                         },
                         modifier = Modifier
@@ -611,14 +613,14 @@ fun AdminContactSupportView() {
                     ) {
                         Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("แจ้งแอดมินโดยตรง", fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                        Text(localizedText("ติดต่อฝ่ายช่วยเหลือ", "Contact support"), fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                     }
 
                     OutlinedButton(
                         onClick = {
                             val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                             clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Admin Email", PrivacyProtection.OFFICIAL_ADMIN_EMAIL))
-                            Toast.makeText(context, "คัดลอกอีเมลแอดมินเรียบร้อย", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, localizedNow("คัดลอกอีเมลแล้ว", "Email copied"), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .wrapContentWidth()
@@ -627,7 +629,7 @@ fun AdminContactSupportView() {
                     ) {
                         Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("คัดลอก", fontSize = 12.sp, maxLines = 1, softWrap = false)
+                        Text(localizedText("คัดลอก", "Copy"), fontSize = 12.sp, maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -636,14 +638,13 @@ fun AdminContactSupportView() {
         Spacer(modifier = Modifier.height(14.dp))
 
         // FAQ Section
-        Text("คำถามและวิธีใช้งานเบื้องต้น (FAQ)", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+        Text(localizedText("คำถามและวิธีใช้งานเบื้องต้น", "FAQ"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
         Spacer(modifier = Modifier.height(8.dp))
 
         val faqs = listOf(
-            Pair("วิธีสร้าง QR พร้อมเพย์", "เลือกแท็บ 'พร้อมเพย์' กรอกเบอร์มือถือ 10 หลักหรือเลขบัตรประชาชน 13 หลัก พร้อมใส่จำนวนเงินที่ต้องการรับเงิน จากนั้นกดสร้าง"),
-            Pair("การบันทึกภาพและแชร์", "เมื่อสร้าง QR แล้ว ให้กดปุ่ม 'บันทึกภาพ' หรือ 'แชร์ภาพ' เพื่อส่งต่อให้ลูกค้าหรือเพื่อนได้ทันที"),
-            Pair("สิทธิ์ VIP และโหมดทดสอบ", "ขณะนี้แอปเปิดใช้งานสิทธิ์ VIP ถาวรฟรี (isTestMode = true) สามารถใช้งานได้ทุกฟีเจอร์โดยไม่ต้องชำระเงิน"),
-            Pair("ระบบสแกนคิวอาร์โค้ด", "สามารถใช้กล้องสแกน หรือเลือกรูปภาพจากเครื่องเพื่ออ่านค่า QR Code ได้อย่างรวดเร็วและปลอดภัย")
+            Pair(localizedText("วิธีสร้าง QR พร้อมเพย์", "How to create a PromptPay QR"), localizedText("เลือกพร้อมเพย์ กรอกหมายเลขและจำนวนเงิน แล้วกดสร้าง", "Choose PromptPay, enter the ID and amount, then generate")),
+            Pair(localizedText("การบันทึกภาพและแชร์", "Save and share"), localizedText("เมื่อสร้าง QR แล้ว เลือกบันทึกหรือแชร์", "After generating a QR, choose Save or Share")),
+            Pair(localizedText("ระบบสแกนคิวอาร์โค้ด", "QR scanner"), localizedText("ใช้กล้องหรือเลือกรูปจากเครื่องเพื่ออ่าน QR Code", "Use the camera or an image from your device to scan a QR code"))
         )
 
         faqs.forEach { (question, answer) ->
