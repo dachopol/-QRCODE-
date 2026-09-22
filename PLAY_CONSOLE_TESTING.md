@@ -27,7 +27,6 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 
 ## Permissions
 - Camera: ใช้เพื่อสแกน QR Code
-- Internet: ใช้กับการเปิด/จัดการลิงก์และความสามารถที่ต้องอาศัยเครือข่ายของระบบ
 - WRITE_EXTERNAL_STORAGE: จำกัดเฉพาะ Android รุ่นเก่าตาม `maxSdkVersion=28` สำหรับการบันทึกไฟล์
 
 ## Data safety — จุดที่ยืนยันได้จากโค้ดชุดนี้
@@ -35,6 +34,7 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 - ไม่มีระบบล็อกอิน
 - ไม่มี AdMob SDK จริงใน build ทดสอบนี้
 - ไม่มี Play Billing SDK/การชำระเงินจริงใน build ทดสอบนี้
+- ไม่มี `INTERNET` permission ใน build นี้; การเปิดลิงก์ใช้แอปภายนอกของระบบ
 
 ## สิ่งที่ต้องกรอกเองก่อนส่ง
 - Project developer identity email: 215334638+AnakinYoo@users.noreply.github.com
