@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -204,7 +205,7 @@ fun RootSecurityWarningDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .defaultMinSize(minHeight = 48.dp)
                         .testTag("exit_app_security_button"),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
@@ -222,7 +223,7 @@ fun RootSecurityWarningDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(46.dp)
+                        .defaultMinSize(minHeight = 46.dp)
                         .testTag("recheck_security_button"),
                     shape = RoundedCornerShape(12.dp)
                 ) {
