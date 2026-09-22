@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -99,7 +100,7 @@ fun BusinessCardStudioScreen(
             phone = card.phoneNumber,
             email = card.email,
             url = if (card.facebook.isNotBlank()) "https://facebook.com/${card.facebook}" else "",
-            note = "พร้อมเพย์: ${card.promptPayId} | ${card.services}"
+            note = localizedText("พร้อมเพย์: ${card.promptPayId} | ${card.services}", "PromptPay: ${card.promptPayId} | ${card.services}")
         )
         QrCodeUtil.generateQrBitmap(
             content = payload,
@@ -138,11 +139,6 @@ fun BusinessCardStudioScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
-                Text(
-                    text = localizedText("ส่งให้ลูกค้าทาง LINE / Facebook หรือพิมพ์ติดหน้าร้าน", "Share via LINE / Facebook or print for your shop"),
-                    fontSize = 12.sp,
-                    color = Color(0xFF64748B)
-                )
             }
         }
 
@@ -165,7 +161,7 @@ fun BusinessCardStudioScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(110.dp)
+                        .defaultMinSize(minHeight = 110.dp)
                         .background(Brush.horizontalGradient(listOf(primary, accent)))
                         .padding(16.dp)
                 ) {
@@ -297,28 +293,28 @@ fun BusinessCardStudioScreen(
                 onClick = { viewModel.generateBusinessCardPreview() },
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .testTag("create_card_qr_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(card.cardTheme.primaryColorHex))
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(localizedText("ดู QR นามบัตร", "View card QR"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("ดู QR นามบัตร", "View card QR"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = TextAlign.Center)
             }
 
             Button(
                 onClick = { viewModel.saveBusinessCardProfile() },
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .testTag("save_profile_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A))
             ) {
                 Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(localizedText("บันทึกเป็นค่าหลัก", "Save as default"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("บันทึกเป็นค่าหลัก", "Save as default"), fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = TextAlign.Center)
             }
         }
 
