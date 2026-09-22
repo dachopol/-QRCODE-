@@ -150,22 +150,17 @@ object LocalizationManager {
             "ru" to "Язык", "vi" to "Ngôn ngữ", "id" to "Bahasa", "ms" to "Bahasa", "hi" to "भाषा"
         ),
         "tab_currency" to mapOf(
-            "th" to "สกุลเงิน Google (Currencies)", "en" to "Google Currencies", "zh_CN" to "Google支持货币",
-            "zh_TW" to "Google支援貨幣", "ja" to "Google対応通貨", "ko" to "Google 지원 통화",
-            "es" to "Monedas Google", "fr" to "Devises Google", "de" to "Google Währungen", "ru" to "Валюты Google"
+            "th" to "ภูมิภาค", "en" to "Region"
         ),
         "search_language" to mapOf(
             "th" to "ค้นหาภาษา...", "en" to "Search language...", "zh_CN" to "搜索语言...", "zh_TW" to "搜尋語言...",
             "ja" to "言語を検索...", "ko" to "언어 검색...", "es" to "Buscar idioma...", "fr" to "Rechercher langue..."
         ),
         "search_currency" to mapOf(
-            "th" to "ค้นหาสกุลเงิน (เช่น USD, EUR, THB)...", "en" to "Search currency (e.g. USD, EUR, THB)...",
-            "zh_CN" to "搜索货币代码或名称...", "zh_TW" to "搜尋貨幣代碼或名稱...", "ja" to "通貨を検索...", "ko" to "통화 검색..."
+            "th" to "ค้นหาประเทศ ภูมิภาค หรือสกุลเงิน...", "en" to "Search region or currency..."
         ),
         "google_certified_badge" to mapOf(
-            "th" to "สกุลเงินที่ Google Play รับรอง", "en" to "Google Play Certified Currency",
-            "zh_CN" to "Google Play 官方认证货币", "zh_TW" to "Google Play 官方認證貨幣",
-            "ja" to "Google Play 認定通貨", "ko" to "Google Play 공인 통화"
+            "th" to "สกุลเงินถูกกำหนดตามภูมิภาค", "en" to "Currency follows the selected region"
         ),
 
         // Ad and Free Tier
