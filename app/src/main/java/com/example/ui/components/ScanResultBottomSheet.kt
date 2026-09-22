@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -236,7 +237,7 @@ fun ScanResultBottomSheet(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .defaultMinSize(minHeight = 48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
                     ) {
@@ -255,7 +256,7 @@ fun ScanResultBottomSheet(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
+                                .defaultMinSize(minHeight = 48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
                         ) {
@@ -276,7 +277,7 @@ fun ScanResultBottomSheet(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
+                                .defaultMinSize(minHeight = 48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
                         ) {
@@ -300,7 +301,7 @@ fun ScanResultBottomSheet(
                     onClick = { copyToClipboard(result.rawText, "ข้อความคิวอาร์") },
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp),
+                        .defaultMinSize(minHeight = 44.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -318,7 +319,7 @@ fun ScanResultBottomSheet(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp),
+                        .defaultMinSize(minHeight = 44.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
