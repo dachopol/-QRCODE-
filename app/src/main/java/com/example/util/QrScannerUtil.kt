@@ -15,17 +15,18 @@ import java.util.EnumMap
 
 object QrScannerUtil {
 
-    private val reader = MultiFormatReader().apply {
-        val hints = EnumMap<DecodeHintType, Any>(DecodeHintType::class.java).apply {
-            put(DecodeHintType.POSSIBLE_FORMATS, listOf(com.google.zxing.BarcodeFormat.QR_CODE))
-            put(DecodeHintType.TRY_HARDER, true)
-            put(DecodeHintType.CHARACTER_SET, "UTF-8")
+    private fun createReader(): MultiFormatReader =
+        MultiFormatReader().apply {
+            val hints = EnumMap<DecodeHintType, Any>(DecodeHintType::class.java).apply {
+                put(DecodeHintType.POSSIBLE_FORMATS, listOf(com.google.zxing.BarcodeFormat.QR_CODE))
+                put(DecodeHintType.TRY_HARDER, true)
+                put(DecodeHintType.CHARACTER_SET, "UTF-8")
+            }
+            setHints(hints)
         }
-        setHints(hints)
-    }
 
     /**
-     * Decodes QR text from a Bitmap (e.g. chosen from gallery).
+     * Decodes QR text from a Bitmap selected from the gallery.
      */
     fun decodeBitmap(bitmap: Bitmap): String? {
         return try {
@@ -36,79 +37,175 @@ object QrScannerUtil {
 
             val source = RGBLuminanceSource(width, height, pixels)
             val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-            val result = MultiFormatReader().decodeWithState(binaryBitmap)
-            result.text
+            createReader().decodeWithState(binaryBitmap).text
         } catch (_: Exception) {
             null
         }
     }
 
     /**
-     * CameraX ImageAnalysis analyzer to detect QR in real-time.
+     * CameraX analyzer that handles Y-plane row stride and sensor rotation
+     * before passing luminance data to ZXing.
      */
     class QrCodeImageAnalyzer(
         private val onQrCodeScanned: (String) -> Unit
     ) : ImageAnalysis.Analyzer {
 
-        private var lastScanTime = 0L
+        private var lastAnalysisTime = 0L
+        private var lastDecodedValue: String? = null
+        private var lastDecodedAt = 0L
 
         override fun analyze(imageProxy: ImageProxy) {
-            val currentTime = System.currentTimeMillis()
-            // Throttle to avoid excessive CPU usage
-            if (currentTime - lastScanTime < 400) {
+            val now = System.currentTimeMillis()
+
+            // Limit decode work while still feeling immediate on camera preview.
+            if (now - lastAnalysisTime < 250L) {
                 imageProxy.close()
                 return
             }
+            lastAnalysisTime = now
 
             try {
-                val planes = imageProxy.planes
-                if (planes.isNotEmpty()) {
-                    val buffer = planes[0].buffer
-                    val data = ByteArray(buffer.remaining())
-                    buffer.get(data)
+                val plane = imageProxy.planes.firstOrNull() ?: return
+                val width = imageProxy.width
+                val height = imageProxy.height
+                val yPlane = copyLuminancePlane(
+                    buffer = plane.buffer,
+                    width = width,
+                    height = height,
+                    rowStride = plane.rowStride,
+                    pixelStride = plane.pixelStride
+                )
 
-                    val width = imageProxy.width
-                    val height = imageProxy.height
+                val rotated = rotateLuminance(
+                    data = yPlane,
+                    width = width,
+                    height = height,
+                    rotationDegrees = imageProxy.imageInfo.rotationDegrees
+                )
 
-                    val source = PlanarYUVLuminanceSource(
-                        data,
-                        width,
-                        height,
-                        0,
-                        0,
-                        width,
-                        height,
-                        false
-                    )
-                    val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-                    val result = MultiFormatReader().decodeWithState(binaryBitmap)
-                    if (result != null && result.text.isNotBlank()) {
-                        lastScanTime = currentTime
-                        onQrCodeScanned(result.text)
+                val source = PlanarYUVLuminanceSource(
+                    rotated.data,
+                    rotated.width,
+                    rotated.height,
+                    0,
+                    0,
+                    rotated.width,
+                    rotated.height,
+                    false
+                )
+                val result = createReader().decodeWithState(
+                    BinaryBitmap(HybridBinarizer(source))
+                )
+
+                val value = result.text
+                if (value.isNotBlank()) {
+                    // Avoid opening the same result repeatedly while the camera
+                    // remains pointed at one QR code.
+                    val duplicateTooSoon =
+                        value == lastDecodedValue && now - lastDecodedAt < 1500L
+                    if (!duplicateTooSoon) {
+                        lastDecodedValue = value
+                        lastDecodedAt = now
+                        onQrCodeScanned(value)
                     }
                 }
             } catch (_: Exception) {
-                // No QR found in frame
+                // No readable QR in this frame.
             } finally {
                 imageProxy.close()
             }
         }
     }
 
+    private data class RotatedLuminance(
+        val data: ByteArray,
+        val width: Int,
+        val height: Int
+    )
+
+    private fun copyLuminancePlane(
+        buffer: java.nio.ByteBuffer,
+        width: Int,
+        height: Int,
+        rowStride: Int,
+        pixelStride: Int
+    ): ByteArray {
+        val src = buffer.duplicate()
+        val output = ByteArray(width * height)
+
+        for (row in 0 until height) {
+            val rowOffset = row * rowStride
+            for (col in 0 until width) {
+                val sourceIndex = rowOffset + col * pixelStride
+                if (sourceIndex < src.limit()) {
+                    output[row * width + col] = src.get(sourceIndex)
+                }
+            }
+        }
+        return output
+    }
+
+    private fun rotateLuminance(
+        data: ByteArray,
+        width: Int,
+        height: Int,
+        rotationDegrees: Int
+    ): RotatedLuminance {
+        val normalized = ((rotationDegrees % 360) + 360) % 360
+        if (normalized == 0) {
+            return RotatedLuminance(data, width, height)
+        }
+
+        val output = ByteArray(data.size)
+
+        return when (normalized) {
+            90 -> {
+                for (row in 0 until height) {
+                    for (col in 0 until width) {
+                        val newRow = col
+                        val newCol = height - 1 - row
+                        output[newRow * height + newCol] = data[row * width + col]
+                    }
+                }
+                RotatedLuminance(output, height, width)
+            }
+            180 -> {
+                for (i in data.indices) {
+                    output[data.lastIndex - i] = data[i]
+                }
+                RotatedLuminance(output, width, height)
+            }
+            270 -> {
+                for (row in 0 until height) {
+                    for (col in 0 until width) {
+                        val newRow = width - 1 - col
+                        val newCol = row
+                        output[newRow * height + newCol] = data[row * width + col]
+                    }
+                }
+                RotatedLuminance(output, height, width)
+            }
+            else -> RotatedLuminance(data, width, height)
+        }
+    }
+
     /**
-     * Smart parser to analyze raw text and classify it into PromptPay, Wi-Fi, URL, vCard, etc.
+     * Classifies a decoded QR payload into PromptPay, Wi-Fi, URL, vCard or text.
      */
     fun parseQrContent(raw: String): ParsedQrResult {
         val trimmed = raw.trim()
 
-        // 1. PromptPay EMVCo check
         if (trimmed.contains("000201") && trimmed.contains("A000000677010111")) {
             val parsed = PromptPayGenerator.parsePromptPay(trimmed)
             if (parsed != null) {
                 val target = parsed.first
                 val amount = parsed.second
                 val amountText = if (amount != null) {
-                    localizedNow("จำนวนเงิน: ฿${String.format("%,.2f", amount)}", "Amount: ฿${String.format("%,.2f", amount)}")
+                    localizedNow(
+                        "จำนวนเงิน: ฿${String.format("%,.2f", amount)}",
+                        "Amount: ฿${String.format("%,.2f", amount)}"
+                    )
                 } else {
                     localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
                 }
@@ -116,21 +213,22 @@ object QrScannerUtil {
                     rawText = raw,
                     type = ParsedQrType.PROMPTPAY,
                     title = localizedNow("พร้อมเพย์", "PromptPay"),
-                    subtitle = localizedNow("บัญชีรับเงิน: $target | $amountText", "Payee: $target | $amountText"),
+                    subtitle = localizedNow(
+                        "บัญชีรับเงิน: $target | $amountText",
+                        "Payee: $target | $amountText"
+                    ),
                     promptPayId = target,
                     amount = amount
                 )
             }
         }
 
-        // 2. Wi-Fi QR check
         if (trimmed.startsWith("WIFI:", ignoreCase = true)) {
             var ssid = ""
             var pass = ""
             var sec = "WPA"
 
-            val parts = trimmed.substring(5).split(";")
-            for (part in parts) {
+            trimmed.substring(5).split(";").forEach { part ->
                 if (part.startsWith("S:")) ssid = part.substring(2)
                 if (part.startsWith("P:")) pass = part.substring(2)
                 if (part.startsWith("T:")) sec = part.substring(2)
@@ -140,14 +238,16 @@ object QrScannerUtil {
                 rawText = raw,
                 type = ParsedQrType.WIFI,
                 title = localizedNow("เครือข่าย Wi-Fi", "Wi-Fi network"),
-                subtitle = localizedNow("ชื่อ: $ssid • ความปลอดภัย: $sec", "SSID: $ssid • Security: $sec"),
+                subtitle = localizedNow(
+                    "ชื่อ: $ssid • ความปลอดภัย: $sec",
+                    "SSID: $ssid • Security: $sec"
+                ),
                 wifiSsid = ssid,
                 wifiPass = pass,
                 wifiSecurity = sec
             )
         }
 
-        // 3. vCard / Contact
         if (trimmed.contains("BEGIN:VCARD", ignoreCase = true)) {
             var fn = ""
             var tel = ""
@@ -172,7 +272,11 @@ object QrScannerUtil {
                 rawText = raw,
                 type = ParsedQrType.VCARD,
                 title = localizedNow("นามบัตรดิจิทัล", "Contact card"),
-                subtitle = listOfNotNull(fn.ifBlank { null }, org.ifBlank { null }, tel.ifBlank { null }).joinToString(" • "),
+                subtitle = listOfNotNull(
+                    fn.ifBlank { null },
+                    org.ifBlank { null },
+                    tel.ifBlank { null }
+                ).joinToString(" • "),
                 contactName = fn,
                 contactPhone = tel,
                 contactEmail = email,
@@ -180,12 +284,14 @@ object QrScannerUtil {
             )
         }
 
-        // 4. URL
-        if (trimmed.startsWith("http://", ignoreCase = true) ||
+        if (
+            trimmed.startsWith("http://", ignoreCase = true) ||
             trimmed.startsWith("https://", ignoreCase = true) ||
             trimmed.startsWith("www.", ignoreCase = true)
         ) {
-            val url = if (trimmed.startsWith("www.", ignoreCase = true)) "https://$trimmed" else trimmed
+            val url =
+                if (trimmed.startsWith("www.", ignoreCase = true)) "https://$trimmed"
+                else trimmed
             return ParsedQrResult(
                 rawText = raw,
                 type = ParsedQrType.URL,
@@ -195,7 +301,6 @@ object QrScannerUtil {
             )
         }
 
-        // 5. Phone dial
         if (trimmed.startsWith("tel:", ignoreCase = true)) {
             val phone = trimmed.substring(4)
             return ParsedQrResult(
@@ -207,7 +312,6 @@ object QrScannerUtil {
             )
         }
 
-        // 6. Generic text
         return ParsedQrResult(
             rawText = raw,
             type = ParsedQrType.TEXT,
