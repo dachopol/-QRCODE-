@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.util.localizedText
 
 // Preset colors for QR code foreground (dots/pattern)
 val QrDarkColorPresets = listOf(
@@ -112,37 +113,12 @@ fun QrColorCustomizerCard(
                         )
                     }
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "ปรับแต่งสี & รูปแบบ QR",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                color = Color(0xFF0F172A)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFFF1F5F9),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1))
-                            ) {
-                                Text(
-                                    text = "GEN_QR v8",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF475569),
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                )
-                            }
-                        }
-                        Text(
-                            text = "49x49 H m4 BW sz=512 logo=20%=102px pad=12",
-                            fontSize = 11.sp,
-                            color = Color(0xFF64748B)
-                        )
-                    }
+                    Text(
+                        text = localizedText("ปรับแต่ง QR", "Customize QR"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = Color(0xFF0F172A)
+                    )
                 }
 
                 // Reset Button
@@ -180,19 +156,12 @@ fun QrColorCustomizerCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
-                            Text(
-                                text = "ตราสัญลักษณ์ตรงกลาง (logo 102px pad 12px)",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E293B)
-                            )
-                            Text(
-                                text = if (includeCenterLogo) "เปิดใช้งาน (พร้อมกรอบการ์ดป้องกัน)" else "ปิด (แสดงคิวอาร์ล้วน)",
-                                fontSize = 10.sp,
-                                color = Color(0xFF64748B)
-                            )
-                        }
+                        Text(
+                            text = localizedText("ตรากลาง QR", "Center logo"),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E293B)
+                        )
                         Switch(
                             checked = includeCenterLogo,
                             onCheckedChange = { onIncludeCenterLogoChange(it) }
@@ -235,19 +204,12 @@ fun QrColorCustomizerCard(
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = "แสดงผลสีแบบเรียลไทม์ (Live Preview)",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isBgDark) Color.White else Color(0xFF0F172A)
-                            )
-                            Text(
-                                text = "จุดลาย: #${Integer.toHexString(darkColor.toArgb()).uppercase().takeLast(6)} | พื้นหลัง: #${Integer.toHexString(lightColor.toArgb()).uppercase().takeLast(6)}",
-                                fontSize = 11.sp,
-                                color = if (isBgDark) Color(0xFFA1A1AA) else Color(0xFF64748B)
-                            )
-                        }
+                        Text(
+                            text = localizedText("ตัวอย่าง QR", "QR preview"),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isBgDark) Color.White else Color(0xFF0F172A)
+                        )
                     }
 
                     Surface(
@@ -255,7 +217,7 @@ fun QrColorCustomizerCard(
                         color = (if (isBgDark) Color.White else Color(0xFF0F172A)).copy(alpha = 0.1f)
                     ) {
                         Text(
-                            text = "พร้อมใช้งาน",
+                            text = localizedText("พร้อมใช้งาน", "Ready"),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isBgDark) Color.White else Color(0xFF0F172A),
@@ -279,7 +241,7 @@ fun QrColorCustomizerCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "จุดเปลี่ยนสีพื้นหลัง (Background):",
+                    text = localizedText("สีพื้นหลัง QR", "QR background color"),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E293B)
@@ -334,10 +296,11 @@ fun QrColorCustomizerCard(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = name.take(6),
+                            text = name,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B)
+                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
+                            maxLines = 2
                         )
                     }
                 }
@@ -355,7 +318,7 @@ fun QrColorCustomizerCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "สีลวดลายคิวอาร์ (Foreground QR):",
+                    text = localizedText("สีลวดลาย QR", "QR pattern color"),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E293B)
