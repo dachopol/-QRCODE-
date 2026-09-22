@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -46,6 +47,7 @@ import com.example.ui.theme.AppSectionShape
 import com.example.ui.theme.AppPillShape
 import com.example.ui.theme.GlassAccent
 import com.example.ui.theme.GlassBorder
+import com.example.ui.theme.GlassBlurRadius
 import com.example.util.localizedText
 
 // Preset colors for QR code foreground (dots/pattern)
@@ -130,19 +132,27 @@ fun QrColorCustomizerCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(34.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(GlassAccent),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Palette,
-                            contentDescription = localizedText("ปรับแต่งสี", "Customize colors"),
-                            tint = Color(0xFF0284C7),
-                            modifier = Modifier.size(20.dp)
+                    Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .blur(GlassBlurRadius)
+                                .background(GlassAccent, CircleShape)
                         )
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(GlassAccent),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Palette,
+                                contentDescription = localizedText("ปรับแต่งสี", "Customize colors"),
+                                tint = Color(0xFF0284C7),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
