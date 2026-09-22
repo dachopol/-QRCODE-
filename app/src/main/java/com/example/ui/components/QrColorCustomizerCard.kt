@@ -41,6 +41,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppSectionShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.GlassAccent
+import com.example.ui.theme.GlassBorder
 import com.example.util.localizedText
 
 // Preset colors for QR code foreground (dots/pattern)
@@ -112,9 +117,10 @@ fun QrColorCustomizerCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("qr_color_customizer_card"),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(3.dp)
+        shape = AppCardShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.96f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+        elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             // Header with title and reset button
@@ -128,7 +134,7 @@ fun QrColorCustomizerCard(
                         modifier = Modifier
                             .size(34.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF0284C7).copy(alpha = 0.12f)),
+                            .background(GlassAccent),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -170,8 +176,8 @@ fun QrColorCustomizerCard(
 
             if (onIncludeCenterLogoChange != null) {
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFF8FAFC),
+                    shape = AppSectionShape,
+                    color = GlassAccent,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -199,7 +205,7 @@ fun QrColorCustomizerCard(
 
             // LIVE PREVIEW BADGE
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = AppSectionShape,
                 color = lightColor,
                 border = androidx.compose.foundation.BorderStroke(
                     1.5.dp,
@@ -239,8 +245,8 @@ fun QrColorCustomizerCard(
                     }
 
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = (if (isBgDark) Color.White else Color(0xFF0F172A)).copy(alpha = 0.1f)
+                        shape = AppPillShape,
+                        color = (if (isBgDark) Color.White else Color(0xFF0F172A)).copy(alpha = 0.08f)
                     ) {
                         Text(
                             text = localizedText("พร้อมใช้งาน", "Ready"),
