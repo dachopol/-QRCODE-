@@ -62,7 +62,6 @@ import kotlinx.coroutines.launch
 import com.example.admob.AdMobBannerView
 import com.example.admob.AdMobInterstitialDialog
 import com.example.admob.AdMobManager
-import com.example.admob.AdStatsDialog
 import com.example.data.WalletManager
 import com.example.ui.components.LanguageAndCurrencyDialog
 import com.example.ui.components.QrPreviewDialog
@@ -119,7 +118,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val activePreview by viewModel.activePreview.collectAsState()
     val activeScanResult by viewModel.activeScanResult.collectAsState()
     val showTopUpDialog by viewModel.showTopUpDialog.collectAsState()
-    val showAdStats by viewModel.showAdStats.collectAsState()
     val showSupportSheet by viewModel.showSupportSheet.collectAsState()
     val showLanguageAndCurrencyDialog by viewModel.showLanguageAndCurrencyDialog.collectAsState()
     val languageCurrencyInitialTab by viewModel.languageCurrencyInitialTab.collectAsState()
@@ -337,13 +335,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
     if (showTopUpDialog) {
         TopUpDialog(
             onDismiss = { viewModel.closeTopUpDialog() }
-        )
-    }
-
-    // AdMob Revenue & Stats Dialog
-    if (showAdStats) {
-        AdStatsDialog(
-            onDismiss = { viewModel.closeAdStats() }
         )
     }
 
