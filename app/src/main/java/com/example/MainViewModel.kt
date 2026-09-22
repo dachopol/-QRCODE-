@@ -326,7 +326,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("PROMPTPAY") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
-                size = QrCodeUtil.SPEC_SIZE,
+                size = QrCodeUtil.DEFAULT_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
@@ -410,7 +410,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("WIFI") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
-                size = QrCodeUtil.SPEC_SIZE,
+                size = QrCodeUtil.DEFAULT_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
@@ -468,7 +468,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("STORE") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = fullUrl,
-                size = QrCodeUtil.SPEC_SIZE,
+                size = QrCodeUtil.DEFAULT_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
@@ -510,7 +510,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("TEXT") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = text,
-                size = QrCodeUtil.SPEC_SIZE,
+                size = QrCodeUtil.DEFAULT_SIZE,
                 darkColor = _qrForegroundColor.value.toArgb(),
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
@@ -572,7 +572,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("VCARD") else null
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = vcard,
-                size = QrCodeUtil.SPEC_SIZE,
+                size = QrCodeUtil.DEFAULT_SIZE,
                 darkColor = card.cardTheme.primaryColorHex.toInt(),
                 centerLogo = centerLogo
             ) ?: return@executeQrAction
