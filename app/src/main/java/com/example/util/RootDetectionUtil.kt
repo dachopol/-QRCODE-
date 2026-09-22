@@ -215,8 +215,8 @@ object RootSecurityManager {
     private val _rootState = MutableStateFlow<RootCheckResult?>(null)
     val rootState: StateFlow<RootCheckResult?> = _rootState.asStateFlow()
 
-    private val _isBypassedForTesting = MutableStateFlow(false)
-    val isBypassedForTesting: StateFlow<Boolean> = _isBypassedForTesting.asStateFlow()
+    private val _isWarningAcknowledged = MutableStateFlow(false)
+    val isWarningAcknowledged: StateFlow<Boolean> = _isWarningAcknowledged.asStateFlow()
 
     private val backgroundScope = kotlinx.coroutines.CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
 
@@ -239,11 +239,11 @@ object RootSecurityManager {
         }
     }
 
-    fun acknowledgeAndBypassWarning() {
-        _isBypassedForTesting.value = true
+    fun acknowledgeWarning() {
+        _isWarningAcknowledged.value = true
     }
 
-    fun resetBypass() {
-        _isBypassedForTesting.value = false
+    fun resetWarningAcknowledgement() {
+        _isWarningAcknowledged.value = false
     }
 }
