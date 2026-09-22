@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar" />
+    <!--
+      The app UI is fully Jetpack Compose Material 3.
+      Use a framework activity theme here so resource linking does not depend
+      on the Material Components View library.
+    -->
+    <style name="Theme.MyApplication" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
