@@ -208,7 +208,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "${currentLanguage.flagEmoji} ${currentLanguage.code.uppercase()}",
+                                text = currentLanguage.code.uppercase(),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0369A1),
@@ -223,7 +223,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "${currentCurrency.symbol} ${currentCurrency.code}",
+                                text = "${currentCurrency.flagEmoji} ${currentCurrency.code}",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF059669),
