@@ -34,6 +34,7 @@ Do not change `applicationId` if this app already exists in Play Console.
 
 ## Build tool baseline
 - Android Gradle Plugin: `9.1.1`
+- Gradle: `9.3.1` minimum/default for AGP 9.1.1
 - Kotlin Gradle Plugin: `2.2.10`
 - JDK runtime/source target: `17`
 
