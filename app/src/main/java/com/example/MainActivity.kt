@@ -60,15 +60,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.example.admob.AdMobBannerView
-import com.example.admob.AdMobInterstitialDialog
-import com.example.admob.AdMobManager
 import com.example.data.WalletManager
 import com.example.ui.components.LanguageAndCurrencyDialog
 import com.example.ui.components.QrPreviewDialog
 import com.example.ui.components.RootSecurityWarningDialog
 import com.example.ui.components.ScanResultBottomSheet
 import com.example.ui.components.SupportAndBugReportBottomSheet
-import com.example.ui.components.TopUpDialog
 import com.example.ui.screens.BusinessCardStudioScreen
 import com.example.ui.screens.GeneratorScreen
 import com.example.ui.screens.HistoryScreen
@@ -117,13 +114,10 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val currentTab by viewModel.currentTab.collectAsState()
     val activePreview by viewModel.activePreview.collectAsState()
     val activeScanResult by viewModel.activeScanResult.collectAsState()
-    val showTopUpDialog by viewModel.showTopUpDialog.collectAsState()
     val showSupportSheet by viewModel.showSupportSheet.collectAsState()
     val showLanguageAndCurrencyDialog by viewModel.showLanguageAndCurrencyDialog.collectAsState()
     val languageCurrencyInitialTab by viewModel.languageCurrencyInitialTab.collectAsState()
 
-    val walletState by WalletManager.walletState.collectAsState()
-    val activeInterstitial by AdMobManager.activeInterstitial.collectAsState()
     val currentLanguage by LocalizationManager.currentLanguage.collectAsState()
     val currentCurrency by CurrencyManager.selectedCurrency.collectAsState()
     val rootCheckResult by RootSecurityManager.rootState.collectAsState()
@@ -331,13 +325,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
         )
     }
 
-    // TopUp & Subscription Dialog
-    if (showTopUpDialog) {
-        TopUpDialog(
-            onDismiss = { viewModel.closeTopUpDialog() }
-        )
-    }
-
     // Support and Bug Report Bottom Sheet
     if (showSupportSheet) {
         SupportAndBugReportBottomSheet(
@@ -351,14 +338,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
         LanguageAndCurrencyDialog(
             initialTab = languageCurrencyInitialTab,
             onDismiss = { viewModel.closeLanguageAndCurrencyDialog() }
-        )
-    }
-
-    // 30-Second Rewarded Ad for Free Tier (Skippable after 30s)
-    activeInterstitial?.let { request ->
-        AdMobInterstitialDialog(
-            request = request,
-            onDismiss = { request.onDismiss() }
         )
     }
 
