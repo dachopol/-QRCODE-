@@ -14,33 +14,28 @@ import java.util.EnumMap
 
 object QrCodeUtil {
 
-    // --- GEN_QR v8 Specification Constants (lib=qrcode1.5.4) ---
-    const val SPEC_LIB = "qrcode1.5.4"
-    const val SPEC_QR_VERSION = 8
-    const val SPEC_GRID_SIZE = "49x49"
-    const val SPEC_ERROR_CORRECTION = "H"
-    const val SPEC_MARGIN = 4
-    const val SPEC_SIZE = 512
-    const val SPEC_LOGO_PERCENT = 0.20f // 20%
-    const val SPEC_LOGO_SIZE_PX = 102 // 20% of 512 = 102.4px
-    const val SPEC_PAD_PX = 12 // pad=12
+    const val DEFAULT_QR_VERSION = 8
+    const val DEFAULT_MARGIN = 4
+    const val DEFAULT_SIZE = 512
+    const val DEFAULT_LOGO_SIZE_PX = 102
+    const val DEFAULT_LOGO_PADDING_PX = 12
 
     /**
-     * Generates a QR Code Bitmap strictly adhering to the GEN_QR specification:
-     * v8 49x49 grid, Error Correction H, Margin 4, BW, Size 512x512,
-     * with optional center logo (logo=20%=102px, pad=12px).
+     * Generates a QR bitmap with high error correction.
+     * Version 8 is attempted first for consistency; larger content falls back
+     * to ZXing automatic version selection.
      */
     fun generateQrBitmap(
         content: String,
-        size: Int = SPEC_SIZE,
+        size: Int = DEFAULT_SIZE,
         darkColor: Int = Color.BLACK,
         lightColor: Int = Color.WHITE,
-        margin: Int = SPEC_MARGIN,
+        margin: Int = DEFAULT_MARGIN,
         errorCorrection: ErrorCorrectionLevel = ErrorCorrectionLevel.H,
-        qrVersion: Int? = SPEC_QR_VERSION,
+        qrVersion: Int? = DEFAULT_QR_VERSION,
         centerLogo: Bitmap? = null,
-        logoSizePx: Int = SPEC_LOGO_SIZE_PX,
-        logoPaddingPx: Int = SPEC_PAD_PX
+        logoSizePx: Int = DEFAULT_LOGO_SIZE_PX,
+        logoPaddingPx: Int = DEFAULT_LOGO_PADDING_PX
     ): Bitmap? {
         if (content.isBlank()) return null
         return try {
@@ -103,14 +98,13 @@ object QrCodeUtil {
     }
 
     /**
-     * Overlays center logo adhering to GEN_QR specification:
-     * logo=20%=102px with pad=12px rounded protective white backing.
+     * Overlays a small center logo with a protective white backing.
      */
     fun overlayCenterLogo(
         qrBitmap: Bitmap,
         logoBitmap: Bitmap,
-        logoSizePx: Int = SPEC_LOGO_SIZE_PX,
-        paddingPx: Int = SPEC_PAD_PX
+        logoSizePx: Int = DEFAULT_LOGO_SIZE_PX,
+        paddingPx: Int = DEFAULT_LOGO_PADDING_PX
     ): Bitmap {
         val result = qrBitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(result)
@@ -118,7 +112,7 @@ object QrCodeUtil {
         val centerX = qrSize / 2f
         val centerY = qrSize / 2f
 
-        // Protective background card = logo + (padding * 2) = 102 + 24 = 126px
+        // Protective background card around the logo.
         val cardSize = (logoSizePx + paddingPx * 2).toFloat()
         val cardLeft = centerX - cardSize / 2f
         val cardTop = centerY - cardSize / 2f
@@ -156,7 +150,7 @@ object QrCodeUtil {
     /**
      * Generates a clean vector-based default center logo for various QR types.
      */
-    fun createDefaultCenterLogo(type: String, sizePx: Int = SPEC_LOGO_SIZE_PX): Bitmap {
+    fun createDefaultCenterLogo(type: String, sizePx: Int = DEFAULT_LOGO_SIZE_PX): Bitmap {
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
