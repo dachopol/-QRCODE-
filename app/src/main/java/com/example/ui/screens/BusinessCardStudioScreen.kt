@@ -70,6 +70,10 @@ import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.model.CardColorTheme
 import com.example.model.DigitalBusinessCard
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.AppSectionShape
+import com.example.ui.theme.GlassAccent
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.ImageExporter
 import com.example.util.QrCodeUtil
@@ -107,7 +111,15 @@ fun BusinessCardStudioScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFF8FAFC),
+                        GlassAccent,
+                        Color(0xFFF8FAFC)
+                    )
+                )
+            )
             .padding(horizontal = 16.dp)
             .verticalScroll(scrollState)
     ) {
@@ -141,7 +153,7 @@ fun BusinessCardStudioScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("digital_card_preview"),
-            shape = RoundedCornerShape(24.dp),
+            shape = AppCardShape,
             elevation = CardDefaults.cardElevation(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
@@ -224,7 +236,7 @@ fun BusinessCardStudioScreen(
                                 modifier = Modifier.padding(start = 12.dp)
                             ) {
                                 Surface(
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = AppPillShape,
                                     color = Color(card.cardTheme.surfaceColorHex),
                                     border = androidx.compose.foundation.BorderStroke(1.dp, primary.copy(alpha = 0.2f)),
                                     modifier = Modifier.padding(4.dp)
@@ -250,7 +262,7 @@ fun BusinessCardStudioScreen(
                     if (card.services.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Surface(
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             color = Color(card.cardTheme.surfaceColorHex),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -287,7 +299,7 @@ fun BusinessCardStudioScreen(
                     .weight(1f)
                     .height(48.dp)
                     .testTag("create_card_qr_button"),
-                shape = RoundedCornerShape(12.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(card.cardTheme.primaryColorHex))
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -301,7 +313,7 @@ fun BusinessCardStudioScreen(
                     .weight(1f)
                     .height(48.dp)
                     .testTag("save_profile_button"),
-                shape = RoundedCornerShape(12.dp),
+                shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A))
             ) {
                 Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -337,7 +349,7 @@ fun BusinessCardStudioScreen(
                         .border(
                             width = if (isSel) 3.dp else 0.dp,
                             color = if (isSel) Color(0xFF0284C7) else Color.Transparent,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = AppSectionShape
                         ),
                     color = Color(theme.primaryColorHex)
                 ) {
@@ -354,7 +366,7 @@ fun BusinessCardStudioScreen(
 
         // FORM FIELDS TO CUSTOMIZE
         Card(
-            shape = RoundedCornerShape(20.dp),
+            shape = AppCardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -378,7 +390,7 @@ fun BusinessCardStudioScreen(
                     leadingIcon = { Icon(Icons.Default.Store, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_business_input"),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = AppSectionShape,
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                     colors = appTextFieldColors()
                 )
@@ -395,7 +407,7 @@ fun BusinessCardStudioScreen(
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_name_input"),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = AppSectionShape,
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                     colors = appTextFieldColors()
                 )
@@ -412,7 +424,7 @@ fun BusinessCardStudioScreen(
                     leadingIcon = { Icon(Icons.Default.Build, contentDescription = null, tint = Color(0xFF0284C7)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("card_profession_input"),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = AppSectionShape,
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                     colors = appTextFieldColors()
                 )
@@ -433,7 +445,7 @@ fun BusinessCardStudioScreen(
                             placeholder = { Text("0812345678", color = Color(0xFF94A3B8)) },
                             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = Color(0xFF0284C7)) },
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                             colors = appTextFieldColors()
                         )
@@ -448,7 +460,7 @@ fun BusinessCardStudioScreen(
                             placeholder = { Text(localizedText("เบอร์หรือเลขบัตร", "Phone or ID"), color = Color(0xFF94A3B8)) },
                             leadingIcon = { Icon(Icons.Default.Payment, contentDescription = null, tint = Color(0xFF059669)) },
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                             colors = appTextFieldColors()
                         )
@@ -470,7 +482,7 @@ fun BusinessCardStudioScreen(
                             onValueChange = { viewModel.updateBusinessCard(card.copy(lineId = it)) },
                             placeholder = { Text("@line_id", color = Color(0xFF94A3B8)) },
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                             colors = appTextFieldColors()
                         )
@@ -484,7 +496,7 @@ fun BusinessCardStudioScreen(
                             onValueChange = { viewModel.updateBusinessCard(card.copy(facebook = it)) },
                             placeholder = { Text(localizedText("ชื่อเพจ", "Page name"), color = Color(0xFF94A3B8)) },
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                             colors = appTextFieldColors()
                         )
@@ -502,7 +514,7 @@ fun BusinessCardStudioScreen(
                     placeholder = { Text(localizedText("เช่น รับงานทั่วกทม.และปริมณฑล ประเมินราคาฟรี...", "e.g. Service area, free estimate..."), color = Color(0xFF94A3B8)) },
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth().testTag("card_services_input"),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = AppSectionShape,
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                     colors = appTextFieldColors()
                 )
