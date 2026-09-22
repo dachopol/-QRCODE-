@@ -232,7 +232,7 @@ fun BusinessCardStudioScreen(
                                 modifier = Modifier.padding(start = 12.dp)
                             ) {
                                 Surface(
-                                    shape = AppPillShape,
+                                    shape = AppSectionShape,
                                     color = Color(card.cardTheme.surfaceColorHex),
                                     border = androidx.compose.foundation.BorderStroke(1.dp, primary.copy(alpha = 0.2f)),
                                     modifier = Modifier.padding(4.dp)
