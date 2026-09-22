@@ -42,6 +42,52 @@ object CurrencyManager {
 
     private var prefs: SharedPreferences? = null
 
+    private val COUNTRY_TO_CURRENCY = mapOf(
+        "TH" to "THB", "US" to "USD", "JP" to "JPY", "KR" to "KRW",
+        "GB" to "GBP", "AU" to "AUD", "CA" to "CAD", "SG" to "SGD",
+        "HK" to "HKD", "CN" to "CNY", "TW" to "TWD", "IN" to "INR",
+        "MY" to "MYR", "PH" to "PHP", "VN" to "VND", "ID" to "IDR",
+        "BR" to "BRL", "MX" to "MXN", "CH" to "CHF", "AE" to "AED",
+        "SA" to "SAR", "ZA" to "ZAR", "NZ" to "NZD", "SE" to "SEK",
+        "NO" to "NOK", "DK" to "DKK", "PL" to "PLN", "TR" to "TRY",
+        "RU" to "RUB", "IL" to "ILS", "CZ" to "CZK", "HU" to "HUF",
+        "CL" to "CLP", "CO" to "COP", "EG" to "EGP", "QA" to "QAR",
+        "KW" to "KWD"
+    )
+
+    private val REGION_NAME_EN = mapOf(
+        "THB" to "Thailand", "USD" to "United States", "EUR" to "Euro area",
+        "JPY" to "Japan", "GBP" to "United Kingdom", "AUD" to "Australia",
+        "CAD" to "Canada", "SGD" to "Singapore", "HKD" to "Hong Kong",
+        "CNY" to "China", "KRW" to "South Korea", "TWD" to "Taiwan",
+        "INR" to "India", "MYR" to "Malaysia", "PHP" to "Philippines",
+        "VND" to "Vietnam", "IDR" to "Indonesia", "BRL" to "Brazil",
+        "MXN" to "Mexico", "CHF" to "Switzerland", "AED" to "United Arab Emirates",
+        "SAR" to "Saudi Arabia", "ZAR" to "South Africa", "NZD" to "New Zealand",
+        "SEK" to "Sweden", "NOK" to "Norway", "DKK" to "Denmark",
+        "PLN" to "Poland", "TRY" to "Türkiye", "RUB" to "Russia",
+        "ILS" to "Israel", "CZK" to "Czechia", "HUF" to "Hungary",
+        "CLP" to "Chile", "COP" to "Colombia", "EGP" to "Egypt",
+        "QAR" to "Qatar", "KWD" to "Kuwait"
+    )
+
+    private val REGION_NAME_TH = mapOf(
+        "THB" to "ประเทศไทย", "USD" to "สหรัฐอเมริกา", "EUR" to "เขตยูโร",
+        "JPY" to "ญี่ปุ่น", "GBP" to "สหราชอาณาจักร", "AUD" to "ออสเตรเลีย",
+        "CAD" to "แคนาดา", "SGD" to "สิงคโปร์", "HKD" to "ฮ่องกง",
+        "CNY" to "จีน", "KRW" to "เกาหลีใต้", "TWD" to "ไต้หวัน",
+        "INR" to "อินเดีย", "MYR" to "มาเลเซีย", "PHP" to "ฟิลิปปินส์",
+        "VND" to "เวียดนาม", "IDR" to "อินโดนีเซีย", "BRL" to "บราซิล",
+        "MXN" to "เม็กซิโก", "CHF" to "สวิตเซอร์แลนด์", "AED" to "สหรัฐอาหรับเอมิเรตส์",
+        "SAR" to "ซาอุดีอาระเบีย", "ZAR" to "แอฟริกาใต้", "NZD" to "นิวซีแลนด์",
+        "SEK" to "สวีเดน", "NOK" to "นอร์เวย์", "DKK" to "เดนมาร์ก",
+        "PLN" to "โปแลนด์", "TRY" to "ตุรกี", "RUB" to "รัสเซีย",
+        "ILS" to "อิสราเอล", "CZK" to "เช็ก", "HUF" to "ฮังการี",
+        "CLP" to "ชิลี", "COP" to "โคลอมเบีย", "EGP" to "อียิปต์",
+        "QAR" to "กาตาร์", "KWD" to "คูเวต"
+    )
+
+
     // Comprehensive list of Google Play accepted billing currencies worldwide
     val ALL_CURRENCIES = listOf(
         GoogleSupportedCurrency("THB", "฿", "Thai Baht", "บาทไทย", "🇹🇭", 1.0, 2),
@@ -90,8 +136,9 @@ object CurrencyManager {
     fun initialize(context: Context) {
         if (prefs == null) {
             prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val savedCode = prefs?.getString(KEY_CURRENCY_CODE, "THB") ?: "THB"
-            val match = ALL_CURRENCIES.find { it.code.equals(savedCode, ignoreCase = true) } ?: ALL_CURRENCIES.first()
+            val savedCode = prefs?.getString(KEY_CURRENCY_CODE, null)
+            val detectedCode = savedCode ?: COUNTRY_TO_CURRENCY[java.util.Locale.getDefault().country.uppercase()] ?: "USD"
+            val match = ALL_CURRENCIES.find { it.code.equals(detectedCode, ignoreCase = true) } ?: ALL_CURRENCIES.first()
             _selectedCurrency.value = match
         }
     }
@@ -100,6 +147,12 @@ object CurrencyManager {
         _selectedCurrency.value = currency
         prefs?.edit()?.putString(KEY_CURRENCY_CODE, currency.code)?.apply()
     }
+
+    fun regionNameEn(currency: GoogleSupportedCurrency): String =
+        REGION_NAME_EN[currency.code] ?: currency.nameEn
+
+    fun regionNameTh(currency: GoogleSupportedCurrency): String =
+        REGION_NAME_TH[currency.code] ?: currency.nameTh
 
     fun setCurrencyByCode(code: String) {
         val found = ALL_CURRENCIES.find { it.code.equals(code, ignoreCase = true) } ?: return
