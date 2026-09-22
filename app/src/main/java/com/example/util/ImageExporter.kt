@@ -48,7 +48,9 @@ object ImageExporter {
                     resolver.update(imageUri, contentValues, null, null)
                 }
             } else {
-                val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                val picturesDir =
+                    context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                        ?: context.filesDir
                 val appDir = File(picturesDir, "QuickQR_Business")
                 if (!appDir.exists()) {
                     appDir.mkdirs()
@@ -56,12 +58,11 @@ object ImageExporter {
                 val imageFile = File(appDir, filename)
                 outputStream = FileOutputStream(imageFile)
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-
-                val values = ContentValues().apply {
-                    put(MediaStore.Images.Media.DATA, imageFile.absolutePath)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                }
-                imageUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                imageUri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    imageFile
+                )
             }
         } catch (_: Exception) {
             imageUri = null
