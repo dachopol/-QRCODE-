@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import com.example.BuildConfig
+
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -675,7 +677,7 @@ fun AdminContactSupportView() {
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "ZipQR เวอร์ชั่น 8.0 (Build 8) • GEN_QR v8 (qrcode1.5.4)",
+            text = "QuickQR Business v${BuildConfig.VERSION_NAME}",
             fontSize = 11.sp,
             color = Color(0xFF94A3B8),
             modifier = Modifier.align(Alignment.CenterHorizontally)
