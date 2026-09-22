@@ -113,7 +113,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val currentLanguage by LocalizationManager.currentLanguage.collectAsState()
     val currentCurrency by CurrencyManager.selectedCurrency.collectAsState()
     val rootCheckResult by RootSecurityManager.rootState.collectAsState()
-    val isRootBypassed by RootSecurityManager.isBypassedForTesting.collectAsState()
+    val isRootWarningAcknowledged by RootSecurityManager.isWarningAcknowledged.collectAsState()
 
     val navGenerateLabel = localizedString("nav_generate")
     val navCardLabel = localizedString("nav_card")
@@ -335,10 +335,10 @@ fun MainAppScreen(viewModel: MainViewModel) {
 
     // Anti-Root Security Protection Dialog (Active at all times)
     rootCheckResult?.let { result ->
-        if (result.isRooted && !isRootBypassed) {
+        if (result.isRooted && !isRootWarningAcknowledged) {
             RootSecurityWarningDialog(
                 result = result,
-                onDismiss = { RootSecurityManager.acknowledgeAndBypassWarning() }
+                onDismiss = { RootSecurityManager.acknowledgeWarning() }
             )
         }
     }
