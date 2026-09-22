@@ -34,7 +34,12 @@ object CurrencyManager {
         "NO" to "NOK", "DK" to "DKK", "PL" to "PLN", "TR" to "TRY",
         "RU" to "RUB", "IL" to "ILS", "CZ" to "CZK", "HU" to "HUF",
         "CL" to "CLP", "CO" to "COP", "EG" to "EGP", "QA" to "QAR",
-        "KW" to "KWD"
+        "KW" to "KWD",
+        "AT" to "EUR", "BE" to "EUR", "HR" to "EUR", "CY" to "EUR",
+        "EE" to "EUR", "FI" to "EUR", "FR" to "EUR", "DE" to "EUR",
+        "GR" to "EUR", "IE" to "EUR", "IT" to "EUR", "LV" to "EUR",
+        "LT" to "EUR", "LU" to "EUR", "MT" to "EUR", "NL" to "EUR",
+        "PT" to "EUR", "SK" to "EUR", "SI" to "EUR", "ES" to "EUR"
     )
 
     private val REGION_NAME_EN = mapOf(
