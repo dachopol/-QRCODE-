@@ -46,10 +46,10 @@ See `AI_STUDIO_IMPORT.md`. This v13 package keeps the Play Console applicationId
 - This GitHub noreply address is display-only and is not used as a support mailbox or `mailto:` target.
 
 ## Device UI / language follow-up
-The latest source includes the real-device fixes documented in `DEVICE_UI_FIX_REPORT.md` and the permanent rules in `PROJECT_RULES.md`.
+The latest source follows the permanent UI, localization, Card-only, and adaptive-layout rules in `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, and `UNIVERSAL_AUTO_LAYOUT_RULE.md`.
 
-## v12 preserve-content rule
-- Do not remove existing menus, options, or core QR features just to make a screen fit.
-- Action/menu/status/warning labels must remain readable in full; use wrapping, minimum height, scrolling, or adaptive layout instead of truncating them.
-- Long user-generated history values may be shortened only when the full value remains accessible for viewing/copying.
-- See `PROJECT_RULES.md` and `RELEASE_NOTES_V12.md`.
+## Preserve-content rule
+- Do not remove core menus, actions, or QR features just to make a screen fit.
+- Use wrapping, minimum height, scrolling, safe areas, and adaptive layout instead of clipping.
+- Long user-generated history values may be shortened only when the full value remains accessible.
+- See `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, `UNIVERSAL_AUTO_LAYOUT_RULE.md`, and `RELEASE_NOTES_V13.md`.
