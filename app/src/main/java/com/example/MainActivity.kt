@@ -338,7 +338,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
         if (result.isRooted && !isRootBypassed) {
             RootSecurityWarningDialog(
                 result = result,
-                onDismiss = { /* dismissed via restricted mode */ }
+                onDismiss = { RootSecurityManager.acknowledgeAndBypassWarning() }
             )
         }
     }
