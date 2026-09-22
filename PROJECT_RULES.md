@@ -65,7 +65,7 @@
 - ถ้าต้องการ conversion ให้แยกไป detail screen และต้องใช้ rate จากแหล่งจริงพร้อมเวลาอัปเดต; ห้าม hardcode rate แล้วอ้างว่าเป็นค่าปัจจุบัน
 - ห้าม UI ปนหลายภาษาในหน้าจอเดียวจาก translation coverage ไม่ครบ
 - ภาษาใดที่ยังแปลไม่ครบทั้ง flow หลัก ห้ามเปิดเป็นตัวเลือก “พร้อมใช้งาน”; ให้ fallback ทั้งหน้าจอเป็นภาษาเดียว ไม่ใช่ fallback รายข้อความ
-- Version badge ใน UI ต้องอ่านจาก BuildConfig.VERSION_NAME ห้าม hardcode v8/v11/v12
+- Version badge ใน UI ต้องอ่านจาก BuildConfig.VERSION_NAME ห้าม hardcode หมายเลขเวอร์ชันใน UI
 
 
 ## SENIOR PRODUCT DESIGNER + ENGINEER RULE — 2026-09-23
