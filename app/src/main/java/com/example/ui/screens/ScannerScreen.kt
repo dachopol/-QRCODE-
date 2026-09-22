@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.MainViewModel
+import com.example.util.localizedText
 import com.example.util.QrScannerUtil
 import java.util.concurrent.Executors
 
@@ -207,7 +208,7 @@ fun ScannerScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "ขออนุญาตเข้าถึงกล้องเพื่อสแกน QR",
+                            text = localizedText("ขออนุญาตเข้าถึงกล้องเพื่อสแกน QR", "Allow camera access to scan QR codes"),
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -215,7 +216,7 @@ fun ScannerScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "ใช้สำหรับสแกนคิวอาร์โค้ดพร้อมเพย์ ลิงก์ร้านค้า และ Wi-Fi ได้ทันที",
+                            text = localizedText("ใช้สำหรับสแกนคิวอาร์โค้ดพร้อมเพย์ ลิงก์ร้านค้า และ Wi-Fi ได้ทันที", "Scan PromptPay, store links, and Wi-Fi QR codes"),
                             color = Color(0xFF94A3B8),
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center
@@ -227,7 +228,7 @@ fun ScannerScreen(
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth().height(48.dp)
                         ) {
-                            Text("อนุญาตเปิดกล้อง", fontWeight = FontWeight.Bold)
+                            Text(localizedText("อนุญาตเปิดกล้อง", "Allow camera"), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -263,7 +264,7 @@ fun ScannerScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "วางคิวอาร์โค้ดในกรอบเพื่อสแกน",
+                            text = localizedText("วางคิวอาร์โค้ดในกรอบเพื่อสแกน", "Place the QR code inside the frame"),
                             color = Color.White,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
@@ -289,7 +290,7 @@ fun ScannerScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "เมื่อสแกนจะเปิดโฆษณา AdMob สนับสนุนแอป",
+                            text = localizedText("สแกน QR Code", "Scan QR code"),
                             fontSize = 11.sp,
                             color = Color(0xFF78350F),
                             fontWeight = FontWeight.Medium
@@ -349,7 +350,7 @@ fun ScannerScreen(
                     ) {
                         Icon(
                             imageVector = if (isTorchOn) Icons.Default.FlashlightOn else Icons.Default.FlashlightOff,
-                            contentDescription = "เปิด/ปิดแฟลช",
+                            contentDescription = localizedText("เปิด/ปิดแฟลช", "Toggle flash"),
                             tint = if (isTorchOn) Color.Black else Color.White
                         )
                     }
@@ -373,7 +374,7 @@ fun ScannerScreen(
                     Icon(Icons.Default.PhotoLibrary, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "เลือกรูปจากคลังภาพ",
+                        text = localizedText("เลือกรูปจากคลังภาพ", "Choose image from gallery"),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
