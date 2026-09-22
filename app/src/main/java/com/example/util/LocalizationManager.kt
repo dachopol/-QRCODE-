@@ -140,11 +140,6 @@ object LocalizationManager {
             "th" to "QuickQR Business",
             "en" to "QuickQR Business"
         ),
-        "app_subtitle" to mapOf(
-            "th" to "พร้อมเพย์ & นามบัตรดิจิทัล", "en" to "PromptPay & Digital Cards", "zh_CN" to "PromptPay与数字名片",
-            "zh_TW" to "PromptPay與數位名片", "ja" to "プロンプトペイ＆名刺", "ko" to "프롬프트페이 및 디지털 명함",
-            "es" to "PromptPay y Tarjetas Digitales", "fr" to "PromptPay et Cartes Numériques", "de" to "PromptPay & Visitenkarten"
-        ),
         "contact_admin" to mapOf(
             "th" to "ช่วยเหลือ",
             "en" to "Support"
@@ -265,42 +260,6 @@ object LocalizationManager {
         "color_live_preview" to mapOf(
             "th" to "แสดงตัวอย่างสีแบบเรียลไทม์ (Live Preview)", "en" to "Live Color Preview",
             "zh_CN" to "实时颜色预览", "zh_TW" to "即時顏色預覽", "ja" to "リアルタイムカラープレビュー", "ko" to "실시간 색상 미리보기"
-        ),
-
-        // Top Up and VIP
-        "topup_dialog_title" to mapOf(
-            "th" to "เติมเงิน & อัปเกรด VIP", "en" to "Top Up & Upgrade VIP", "zh_CN" to "充值与升级VIP",
-            "zh_TW" to "儲值與升級VIP", "ja" to "チャージ＆VIPアップグレード", "ko" to "충전 및 VIP 업그레이드"
-        ),
-        "btn_select_package" to mapOf(
-            "th" to "เลือกแพ็กเกจนี้", "en" to "Select This Plan", "zh_CN" to "选择此套餐", "zh_TW" to "選擇此方案",
-            "ja" to "このプランを選択", "ko" to "이 요금제 선택"
-        ),
-        "vip_unlimited_badge" to mapOf(
-            "th" to "ใช้งานไม่จำกัด", "en" to "Unlimited Access", "zh_CN" to "无限次使用", "zh_TW" to "無限次使用",
-            "ja" to "無制限アクセス", "ko" to "무제한 이용"
-        ),
-        "best_value_badge" to mapOf(
-            "th" to "คุ้มค่าที่สุด", "en" to "Best Value", "zh_CN" to "超值推荐", "zh_TW" to "超值推薦",
-            "ja" to "一番お得", "ko" to "최고 가치"
-        ),
-        "save_percent" to mapOf(
-            "th" to "ประหยัด 30%", "en" to "Save 30%", "zh_CN" to "立省 30%", "zh_TW" to "現省 30%",
-            "ja" to "30%オフ", "ko" to "30% 할인"
-        ),
-        "pay_confirm_title" to mapOf(
-            "th" to "สแกน QR เพื่อชำระเงิน", "en" to "Scan QR to Pay", "zh_CN" to "扫码付款", "zh_TW" to "掃碼付款",
-            "ja" to "QRをスキャンして支払う", "ko" to "QR 스캔하여 결제"
-        ),
-        "btn_confirm_paid" to mapOf(
-            "th" to "✅ ฉันโอนเงินเรียบร้อยแล้ว (เปิดใช้งาน)", "en" to "✅ I have transferred (Activate now)",
-            "zh_CN" to "✅ 我已转账 (立即激活)", "zh_TW" to "✅ 我已轉帳 (立即啟用)",
-            "ja" to "✅ 送金完了 (今すぐ有効化)", "ko" to "✅ 이체 완료 (즉시 활성화)"
-        ),
-        "btn_save_pay_qr" to mapOf(
-            "th" to "💾 บันทึก QR ลงเครื่องเพื่อสแกนจ่าย", "en" to "💾 Save QR image to gallery",
-            "zh_CN" to "💾 保存二维码到相册", "zh_TW" to "💾 儲存QR碼至相簿",
-            "ja" to "💾 QR画像を保存", "ko" to "💾 QR 이미지 저장"
         ),
 
         // General
