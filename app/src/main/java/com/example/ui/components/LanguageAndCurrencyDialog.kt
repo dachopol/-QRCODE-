@@ -58,6 +58,7 @@ import com.example.util.GoogleSupportedCurrency
 import com.example.util.LocalizationManager
 import com.example.util.SupportedLanguage
 import com.example.util.localizedString
+import com.example.util.localizedText
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
@@ -195,7 +196,7 @@ fun LanguageAndCurrencyDialog(
                                 Icon(Icons.Default.Language, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "ภาษา (Languages)",
+                                    text = localizedText("ภาษา", "Languages"),
                                     fontSize = 13.sp,
                                     fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium
                                 )
@@ -215,7 +216,7 @@ fun LanguageAndCurrencyDialog(
                                 Icon(Icons.Default.Paid, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "สกุลเงิน Google",
+                                    text = localizedText("สกุลเงิน", "Currency"),
                                     fontSize = 13.sp,
                                     fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium
                                 )
@@ -259,7 +260,7 @@ fun LanguageAndCurrencyDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear",
+                                    contentDescription = localizedText("ล้าง", "Clear"),
                                     tint = Color(0xFF64748B)
                                 )
                             }
@@ -466,12 +467,12 @@ private fun CurrencyItemCard(
                         )
                     }
                     Text(
-                        text = "${currency.nameEn} • ${currency.nameTh}",
+                        text = localizedText(currency.nameTh, currency.nameEn),
                         fontSize = 12.sp,
                         color = Color(0xFF64748B)
                     )
                     Text(
-                        text = "VIP ฿59 ≈ ${currency.format(59.0)} / เดือน",
+                        text = localizedText("VIP ฿59 ≈ ${currency.format(59.0)} / เดือน", "VIP ฿59 ≈ ${currency.format(59.0)} / month"),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF0284C7)
