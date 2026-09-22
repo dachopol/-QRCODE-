@@ -58,6 +58,11 @@ import com.example.util.GoogleSupportedCurrency
 import com.example.util.LocalizationManager
 import com.example.util.SupportedLanguage
 import com.example.util.localizedString
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.AppSectionShape
+import com.example.ui.theme.GlassAccent
+import com.example.ui.theme.GlassBorder
 import com.example.util.localizedText
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -110,9 +115,10 @@ fun LanguageAndCurrencyDialog(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.85f)
-                .clip(RoundedCornerShape(24.dp))
+                .clip(AppCardShape)
                 .testTag("language_currency_dialog"),
-            color = Color(0xFFF8FAFC)
+            color = Color.White.copy(alpha = 0.97f),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder)
         ) {
             Column(
                 modifier = Modifier
@@ -183,15 +189,15 @@ fun LanguageAndCurrencyDialog(
                     contentColor = Color(0xFF0F172A),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
+                        .clip(AppPillShape)
                 ) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
                         modifier = Modifier
                             .padding(4.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(if (selectedTab == 0) Color.White else Color.Transparent)
+                            .clip(AppPillShape)
+                            .background(if (selectedTab == 0) GlassAccent else Color.Transparent)
                             .testTag("tab_language_button"),
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -210,8 +216,8 @@ fun LanguageAndCurrencyDialog(
                         onClick = { selectedTab = 1 },
                         modifier = Modifier
                             .padding(4.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(if (selectedTab == 1) Color.White else Color.Transparent)
+                            .clip(AppPillShape)
+                            .background(if (selectedTab == 1) GlassAccent else Color.Transparent)
                             .testTag("tab_currency_button"),
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -269,7 +275,7 @@ fun LanguageAndCurrencyDialog(
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = AppSectionShape,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
@@ -304,7 +310,7 @@ fun LanguageAndCurrencyDialog(
                     // GOOGLE SUPPORTED CURRENCIES LIST
                     Column(modifier = Modifier.weight(1f)) {
                         Surface(
-                            shape = RoundedCornerShape(10.dp),
+                            shape = AppSectionShape,
                             color = Color(0xFFECFDF5),
                             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
                             modifier = Modifier
@@ -364,7 +370,7 @@ private fun LanguageItemCard(
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("lang_item_${language.code}"),
-        shape = RoundedCornerShape(14.dp),
+        shape = AppSectionShape,
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) Color(0xFFEFF6FF) else Color.White
         ),
@@ -435,7 +441,7 @@ private fun CurrencyItemCard(
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("currency_item_${currency.code}"),
-        shape = RoundedCornerShape(14.dp),
+        shape = AppSectionShape,
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) Color(0xFFF0FDF4) else Color.White
         ),
