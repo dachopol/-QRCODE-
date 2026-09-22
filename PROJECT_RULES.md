@@ -1,4 +1,4 @@
-# PROJECT_RULES.md — QuickQR Business
+# PROJECT_RULES.md — QuickQR Business v13
 
 ## หลักบังคับ
 - ห้าม Fake/Random/Hardcode ข้อมูลที่อ้างว่าเป็นข้อมูลจริง; ไม่มีข้อมูลให้แสดงว่าง/ไม่ทราบ/ผิดพลาด
