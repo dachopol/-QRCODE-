@@ -51,12 +51,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -71,6 +69,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.TextStyle
@@ -128,43 +127,33 @@ fun GeneratorScreen(
                 )
             )
     ) {
-        // Category Selector TabRow
-        ScrollableTabRow(
+        // Four equal-width generator categories
+        PrimaryTabRow(
             selectedTabIndex = category,
-            edgePadding = 16.dp,
             containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary,
-            indicator = { tabPositions ->
-                TabRowDefaults.SecondaryIndicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[category]),
-                    height = 3.dp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            contentColor = MaterialTheme.colorScheme.primary
         ) {
             categories.forEachIndexed { index, pair ->
                 Tab(
                     selected = category == index,
                     onClick = { viewModel.setGeneratorCategory(index) },
                     text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 104.dp)
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
                         ) {
                             Icon(
                                 imageVector = pair.second,
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = pair.first,
                                 fontWeight = if (category == index) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 14.sp,
-                                maxLines = 1,
-                                softWrap = false
+                                fontSize = 11.sp,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center
                             )
                         }
                     },
@@ -394,7 +383,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                 onClick = { viewModel.generatePromptPay() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .defaultMinSize(minHeight = 52.dp)
                     .testTag("generate_promptpay_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
@@ -537,14 +526,14 @@ private fun WifiForm(viewModel: MainViewModel) {
                 onClick = { viewModel.generateWifi() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .defaultMinSize(minHeight = 52.dp)
                     .testTag("generate_wifi_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
             ) {
                 Icon(Icons.Default.Wifi, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(localizedText("สร้าง QR Wi-Fi ทันที", "Generate Wi-Fi QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("สร้าง QR Wi-Fi ทันที", "Generate Wi-Fi QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 2)
             }
         }
     }
@@ -642,7 +631,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                 onClick = { viewModel.generateStoreLink() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .defaultMinSize(minHeight = 52.dp)
                     .testTag("generate_store_link_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
@@ -694,7 +683,7 @@ private fun TextForm(viewModel: MainViewModel) {
                 onClick = { viewModel.generateText() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .defaultMinSize(minHeight = 52.dp)
                     .testTag("generate_text_button"),
                 shape = AppPillShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
