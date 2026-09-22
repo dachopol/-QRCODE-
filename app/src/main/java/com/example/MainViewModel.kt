@@ -284,7 +284,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Executes a QR action directly.
-     * Monetization is intentionally disabled in this testing build.
+     * Monetization is not included in this build.
      */
     private fun executeQrAction(onExecute: () -> Unit) {
         onExecute()
