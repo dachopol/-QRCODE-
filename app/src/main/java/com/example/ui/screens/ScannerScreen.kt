@@ -41,7 +41,6 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
@@ -246,7 +245,7 @@ fun ScannerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Top Bar: Instructions & AdMob tag
+            // Top Bar: scan instruction
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 16.dp)
@@ -275,31 +274,6 @@ fun ScannerScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Surface(
-                    shape = AppPillShape,
-                    color = Color(0xFFFEF3C7).copy(alpha = 0.9f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MonetizationOn,
-                            contentDescription = null,
-                            tint = Color(0xFFB45309),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = localizedText("สแกน QR Code", "Scan QR code"),
-                            fontSize = 11.sp,
-                            color = Color(0xFF78350F),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
             }
 
             // Central Targeting Box with Corner Highlights and Laser
