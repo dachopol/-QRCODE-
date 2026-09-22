@@ -102,7 +102,6 @@ fun GeneratorScreen(
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
     val includeCenterLogo by viewModel.includeCenterLogo.collectAsState()
-    val walletState by WalletManager.walletState.collectAsState()
 
     val catPromptpay = localizedString("cat_promptpay")
     val catWifi = localizedString("cat_wifi")
