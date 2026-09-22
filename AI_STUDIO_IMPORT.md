@@ -1,4 +1,4 @@
-# QuickQR Business v12 — Google AI Studio import
+# QuickQR Business v13 — Google AI Studio import
 
 ## Recommended (official) route
 Google AI Studio Build mode officially supports **Import from GitHub**. Import the repository as an **Android** project (Kotlin + Jetpack Compose), not as a Web app.
@@ -14,8 +14,8 @@ ZIP upload behavior can change between AI Studio releases. If using ZIP upload:
 ## Project identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `12`
-- versionName: `12.0`
+- versionCode: `13`
+- versionName: `13.0`
 
 ## Compatibility cleanup in this package
 - Single Android `:app` module
