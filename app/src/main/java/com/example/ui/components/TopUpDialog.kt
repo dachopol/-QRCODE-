@@ -804,16 +804,16 @@ fun TopUpDialog(
                             when (result) {
                                 is SlipVerificationResult.Success -> {
                                     WalletManager.activatePlan(plan)
-                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "ยืนยันการชำระเงินแล้ว", Toast.LENGTH_LONG).show()
                                     onDismiss()
                                 }
                                 is SlipVerificationResult.Unsupported -> {
                                     statusDialogTitle = "ผลการตรวจสอบการชำระเงิน"
-                                    statusDialogMessage = result.reason
+                                    statusDialogMessage = "ยังไม่รองรับการตรวจสอบสลิปในบิลด์นี้"
                                 }
                                 is SlipVerificationResult.Failed -> {
                                     statusDialogTitle = "ข้อผิดพลาด"
-                                    statusDialogMessage = result.error
+                                    statusDialogMessage = "การตรวจสอบสลิปไม่สำเร็จ"
                                 }
                             }
                         },
