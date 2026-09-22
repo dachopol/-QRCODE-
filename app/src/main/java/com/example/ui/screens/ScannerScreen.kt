@@ -25,6 +25,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -228,7 +229,7 @@ fun ScannerScreen(
                             onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
                             shape = AppPillShape,
-                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
                         ) {
                             Text(localizedText("อนุญาตเปิดกล้อง", "Allow camera"), fontWeight = FontWeight.Bold)
                         }
@@ -343,7 +344,7 @@ fun ScannerScreen(
                         )
                     },
                     modifier = Modifier
-                        .height(52.dp)
+                        .defaultMinSize(minHeight = 52.dp)
                         .testTag("pick_gallery_button"),
                     shape = AppPillShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
