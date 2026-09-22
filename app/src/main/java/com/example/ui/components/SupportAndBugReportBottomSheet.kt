@@ -3,7 +3,6 @@ package com.example.ui.components
 import com.example.BuildConfig
 
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -31,7 +30,6 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Refresh
@@ -48,7 +46,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -72,9 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.ui.theme.appTextFieldColors
-import com.example.util.PrivacyProtection
 import com.example.util.localizedText
-import com.example.util.localizedNow
 import com.example.util.RootSecurityManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -387,7 +382,7 @@ fun BugReportForm(
     var category by remember { mutableStateOf("QR พร้อมเพย์สแกนไม่ติด") }
     var description by remember { mutableStateOf("") }
     var contactInfo by remember { mutableStateOf("") }
-    var isSubmitted by remember { mutableStateOf(false) }
+    var isShareOpened by remember { mutableStateOf(false) }
 
     val categories = listOf(
         "QR พร้อมเพย์สแกนไม่ติด",
@@ -397,7 +392,7 @@ fun BugReportForm(
         "ข้อเสนอแนะอื่นๆ"
     )
 
-    if (isSubmitted) {
+    if (isShareOpened) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -420,14 +415,14 @@ fun BugReportForm(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = localizedText("ส่งรายงานบัคเรียบร้อยแล้ว!", "Bug report submitted!"),
+                text = localizedText("เปิดเมนูแชร์รายงานแล้ว", "Report share sheet opened"),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF16A34A)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = localizedText("ขอบคุณที่แจ้งปัญหา", "Thank you for reporting the issue"),
+                text = localizedText("เลือกแอปที่ต้องการใช้ส่งรายงาน", "Choose an app to send the report"),
                 fontSize = 13.sp,
                 color = Color(0xFF64748B)
             )
@@ -514,8 +509,29 @@ fun BugReportForm(
             Button(
                 onClick = {
                     if (description.isNotBlank()) {
-                        contactInfo = PrivacyProtection.sanitizeEmail(contactInfo)
-                        isSubmitted = true
+                        val reportText = buildString {
+                            append("QuickQR Business v${BuildConfig.VERSION_NAME}\n")
+                            append("Category: ").append(category).append("\n")
+                            append("Issue: ").append(description.trim()).append("\n")
+                            if (contactInfo.isNotBlank()) {
+                                append("Contact: ").append(contactInfo.trim())
+                            }
+                        }
+                        try {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business issue report")
+                                putExtra(Intent.EXTRA_TEXT, reportText)
+                            }
+                            context.startActivity(Intent.createChooser(intent, localizedText("ส่งรายงานด้วย", "Send report with")))
+                            isShareOpened = true
+                        } catch (_: Exception) {
+                            Toast.makeText(
+                                context,
+                                localizedText("ไม่พบแอปสำหรับแชร์รายงาน", "No app available to share the report"),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 },
                 enabled = description.isNotBlank(),
@@ -528,7 +544,7 @@ fun BugReportForm(
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(localizedText("ส่งรายงานปัญหา", "Submit report"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(localizedText("แชร์รายงาน", "Share report"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
@@ -543,7 +559,7 @@ fun AdminContactSupportView() {
             .fillMaxWidth()
             .testTag("admin_contact_view")
     ) {
-        // Direct Contact Card
+        // Support entry without embedding a private email address.
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -561,78 +577,52 @@ fun AdminContactSupportView() {
                         Icon(Icons.Default.SupportAgent, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                     }
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(localizedText("ฝ่ายดูแลลูกค้า", "Support"), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                shape = RoundedCornerShape(6.dp),
-                                color = Color(0xFF0284C7).copy(alpha = 0.15f)
-                            ) {
-                                Text(
-                                    text = localizedText("ฝ่ายช่วยเหลือ", "Official Support"),
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0284C7),
-                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-                        Text(localizedText("อีเมล: ", "Email: ") + PrivacyProtection.OFFICIAL_ADMIN_EMAIL, fontSize = 12.sp, color = Color(0xFF0284C7), fontWeight = FontWeight.SemiBold)
-                    }
+                    Text(
+                        localizedText("ช่วยเหลือ", "Support"),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F172A)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = localizedText("หากพบปัญหาการสร้าง QR การสแกน หรือนามบัตรดิจิทัล สามารถติดต่อฝ่ายช่วยเหลือได้", "Contact support for QR generation, scanning, or digital business card issues"),
+                    text = localizedText(
+                        "ยังไม่ได้กำหนดอีเมลสาธารณะสำหรับฝ่ายช่วยเหลือ คุณสามารถแชร์คำขอช่วยเหลือผ่านแอปที่เลือกได้",
+                        "No public support email is configured. You can share a support request using an app of your choice."
+                    ),
                     fontSize = 12.sp,
                     color = Color(0xFF334155),
                     lineHeight = 18.sp
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}")
-                                    putExtra(Intent.EXTRA_SUBJECT, "[ZipQR v9.0] แจ้งปัญหา / ติดต่อแอดมิน")
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {
-                                Toast.makeText(context, localizedNow("กรุณาส่งอีเมลไปที่: ", "Email: ") + PrivacyProtection.OFFICIAL_ADMIN_EMAIL, Toast.LENGTH_LONG).show()
+                Button(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business support request")
+                                putExtra(Intent.EXTRA_TEXT, "QuickQR Business v${BuildConfig.VERSION_NAME}\n")
                             }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
-                    ) {
-                        Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(localizedText("ติดต่อฝ่ายช่วยเหลือ", "Contact support"), fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Admin Email", PrivacyProtection.OFFICIAL_ADMIN_EMAIL))
-                            Toast.makeText(context, localizedNow("คัดลอกอีเมลแล้ว", "Email copied"), Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .height(44.dp),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(localizedText("คัดลอก", "Copy"), fontSize = 12.sp, maxLines = 1, softWrap = false)
-                    }
+                            context.startActivity(Intent.createChooser(intent, localizedText("ติดต่อผ่าน", "Contact with")))
+                        } catch (_: Exception) {
+                            Toast.makeText(
+                                context,
+                                localizedText("ไม่พบแอปสำหรับแชร์คำขอ", "No app available to share the request"),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+                ) {
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(localizedText("แชร์คำขอช่วยเหลือ", "Share support request"), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
