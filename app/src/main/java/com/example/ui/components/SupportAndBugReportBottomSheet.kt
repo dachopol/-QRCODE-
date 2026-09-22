@@ -379,6 +379,7 @@ fun BugReportForm(
     viewModel: MainViewModel,
     onSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     var category by remember { mutableStateOf("QR พร้อมเพย์สแกนไม่ติด") }
     var description by remember { mutableStateOf("") }
     var contactInfo by remember { mutableStateOf("") }
