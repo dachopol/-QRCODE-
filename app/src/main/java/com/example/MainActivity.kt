@@ -28,9 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.automirrored.filled.ContactSupport
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MonetizationOn
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,9 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import com.example.admob.AdMobBannerView
-import com.example.data.WalletManager
 import com.example.ui.components.LanguageAndCurrencyDialog
 import com.example.ui.components.QrPreviewDialog
 import com.example.ui.components.RootSecurityWarningDialog
@@ -89,9 +83,7 @@ class MainActivity : ComponentActivity() {
         // Initialize persistent managers
         LocalizationManager.initialize(this)
         CurrencyManager.initialize(this)
-        WalletManager.initialize(this)
-
-        // Anti-Root Security: Initial inspection on startup (Async to avoid black screen)
+// Anti-Root Security: Initial inspection on startup (Async to avoid black screen)
         RootSecurityManager.verifyDeviceIntegrityAsync(this, lifecycleScope)
 
         setContent {
