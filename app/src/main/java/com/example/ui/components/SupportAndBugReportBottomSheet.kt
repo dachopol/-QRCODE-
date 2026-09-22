@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -158,8 +159,7 @@ fun SupportAndBugReportBottomSheet(
                                 text = localizedText("แจ้งบัค", "Report bug"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false
+                                maxLines = 2
                             )
                         }
                     }
@@ -178,8 +178,7 @@ fun SupportAndBugReportBottomSheet(
                                 text = localizedText("ติดต่อแอดมิน", "Support"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false
+                                maxLines = 2
                             )
                         }
                     }
@@ -198,8 +197,7 @@ fun SupportAndBugReportBottomSheet(
                                 text = localizedText("ความปลอดภัย", "Security"),
                                 fontSize = 12.sp,
                                 fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false
+                                maxLines = 2
                             )
                         }
                     }
@@ -363,7 +361,7 @@ fun SecurityStatusView() {
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853)),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(46.dp)
+                .defaultMinSize(minHeight = 46.dp)
                 .testTag("rescan_root_security_button")
         ) {
             Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -461,8 +459,7 @@ fun BugReportForm(
                                 text = cat,
                                 fontSize = 12.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1,
-                                softWrap = false
+                                maxLines = 2
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -538,7 +535,7 @@ fun BugReportForm(
                 enabled = description.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .testTag("submit_bug_button"),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
@@ -617,7 +614,7 @@ fun AdminContactSupportView() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(44.dp),
+                        .defaultMinSize(minHeight = 44.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
                 ) {
