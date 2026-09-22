@@ -246,7 +246,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     tonalElevation = 0.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(76.dp)
+                        .navigationBarsPadding()
+                        .defaultMinSize(minHeight = 72.dp)
                 ) {
                     navItems.forEachIndexed { index, (label, icon, tag) ->
                         val isSelected = currentTab == index
@@ -266,8 +267,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     text = label,
                                     fontSize = if (isSelected) 12.sp else 11.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                    maxLines = 1,
-                                    softWrap = false
+                                    maxLines = 2
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
