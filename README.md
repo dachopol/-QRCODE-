@@ -4,8 +4,8 @@ Android app for scanning and generating QR codes for business use.
 
 ## Package / version
 - Application ID: `com.aistudio.qrgenerator.kmpzqr`
-- Version name: `12.0`
-- Version code: `12`
+- Version name: `13.0`
+- Version code: `13`
 - Min SDK: 24
 - Target SDK: 36
 
@@ -39,7 +39,7 @@ The archive intentionally does **not** contain a partial Gradle wrapper. For loc
 
 
 ## AI Studio compatibility package
-See `AI_STUDIO_IMPORT.md`. This v12 package keeps the Play Console applicationId unchanged and removes optional build/test plugins that are not needed for app runtime.
+See `AI_STUDIO_IMPORT.md`. This v13 package keeps the Play Console applicationId unchanged and removes optional build/test plugins that are not needed for app runtime.
 
 ## Developer email rule
 - Developer identity: `215334638+AnakinYoo@users.noreply.github.com`
