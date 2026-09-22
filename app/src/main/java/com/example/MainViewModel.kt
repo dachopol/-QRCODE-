@@ -122,7 +122,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _qrBackgroundColor = MutableStateFlow(Color.White)
     val qrBackgroundColor: StateFlow<Color> = _qrBackgroundColor.asStateFlow()
 
-    // GEN_QR Spec Center Logo State (logo=20%=102px pad=12)
+    // Optional center logo state
     private val _includeCenterLogo = MutableStateFlow(true)
     val includeCenterLogo: StateFlow<Boolean> = _includeCenterLogo.asStateFlow()
 
