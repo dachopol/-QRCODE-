@@ -59,6 +59,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.ActiveQrPreview
 import com.example.util.ImageExporter
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.AppSectionShape
+import com.example.ui.theme.GlassBorder
 import com.example.util.localizedText
 import com.example.util.localizedNow
 
@@ -83,7 +87,7 @@ fun QrPreviewDialog(
                 .fillMaxWidth()
                 .padding(4.dp)
                 .testTag("qr_preview_dialog"),
-            shape = RoundedCornerShape(24.dp),
+            shape = AppCardShape,
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(12.dp)
         ) {
@@ -154,9 +158,9 @@ fun QrPreviewDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(AppSectionShape)
                         .background(Color(0xFFF8FAFC))
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+                        .border(1.dp, GlassBorder, AppSectionShape)
                         .padding(12.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -173,7 +177,7 @@ fun QrPreviewDialog(
 
                 // High resolution quality notice badge
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = AppSectionShape,
                     color = Color(0xFFECFDF5),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -211,7 +215,7 @@ fun QrPreviewDialog(
                             .weight(1f)
                             .height(48.dp)
                             .testTag("save_qr_button"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = AppPillShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
                     ) {
                         Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -228,7 +232,7 @@ fun QrPreviewDialog(
                             .weight(1f)
                             .height(48.dp)
                             .testTag("share_qr_button"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = AppPillShape,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -249,7 +253,7 @@ fun QrPreviewDialog(
                         .fillMaxWidth()
                         .height(44.dp)
                         .testTag("copy_payload_button"),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = AppPillShape
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
