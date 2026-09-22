@@ -75,6 +75,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.MainViewModel
+import com.example.ui.theme.AppCardShape
+import com.example.ui.theme.AppPillShape
+import com.example.ui.theme.AppSectionShape
 import com.example.util.localizedText
 import com.example.util.QrScannerUtil
 import java.util.concurrent.Executors
@@ -192,7 +195,7 @@ fun ScannerScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Card(
-                    shape = RoundedCornerShape(20.dp),
+                    shape = AppCardShape,
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -225,7 +228,7 @@ fun ScannerScreen(
                         Button(
                             onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = AppPillShape,
                             modifier = Modifier.fillMaxWidth().height(48.dp)
                         ) {
                             Text(localizedText("อนุญาตเปิดกล้อง", "Allow camera"), fontWeight = FontWeight.Bold)
@@ -249,7 +252,7 @@ fun ScannerScreen(
                 modifier = Modifier.padding(top = 16.dp)
             ) {
                 Surface(
-                    shape = RoundedCornerShape(20.dp),
+                    shape = AppCardShape,
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
                     Row(
@@ -275,7 +278,7 @@ fun ScannerScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = AppPillShape,
                     color = Color(0xFFFEF3C7).copy(alpha = 0.9f)
                 ) {
                     Row(
@@ -368,7 +371,7 @@ fun ScannerScreen(
                     modifier = Modifier
                         .height(52.dp)
                         .testTag("pick_gallery_button"),
-                    shape = RoundedCornerShape(26.dp),
+                    shape = AppPillShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
                 ) {
                     Icon(Icons.Default.PhotoLibrary, contentDescription = null, tint = Color.White)
