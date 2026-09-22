@@ -363,10 +363,11 @@ fun QrColorCustomizerCard(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = name.take(6),
+                            text = name,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B)
+                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
+                            maxLines = 2
                         )
                     }
                 }
