@@ -14,15 +14,16 @@ import com.example.data.QrItemEntity
 import com.example.model.CardColorTheme
 import com.example.model.DigitalBusinessCard
 import com.example.model.ParsedQrResult
-import com.example.model.PromptPayModel
 import com.example.model.StoreLinkModel
 import com.example.model.StorePlatform
-import com.example.model.WifiModel
 import com.example.model.WifiSecurity
 import com.example.util.ImageExporter
 import com.example.util.PromptPayGenerator
 import com.example.util.QrCodeUtil
 import com.example.util.QrScannerUtil
+import com.example.util.QrValidationUtil
+import com.example.util.ValidationResult
+import com.example.util.localizedNow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -244,7 +245,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
             )
             withContext(Dispatchers.Main) {
-                Toast.makeText(getApplication(), "บันทึกโปรไฟล์นามบัตรเรียบร้อย", Toast.LENGTH_SHORT).show()
+                Toast.makeText(getApplication(), localizedNow("บันทึกโปรไฟล์นามบัตรแล้ว", "Business card profile saved"), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -295,7 +296,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun generatePromptPay() {
         val target = _promptPayTarget.value.trim()
         if (target.isBlank()) {
-            Toast.makeText(getApplication(), "กรุณาระบุเบอร์โทรหรือเลขบัตรประชาชน", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                getApplication(),
+                localizedNow("กรุณาระบุเบอร์โทรหรือเลขบัตรประชาชน", "Enter a PromptPay phone number or ID"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        if (QrValidationUtil.validatePromptPayTarget(target) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ข้อมูลพร้อมเพย์ไม่ถูกต้อง", "Invalid PromptPay ID"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        if (QrValidationUtil.validateAmount(_promptPayAmount.value) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("จำนวนเงินไม่ถูกต้อง", "Invalid amount"),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -319,12 +340,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 backgroundColor = _qrBackgroundColor.value.toArgb()
             )
 
-            // Consume quota
-val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", amount)}" else "ไม่ระบุยอดเงิน"
-            val subtitle = "เบอร์/เลขบัตร: $target ($amountStr)"
+            val amountStr = if (amount != null && amount > 0) {
+                "฿${String.format("%,.2f", amount)}"
+            } else {
+                localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
+            }
+            val subtitle = localizedNow(
+                "เบอร์/เลขบัตร: $target ($amountStr)",
+                "PromptPay ID: $target ($amountStr)"
+            )
 
             _activePreview.value = ActiveQrPreview(
-                title = "พร้อมเพย์ (PromptPay)",
+                title = localizedNow("พร้อมเพย์", "PromptPay"),
                 subtitle = subtitle,
                 rawContent = payload,
                 qrBitmap = qrBitmap,
@@ -339,7 +366,7 @@ val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", a
                 dao.insertQrItem(
                     QrItemEntity(
                         type = "PROMPTPAY",
-                        title = "พร้อมเพย์ $amountStr",
+                        title = localizedNow("พร้อมเพย์ $amountStr", "PromptPay $amountStr"),
                         subtitle = subtitle,
                         rawContent = payload,
                         targetId = target,
@@ -357,7 +384,19 @@ val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", a
     fun generateWifi() {
         val ssid = _wifiSsid.value.trim()
         if (ssid.isBlank()) {
-            Toast.makeText(getApplication(), "กรุณาระบุชื่อ Wi-Fi (SSID)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                getApplication(),
+                localizedNow("กรุณาระบุชื่อ Wi-Fi (SSID)", "Enter a Wi-Fi network name (SSID)"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        if (QrValidationUtil.validateWifi(ssid, _wifiPassword.value, _wifiSecurity.value.code) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ข้อมูล Wi-Fi ไม่ถูกต้อง", "Invalid Wi-Fi configuration"),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -376,9 +415,13 @@ val amountStr = if (amount != null && amount > 0) "฿${String.format("%,.2f", a
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
             ) ?: return@executeQrAction
-_activePreview.value = ActiveQrPreview(
+
+            _activePreview.value = ActiveQrPreview(
                 title = "Wi-Fi: $ssid",
-                subtitle = "รหัสผ่าน: ${_wifiPassword.value.ifBlank { "(ไม่มี)" }}",
+                subtitle = localizedNow(
+                    "รหัสผ่าน: ${_wifiPassword.value.ifBlank { "(ไม่มี)" }}",
+                    "Password: ${_wifiPassword.value.ifBlank { "(none)" }}"
+                ),
                 rawContent = payload,
                 qrBitmap = qrBitmap,
                 type = "WIFI"
@@ -389,7 +432,7 @@ _activePreview.value = ActiveQrPreview(
                     QrItemEntity(
                         type = "WIFI",
                         title = "Wi-Fi: $ssid",
-                        subtitle = "รหัสผ่าน: ${_wifiPassword.value}",
+                        subtitle = localizedNow("รหัสผ่าน: ${_wifiPassword.value}", "Password: ${_wifiPassword.value}"),
                         rawContent = payload,
                         isScan = false
                     )
@@ -405,7 +448,19 @@ _activePreview.value = ActiveQrPreview(
         val model = StoreLinkModel(_storePlatform.value, _storeValue.value)
         val fullUrl = model.fullUrl
         if (_storeValue.value.isBlank()) {
-            Toast.makeText(getApplication(), "กรุณากรอกลิงก์หรือไอดีร้านค้า", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                getApplication(),
+                localizedNow("กรุณากรอกลิงก์หรือไอดีร้านค้า", "Enter a store link or ID"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        if (QrValidationUtil.validateUrl(fullUrl) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ลิงก์ร้านค้าไม่ถูกต้อง", "Invalid store link"),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -418,8 +473,9 @@ _activePreview.value = ActiveQrPreview(
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
             ) ?: return@executeQrAction
-_activePreview.value = ActiveQrPreview(
-                title = "ลิงก์ร้าน ${_storePlatform.value.title}",
+
+            _activePreview.value = ActiveQrPreview(
+                title = localizedNow("ลิงก์ร้าน ${_storePlatform.value.title}", "Store link: ${_storePlatform.value.title}"),
                 subtitle = fullUrl,
                 rawContent = fullUrl,
                 qrBitmap = qrBitmap,
@@ -430,7 +486,7 @@ _activePreview.value = ActiveQrPreview(
                 dao.insertQrItem(
                     QrItemEntity(
                         type = "STORE_LINK",
-                        title = "ลิงก์ร้าน ${_storePlatform.value.title}",
+                        title = localizedNow("ลิงก์ร้าน ${_storePlatform.value.title}", "Store link: ${_storePlatform.value.title}"),
                         subtitle = fullUrl,
                         rawContent = fullUrl,
                         isScan = false
@@ -446,7 +502,7 @@ _activePreview.value = ActiveQrPreview(
     fun generateText() {
         val text = _rawText.value.trim()
         if (text.isBlank()) {
-            Toast.makeText(getApplication(), "กรุณากรอกข้อความ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(getApplication(), localizedNow("กรุณากรอกข้อความ", "Enter text"), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -459,8 +515,9 @@ _activePreview.value = ActiveQrPreview(
                 lightColor = _qrBackgroundColor.value.toArgb(),
                 centerLogo = centerLogo
             ) ?: return@executeQrAction
-_activePreview.value = ActiveQrPreview(
-                title = "ข้อความ QR",
+
+            _activePreview.value = ActiveQrPreview(
+                title = localizedNow("ข้อความ QR", "Text QR"),
                 subtitle = if (text.length > 40) text.take(40) + "..." else text,
                 rawContent = text,
                 qrBitmap = qrBitmap,
@@ -471,7 +528,7 @@ _activePreview.value = ActiveQrPreview(
                 dao.insertQrItem(
                     QrItemEntity(
                         type = "TEXT",
-                        title = "ข้อความ",
+                        title = localizedNow("ข้อความ", "Text"),
                         subtitle = text.take(40),
                         rawContent = text,
                         isScan = false
@@ -486,6 +543,14 @@ _activePreview.value = ActiveQrPreview(
      */
     fun generateBusinessCardPreview() {
         val card = _businessCard.value
+        if (QrValidationUtil.validateBusinessCard(card.fullName.ifBlank { card.businessName }, card.phoneNumber) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("กรุณากรอกชื่อและเบอร์โทรศัพท์บนบัตร", "Enter a name and phone number for the card"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
         executeQrAction {
             val noteContent = buildString {
@@ -511,8 +576,12 @@ _activePreview.value = ActiveQrPreview(
                 darkColor = card.cardTheme.primaryColorHex.toInt(),
                 centerLogo = centerLogo
             ) ?: return@executeQrAction
-_activePreview.value = ActiveQrPreview(
-                title = "นามบัตรดิจิทัล: ${card.businessName.ifBlank { card.fullName }}",
+
+            _activePreview.value = ActiveQrPreview(
+                title = localizedNow(
+                    "นามบัตรดิจิทัล: ${card.businessName.ifBlank { card.fullName }}",
+                    "Digital business card: ${card.businessName.ifBlank { card.fullName }}"
+                ),
                 subtitle = "${card.profession} • ${card.phoneNumber}",
                 rawContent = vcard,
                 qrBitmap = qrBitmap,
@@ -523,7 +592,10 @@ _activePreview.value = ActiveQrPreview(
                 dao.insertQrItem(
                     QrItemEntity(
                         type = "VCARD",
-                        title = "นามบัตร: ${card.businessName.ifBlank { card.fullName }}",
+                        title = localizedNow(
+                            "นามบัตร: ${card.businessName.ifBlank { card.fullName }}",
+                            "Business card: ${card.businessName.ifBlank { card.fullName }}"
+                        ),
                         subtitle = "${card.profession} | ${card.phoneNumber}",
                         rawContent = vcard,
                         isScan = false
@@ -575,13 +647,13 @@ _activePreview.value = ActiveQrPreview(
                         if (decodedText != null) {
                             onQrScanned(decodedText)
                         } else {
-                            Toast.makeText(getApplication(), "ไม่พบคิวอาร์โค้ดในรูปภาพที่เลือก", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getApplication(), localizedNow("ไม่พบ QR ในรูปภาพที่เลือก", "No QR code found in the selected image"), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(getApplication(), "เกิดข้อผิดพลาดในการอ่านรูปภาพ", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(getApplication(), localizedNow("เกิดข้อผิดพลาดในการอ่านรูปภาพ", "Could not read the image"), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -596,11 +668,11 @@ _activePreview.value = ActiveQrPreview(
         if (uri != null) {
             Toast.makeText(
                 getApplication(),
-                "บันทึกรูปภาพลงอัลบั้มสำเร็จ (Pictures/QR_PromptPay)",
+                localizedNow("บันทึกรูปภาพแล้ว", "Image saved"),
                 Toast.LENGTH_LONG
             ).show()
         } else {
-            Toast.makeText(getApplication(), "ไม่สามารถบันทึกรูปภาพได้", Toast.LENGTH_SHORT).show()
+            Toast.makeText(getApplication(), localizedNow("ไม่สามารถบันทึกรูปภาพได้", "Could not save the image"), Toast.LENGTH_SHORT).show()
         }
     }
 
