@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.localizedText
+import com.example.util.localizedNow
 import com.example.util.RootSecurityManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -521,12 +522,12 @@ fun BugReportForm(
                                 putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business issue report")
                                 putExtra(Intent.EXTRA_TEXT, reportText)
                             }
-                            context.startActivity(Intent.createChooser(intent, localizedText("ส่งรายงานด้วย", "Send report with")))
+                            context.startActivity(Intent.createChooser(intent, localizedNow("ส่งรายงานด้วย", "Send report with")))
                             isShareOpened = true
                         } catch (_: Exception) {
                             Toast.makeText(
                                 context,
-                                localizedText("ไม่พบแอปสำหรับแชร์รายงาน", "No app available to share the report"),
+                                localizedNow("ไม่พบแอปสำหรับแชร์รายงาน", "No app available to share the report"),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -603,11 +604,11 @@ fun AdminContactSupportView() {
                                 putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business support request")
                                 putExtra(Intent.EXTRA_TEXT, "QuickQR Business v${BuildConfig.VERSION_NAME}\n")
                             }
-                            context.startActivity(Intent.createChooser(intent, localizedText("ติดต่อผ่าน", "Contact with")))
+                            context.startActivity(Intent.createChooser(intent, localizedNow("ติดต่อผ่าน", "Contact with")))
                         } catch (_: Exception) {
                             Toast.makeText(
                                 context,
-                                localizedText("ไม่พบแอปสำหรับแชร์คำขอ", "No app available to share the request"),
+                                localizedNow("ไม่พบแอปสำหรับแชร์คำขอ", "No app available to share the request"),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
