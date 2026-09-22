@@ -35,7 +35,7 @@ object QrValidationUtil {
 
         if (clean.length == 10) {
             // Mobile phone: must start with 0 (e.g. 06, 08, 09) and contain only digits
-            if (!clean.matches(Regex("^0[689]\\d{8}$|^0[23457]\\d{8}$"))) {
+            if (!clean.matches(Regex("^0[689]\\d{8}$"))) {
                 return ValidationResult.Invalid("เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก (เช่น 0812345678)")
             }
             return ValidationResult.Valid
@@ -48,14 +48,6 @@ object QrValidationUtil {
             }
             if (!verifyThaiIdChecksum(clean)) {
                 return ValidationResult.Invalid("เลขบัตรประชาชนไม่ถูกต้องตามหลักการคำนวณ Checksum 13 หลัก")
-            }
-            return ValidationResult.Valid
-        }
-
-        if (clean.length == 15) {
-            // E-Wallet ID (15 digits)
-            if (!clean.matches(Regex("^\\d{15}$"))) {
-                return ValidationResult.Invalid("e-Wallet ID ต้องเป็นตัวเลข 15 หลัก")
             }
             return ValidationResult.Valid
         }
@@ -93,8 +85,8 @@ object QrValidationUtil {
         if (amount < 0) {
             return ValidationResult.Invalid("จำนวนเงินต้องไม่ติดลบ")
         }
-        if (amount > 500000.0) {
-            return ValidationResult.Invalid("จำนวนเงินสูงสุดสำหรับพร้อมเพย์คือ 500,000 บาท")
+        if (!amount.isFinite()) {
+            return ValidationResult.Invalid("จำนวนเงินไม่ถูกต้อง")
         }
         return ValidationResult.Valid
     }
