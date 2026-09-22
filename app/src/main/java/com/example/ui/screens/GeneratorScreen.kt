@@ -231,13 +231,6 @@ fun GeneratorScreen(
                                 else if (walletState.totalAvailableUses > 0) Color(0xFF0369A1)
                                 else Color(0xFF991B1B)
                             )
-                            Text(
-                                text = if (walletState.isUnlimitedVip) localizedText("สิทธิ์ VIP ใช้งานได้ไม่จำกัด ไม่มีโฆษณา", "VIP unlimited access, no ads")
-                                else if (walletState.freeUsesLeft > 0) "ใช้ฟรี 3 ครั้งแรก • แตะที่นี่เพื่อดูแพ็กเกจรายเดือนหรือเติมเงิน"
-                                else "สิทธิ์การใช้งานหมดแล้ว แตะที่นี่เพื่อเติมเงินหรือสมัครสมาชิก",
-                                fontSize = 11.sp,
-                                color = Color(0xFF64748B)
-                            )
                         }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -260,54 +253,6 @@ fun GeneratorScreen(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-
-            // Quick Actions: Wallet Quota & แจ้งแอดมิน
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFF1F5F9),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { viewModel.openTopUpDialog() }
-                        .testTag("generator_quick_wallet_button")
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = Color(0xFF0B2853), modifier = Modifier.size(15.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(localizedText("กระเป๋าเงิน & โควตา", "Wallet & quota"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0B2853), maxLines = 1, softWrap = false)
-                    }
-                }
-
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF0284C7).copy(alpha = 0.1f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.25f)),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .clickable { viewModel.openSupportSheet() }
-                        .testTag("generator_quick_admin_button")
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ContactSupport, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(15.dp))
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(localizedText("แจ้งแอดมิน", "Support"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0284C7), maxLines = 1, softWrap = false)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
 
             // Color customization controls for QR code
             QrColorCustomizerCard(
