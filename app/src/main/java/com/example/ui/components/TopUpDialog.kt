@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import com.example.BuildConfig
+
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -193,7 +195,7 @@ fun TopUpDialog(
                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.4f))
                                 ) {
                                     Text(
-                                        text = "ทดสอบ v8.0",
+                                        text = "v${BuildConfig.VERSION_NAME}",
                                         color = Color(0xFF047857),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
