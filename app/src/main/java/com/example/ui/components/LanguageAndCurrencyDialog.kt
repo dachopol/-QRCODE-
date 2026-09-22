@@ -95,7 +95,9 @@ fun LanguageAndCurrencyDialog(
                 it.code.lowercase().contains(q) ||
                 it.nameEn.lowercase().contains(q) ||
                 it.nameTh.lowercase().contains(q) ||
-                it.symbol.lowercase().contains(q)
+                it.symbol.lowercase().contains(q) ||
+                CurrencyManager.regionNameEn(it).lowercase().contains(q) ||
+                CurrencyManager.regionNameTh(it).lowercase().contains(q)
             }
         }
     }
@@ -147,8 +149,8 @@ fun LanguageAndCurrencyDialog(
                                 color = Color(0xFF0F172A)
                             )
                             Text(
-                                text = if (selectedTab == 0) "${currentLanguage.flagEmoji} ${currentLanguage.nativeName} (${currentLanguage.displayName})"
-                                       else "${currentCurrency.flagEmoji} ${currentCurrency.code} (${currentCurrency.symbol})",
+                                text = if (selectedTab == 0) "${currentLanguage.code.uppercase()} • ${currentLanguage.nativeName}"
+                                       else "${currentCurrency.flagEmoji} ${localizedText(CurrencyManager.regionNameTh(currentCurrency), CurrencyManager.regionNameEn(currentCurrency))} • ${currentCurrency.code}",
                                 fontSize = 12.sp,
                                 color = Color(0xFF0284C7),
                                 fontWeight = FontWeight.SemiBold
@@ -216,7 +218,7 @@ fun LanguageAndCurrencyDialog(
                                 Icon(Icons.Default.Paid, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = localizedText("สกุลเงิน", "Currency"),
+                                    text = localizedText("ภูมิภาค", "Region"),
                                     fontSize = 13.sp,
                                     fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium
                                 )
@@ -385,35 +387,37 @@ private fun LanguageItemCard(
                     fontSize = 24.sp
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = language.nativeName,
-                        fontSize = 15.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isSelected) Color(0xFF0284C7) else Color(0xFF0F172A)
-                    )
-                    Text(
-                        text = "${language.displayName} (${language.code})",
-                        fontSize = 12.sp,
-                        color = Color(0xFF64748B)
-                    )
-                }
+                Text(
+                    text = language.nativeName,
+                    fontSize = 15.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                    color = if (isSelected) Color(0xFF0284C7) else Color(0xFF0F172A)
+                )
             }
 
-            if (isSelected) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF0284C7)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = language.code.uppercase(),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF64748B)
+                )
+                if (isSelected) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF0284C7)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -457,43 +461,40 @@ private fun CurrencyItemCard(
                     fontSize = 24.sp
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${currency.code} (${currency.symbol})",
-                            fontSize = 15.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                            color = if (isSelected) Color(0xFF059669) else Color(0xFF0F172A)
-                        )
-                    }
-                    Text(
-                        text = localizedText(currency.nameTh, currency.nameEn),
-                        fontSize = 12.sp,
-                        color = Color(0xFF64748B)
-                    )
-                    Text(
-                        text = localizedText("VIP ฿59 ≈ ${currency.format(59.0)} / เดือน", "VIP ฿59 ≈ ${currency.format(59.0)} / month"),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF0284C7)
-                    )
-                }
+                Text(
+                    text = localizedText(
+                        CurrencyManager.regionNameTh(currency),
+                        CurrencyManager.regionNameEn(currency)
+                    ),
+                    fontSize = 15.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                    color = if (isSelected) Color(0xFF059669) else Color(0xFF0F172A)
+                )
             }
 
-            if (isSelected) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF10B981)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "${currency.code} ${currency.symbol}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isSelected) Color(0xFF059669) else Color(0xFF475569)
+                )
+                if (isSelected) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF10B981)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }
