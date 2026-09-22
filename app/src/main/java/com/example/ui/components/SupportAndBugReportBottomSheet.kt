@@ -596,7 +596,7 @@ fun AdminContactSupportView() {
                             try {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     data = Uri.parse("mailto:${PrivacyProtection.OFFICIAL_ADMIN_EMAIL}")
-                                    putExtra(Intent.EXTRA_SUBJECT, "[ZipQR v8.0] แจ้งปัญหา / ติดต่อแอดมิน")
+                                    putExtra(Intent.EXTRA_SUBJECT, "[ZipQR v9.0] แจ้งปัญหา / ติดต่อแอดมิน")
                                 }
                                 context.startActivity(intent)
                             } catch (_: Exception) {

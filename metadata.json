@@ -1,6 +1,6 @@
 {
   "name": "ZipQR",
-  "description": "ZipQR v8.0 - แอปสแกนและสร้าง QR Code พร้อมเพย์ (GEN_QR v8 49x49 H m4 BW 512px) นามบัตรดิจิทัล Wi-Fi ลิงก์ร้านค้า และระบบความปลอดภัยออฟไลน์",
+  "description": "ZipQR v9.0 - แอปสแกนและสร้าง QR Code พร้อมเพย์ (GEN_QR v9 49x49 H m4 BW 512px) นามบัตรดิจิทัล Wi-Fi ลิงก์ร้านค้า และระบบความปลอดภัยออฟไลน์",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
