@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -40,6 +41,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,8 +69,6 @@ import com.example.ui.theme.GlassAccent
 import com.example.util.localizedText
 import com.example.util.localizedNow
 import com.example.data.QrItemEntity
-import com.example.util.PromptPayGenerator
-import com.example.util.QrCodeUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,12 +82,24 @@ fun HistoryScreen(
     val allItems by viewModel.historyItems.collectAsState()
     var selectedFilter by remember { mutableIntStateOf(0) } // 0=All, 1=Created, 2=Scanned
     var itemToDelete by remember { mutableStateOf<QrItemEntity?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val filteredItems = remember(allItems, selectedFilter) {
-        when (selectedFilter) {
+    val filteredItems = remember(allItems, selectedFilter, searchQuery) {
+        val byType = when (selectedFilter) {
             1 -> allItems.filter { !it.isScan }
             2 -> allItems.filter { it.isScan }
             else -> allItems
+        }
+        val query = searchQuery.trim()
+        if (query.isBlank()) {
+            byType
+        } else {
+            byType.filter { item ->
+                item.title.contains(query, ignoreCase = true) ||
+                    item.subtitle.contains(query, ignoreCase = true) ||
+                    item.rawContent.contains(query, ignoreCase = true) ||
+                    item.type.contains(query, ignoreCase = true)
+            }
         }
     }
 
@@ -114,29 +126,53 @@ fun HistoryScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = localizedText("ประวัติ", "History"),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
-                )
-                Text(
-                    text = localizedText("รายการทั้งหมด ${filteredItems.size} รายการ", "${filteredItems.size} saved items"),
-                    fontSize = 12.sp,
-                    color = Color(0xFF64748B)
-                )
-            }
+            Text(
+                text = localizedText("ประวัติ", "History"),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F172A)
+            )
+            Text(
+                text = localizedText("${filteredItems.size} รายการ", "${filteredItems.size} items"),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF64748B)
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 52.dp),
+            singleLine = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            placeholder = {
+                Text(localizedText("ค้นหาประวัติ", "Search history"))
+            }
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Filter chips
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            listOf("ทั้งหมด", "สร้างแล้ว", "สแกนแล้ว").forEachIndexed { index, label ->
+            listOf(
+                localizedText("ทั้งหมด", "All"),
+                localizedText("สร้างแล้ว", "Created"),
+                localizedText("สแกนแล้ว", "Scanned")
+            ).forEachIndexed { index, label ->
                 FilterChip(
                     selected = selectedFilter == index,
                     onClick = { selectedFilter = index },
@@ -198,23 +234,7 @@ fun HistoryScreen(
                         onCopy = { copyToClipboard(item.rawContent) },
                         onDelete = { itemToDelete = item },
                         onClick = {
-                            // Re-open in preview
-                            if (item.type == "PROMPTPAY" && item.targetId != null) {
-                                val payload = PromptPayGenerator.generatePayload(item.targetId, item.amount)
-                                val qr = QrCodeUtil.generateQrBitmap(payload, size = 900)
-                                if (qr != null) {
-                                    val standee = QrCodeUtil.createPromptPayStandeeBitmap(
-                                        qrBitmap = qr,
-                                        title = "THAI QR PAYMENT",
-                                        targetId = item.targetId,
-                                        amount = item.amount,
-                                        merchantName = item.title
-                                    )
-                                    viewModel.generatePromptPay()
-                                }
-                            } else {
-                                copyToClipboard(item.rawContent)
-                            }
+                            viewModel.openHistoryItem(item)
                         }
                     )
                 }
