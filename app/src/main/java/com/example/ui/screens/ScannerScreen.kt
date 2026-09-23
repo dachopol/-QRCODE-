@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.view.Surface
 import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -79,6 +80,7 @@ import com.example.util.localizedText
 import com.example.util.QrScannerUtil
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Composable
 fun ScannerScreen(
@@ -87,6 +89,7 @@ fun ScannerScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val isEmulatorEnvironment = remember { isProbablyEmulator() }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -117,9 +120,12 @@ fun ScannerScreen(
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
     var cameraError by remember { mutableStateOf<String?>(null) }
     val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+    val disposed = remember { AtomicBoolean(false) }
 
     DisposableEffect(Unit) {
+        disposed.set(false)
         onDispose {
+            disposed.set(true)
             try {
                 cameraProvider?.unbindAll()
             } catch (_: Exception) {
@@ -147,7 +153,7 @@ fun ScannerScreen(
             .background(Color.Black)
             .testTag("scanner_screen")
     ) {
-        if (hasCameraPermission) {
+        if (hasCameraPermission && !isEmulatorEnvironment) {
             // CameraX Viewfinder. COMPATIBLE uses TextureView and is more stable
             // in virtual devices / embedded previews than the default SurfaceView path.
             AndroidView(
@@ -163,8 +169,10 @@ fun ScannerScreen(
                         val previewView = this
                         val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                         cameraProviderFuture.addListener({
+                            if (disposed.get()) return@addListener
                             try {
                                 val provider = cameraProviderFuture.get()
+                                if (disposed.get()) return@addListener
                                 cameraProvider = provider
                                 cameraError = null
 
@@ -235,6 +243,52 @@ fun ScannerScreen(
                             text = localizedText(
                                 "ยังสามารถเลือกรูป QR จากคลังภาพด้านล่างได้",
                                 "You can still choose a QR image from the gallery below"
+                            ),
+                            color = Color(0xFFCBD5E1),
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        } else if (hasCameraPermission && isEmulatorEnvironment) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    shape = AppSectionShape,
+                    color = Color(0xFF111827),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(44.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = localizedText(
+                                "พรีวิวกล้องของ AI Studio/Emulator เป็นภาพจำลอง",
+                                "AI Studio/emulator camera preview is synthetic"
+                            ),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = localizedText(
+                                "ทดสอบกล้องจริงบนโทรศัพท์ Android หรือเลือกรูป QR จากคลังภาพด้านล่าง",
+                                "Test the real camera on an Android device, or choose a QR image from the gallery below"
                             ),
                             color = Color(0xFFCBD5E1),
                             fontSize = 13.sp,
@@ -324,7 +378,17 @@ fun ScannerScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = localizedText("วางคิวอาร์โค้ดในกรอบเพื่อสแกน", "Place the QR code inside the frame"),
+                            text = if (isEmulatorEnvironment) {
+                                localizedText(
+                                    "พรีวิวนี้ไม่ใช่ภาพจากกล้องจริง",
+                                    "This preview is not a real camera feed"
+                                )
+                            } else {
+                                localizedText(
+                                    "วางคิวอาร์โค้ดในกรอบเพื่อสแกน",
+                                    "Place the QR code inside the frame"
+                                )
+                            },
                             color = Color.White,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
@@ -335,32 +399,36 @@ fun ScannerScreen(
             }
 
             // Central Targeting Box with Corner Highlights and Laser
-            Box(
-                modifier = Modifier
-                    .size(260.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
-                    .background(Color.Transparent),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                // Animated laser line
+            if (!isEmulatorEnvironment) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .offset(y = laserOffset.dp)
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(
-                                    Color.Transparent,
-                                    Color(0xFF38BDF8),
-                                    Color(0xFF0284C7),
-                                    Color(0xFF38BDF8),
-                                    Color.Transparent
+                        .size(260.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    // Animated laser line
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .offset(y = laserOffset.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        Color(0xFF38BDF8),
+                                        Color(0xFF0284C7),
+                                        Color(0xFF38BDF8),
+                                        Color.Transparent
+                                    )
                                 )
                             )
-                        )
-                )
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(260.dp))
             }
 
             // Bottom Floating Controls
@@ -418,4 +486,22 @@ fun ScannerScreen(
             }
         }
     }
+}
+
+
+private fun isProbablyEmulator(): Boolean {
+    val fingerprint = Build.FINGERPRINT.lowercase()
+    val model = Build.MODEL.lowercase()
+    val product = Build.PRODUCT.lowercase()
+    val hardware = Build.HARDWARE.lowercase()
+
+    return fingerprint.startsWith("generic") ||
+        fingerprint.contains("emulator") ||
+        model.contains("google_sdk") ||
+        model.contains("emulator") ||
+        model.contains("android sdk built for") ||
+        product.contains("sdk_gphone") ||
+        product.contains("emulator") ||
+        hardware.contains("goldfish") ||
+        hardware.contains("ranchu")
 }
