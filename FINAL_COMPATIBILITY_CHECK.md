@@ -1,10 +1,10 @@
-# QuickQR Business v14 — Final compatibility check
+# QuickQR Business v15 — Final compatibility check
 
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `14`
-- versionName: `14.0`
+- versionCode: `15`
+- versionName: `15.0`
 - JDK source/target: `17`
 
 ## AI Studio / Kotlin rules checked
@@ -18,7 +18,7 @@
 
 ## Project rules checked
 - Thai typography rule retained (`letterSpacing = 0.sp` where defined by project typography).
-- Previous removed support email is absent.
+- Admin contact address is hidden behind the contact button; the Security status page is removed while Anti-Root checks remain active.
 - Developer identity remains `215334638+AnakinYoo@users.noreply.github.com`.
 - Legacy unreferenced VIP/Wallet/TopUp/AdMob simulation stubs removed from source.
 - Core QR features remain in runtime source.
