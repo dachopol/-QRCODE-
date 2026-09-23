@@ -610,7 +610,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Direct result without blocking ads!
      */
     fun onQrScanned(raw: String) {
-        val parsed = QrScannerUtil.parseQrContent(raw)
+        val normalized = raw.trim()
+        if (normalized.isEmpty()) return
+
+        // Do not keep inserting the same camera result while its result sheet
+        // is already open. The analyzer also de-bounces frames, but this guard
+        // protects history from duplicate rows across camera/gallery callbacks.
+        if (_activeScanResult.value?.rawText?.trim() == normalized) return
+
+        val parsed = QrScannerUtil.parseQrContent(normalized)
 
         // Save scan to Room
         viewModelScope.launch(Dispatchers.IO) {
@@ -619,7 +627,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     type = parsed.type.name,
                     title = parsed.title,
                     subtitle = parsed.subtitle,
-                    rawContent = raw,
+                    rawContent = normalized,
                     targetId = parsed.promptPayId,
                     amount = parsed.amount,
                     isScan = true
@@ -627,7 +635,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
-        // Instant result presentation - no ads blocking!
+        // Show decoded content before any external action.
         _activeScanResult.value = parsed
     }
 
@@ -674,6 +682,64 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             Toast.makeText(getApplication(), localizedNow("ไม่สามารถบันทึกรูปภาพได้", "Could not save the image"), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    /**
+     * Reopens a saved history item without mutating the current generator form
+     * or inserting a duplicate history row.
+     */
+    fun openHistoryItem(item: QrItemEntity) {
+        if (item.isScan) {
+            _activeScanResult.value = QrScannerUtil.parseQrContent(item.rawContent)
+            return
+        }
+
+        val centerLogo = if (_includeCenterLogo.value) {
+            QrCodeUtil.createDefaultCenterLogo(item.type)
+        } else {
+            null
+        }
+        val qrBitmap = QrCodeUtil.generateQrBitmap(
+            content = item.rawContent,
+            size = QrCodeUtil.DEFAULT_SIZE,
+            darkColor = _qrForegroundColor.value.toArgb(),
+            lightColor = _qrBackgroundColor.value.toArgb(),
+            centerLogo = centerLogo
+        )
+
+        if (qrBitmap == null) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ไม่สามารถเปิดรายการนี้ได้", "Could not open this item"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val standeeBitmap =
+            if (item.type == "PROMPTPAY" && !item.targetId.isNullOrBlank()) {
+                QrCodeUtil.createPromptPayStandeeBitmap(
+                    qrBitmap = qrBitmap,
+                    title = "THAI QR PAYMENT",
+                    targetId = item.targetId,
+                    amount = item.amount,
+                    merchantName = "",
+                    backgroundColor = _qrBackgroundColor.value.toArgb()
+                )
+            } else {
+                null
+            }
+
+        _activePreview.value = ActiveQrPreview(
+            title = item.title,
+            subtitle = item.subtitle,
+            rawContent = item.rawContent,
+            qrBitmap = qrBitmap,
+            standeeBitmap = standeeBitmap,
+            targetId = item.targetId,
+            amount = item.amount,
+            type = item.type
+        )
     }
 
     /**
