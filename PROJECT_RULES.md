@@ -133,3 +133,11 @@
 - ห้ามลบ source/class/route ที่ยังถูกอ้างอิงหรือเป็นฟังก์ชันหลักเพื่อทำความสะอาดไฟล์
 - ก่อนลบไฟล์ runtime ต้องค้น reference และยืนยันว่า build path ที่เหลือไม่พึ่งไฟล์นั้น
 - ไฟล์หรือข้อมูลเก่าที่ทำให้เวอร์ชัน/กฎ/พรีวิวขัดกับ Source of Truth ต้องถูกแทนที่ ไม่เก็บซ้ำเป็น active source
+
+
+## PROJECT SCOPE ISOLATION / AUTOMATION RULE FILE — 2026-09-23
+- ใช้ไฟล์ `ใช้แชทสร้างแอพอัปโหลดอัตโนมัติ.txt` ใน repository นี้เป็นกฎอัตโนมัติของ **QuickQR Business** เท่านั้น
+- กฎจากโปรเจกต์อื่นใช้ร่วมได้เฉพาะหลักทั่วไป เช่น Anti-Fake / Anti-Random / Root-Cause Fix / Responsive / Release Gate
+- ห้ามนำ feature หรือ implementation เฉพาะโปรเจกต์อื่นเข้ามาใน QuickQR อัตโนมัติ เช่น Speed Test, EndpointHealthChecker, IP/Server status หรือ Video throughput เว้นแต่เจ้าของโปรเจกต์สั่งเพิ่มโดยชัดเจน
+- เมื่อไฟล์กฎภายนอกขัดกับ GitHub `main`, ให้ยึด `main` + `PROJECT_RULES.md` + Product Brief ของ QuickQR เป็น Source of Truth
+- ก่อนอัปเดตอัตโนมัติทุกครั้งต้องตรวจ package, version, core routes, references และ build gate ก่อนลบหรือแทนที่ไฟล์

@@ -53,3 +53,8 @@ The latest source follows the permanent UI, localization, Card-only, and adaptiv
 - Use wrapping, minimum height, scrolling, safe areas, and adaptive layout instead of clipping.
 - Long user-generated history values may be shortened only when the full value remains accessible.
 - See `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, `UNIVERSAL_AUTO_LAYOUT_RULE.md`, and `RELEASE_NOTES_V16.md`.
+
+
+## Automation rule source
+- Project-specific automation rules: `ใช้แชทสร้างแอพอัปโหลดอัตโนมัติ.txt`
+- This file is scoped to QuickQR Business. Cross-project rules may contribute general safeguards only; project-specific features must not be imported automatically.

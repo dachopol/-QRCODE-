@@ -1,0 +1,91 @@
+QuickQR Business — กฎสร้างแอพ/อัปโหลดอัตโนมัติ
+
+SOURCE OF TRUTH
+- GitHub `main` คือแหล่งจริงของโปรเจกต์หลัง resolve conflict
+- package ต้องคง `com.aistudio.qrgenerator.kmpzqr` เว้นแต่เจ้าของสั่งเปลี่ยน
+- versionCode/versionName อ่านจาก `app/build.gradle.kts`; UI version อ่านจาก `BuildConfig.VERSION_NAME`
+- README / metadata / release docs ต้องตรงกับ source ปัจจุบัน
+
+PROJECT SCOPE ISOLATION
+- ไฟล์นี้ใช้กับ QuickQR Business เท่านั้น
+- ห้ามนำ feature เฉพาะโปรเจกต์อื่นเข้ามาอัตโนมัติ
+- กฎจากโปรเจกต์อื่นใช้ร่วมได้เฉพาะหลักทั่วไป เช่น Anti-Fake, Root-Cause Fix, Responsive/Adaptive, Cleanup และ Release Gate
+- Speed Test / EndpointHealthChecker / IP-Server / Video throughput ไม่ใช่ฟังก์ชัน QuickQR เว้นแต่เจ้าของสั่งเพิ่มโดยตรง
+
+ANTI-RANDOM / REAL DATA
+- ห้าม Fake / Random / Hardcode ข้อมูลที่อ้างว่าเป็นข้อมูลจริง
+- ไม่มีข้อมูลให้แสดงว่าง / -- / ไม่ทราบ / Error ตามบริบท
+- ข้อมูลผู้ใช้เริ่มต้นต้องว่าง ห้ามใส่ PromptPay, Wi-Fi, ร้านค้า, นามบัตร หรือข้อมูลส่วนตัวปลอมเป็นข้อมูลจริง
+- placeholder ตัวอย่างต้องระบุชัดว่าเป็นตัวอย่าง
+
+CORE FUNCTION PRESERVATION
+- ต้องคง Generate QR / PromptPay / Wi-Fi / Store Link / Text / Business Card / Scanner / History / Language-Region / Save / Share
+- ห้ามตัดฟังก์ชันหลักเพื่อแก้ UI หรือ Build
+- ฟังก์ชันที่แสดงต้องมี action จริง; ของที่ยังไม่พร้อมให้ซ่อนหรือระบุว่าไม่พร้อม
+
+BUILD / ROOT CAUSE
+- compile error ต้องอ่านไฟล์ บรรทัด และ error จริงก่อนแก้
+- ห้ามเปลี่ยน Gradle/dependency แบบเดา
+- ห้าม import `androidx.compose.foundation.layout.weight` โดยตรง
+- Build ผ่านแต่ Preview/Emulator/AI Studio service ล้มเหลว ห้ามสุ่มแก้ source; ต้องแยก Build / Runtime / Renderer / External service
+
+UI CARD-ONLY
+- Header → Status Card (ถ้ามี) → Vertical Card List
+- PASS/READY ไม่มี sub-text
+- FAIL/ERROR แสดงเฉพาะสาเหตุ จุดแก้ และ error ที่จำเป็น
+- technical metadata ย้ายไป detail/debug/log
+- การตัดข้อความห้ามตีความเป็นการตัด feature
+
+UNIVERSAL AUTO LAYOUT
+- Mobile first, Responsive/Adaptive ทุกหน้า
+- ห้าม overflow, clip, crop, overlap หรือ system bar บัง
+- หลีกเลี่ยง fixed width/height สำหรับ layout หลัก
+- ใช้ wrap / scroll / adaptive navigation / minimum height / safe-area insets
+- Touch target ประมาณ 44x44 logical px ขึ้นไป
+- ทดสอบ small phone / tablet / portrait / landscape และ web เมื่อเกี่ยวข้อง
+
+LANGUAGE / REGION
+- TH/EN ต้องเปลี่ยนจริงทั้งหน้าที่รองรับ ไม่ใช่เปลี่ยนเฉพาะธง
+- ห้ามภาษาปนเพราะ fallback รายข้อความ
+- ภาษาไทยใช้ letterSpacing = 0.sp และ lineHeight เพียงพอ
+- Language + Region + Currency ต้องสอดคล้องกัน
+- PromptPay / Thai QR Payment ใช้ THB เท่านั้นใน flow หลัก
+
+CAMERA / SCANNER
+- Android ใช้ `android.permission.CAMERA`
+- AI Studio preview metadata ขอ camera เมื่อเปิด scanner preview
+- ออกจาก scanner ต้อง unbind CameraX Preview/ImageAnalysis
+- Emulator/synthetic camera ไม่ใช้เป็นหลักฐานคุณภาพกล้องจริง; ก่อน release ต้องทดสอบเครื่องจริง
+
+ADS / BILLING / USER STATE
+- ห้าม VIP / Wallet / TopUp / Ads revenue / Billing จำลองเป็นข้อมูลจริง
+- ถ้ายังไม่เชื่อม SDK จริง ให้ปิด runtime path นั้น
+- Core QR ต้องทดสอบได้โดยไม่ต้องมีเครดิตหรือสิทธิ์จำลอง
+
+CLEANUP
+- อัปเดตใหม่ต้องไม่ทิ้งไฟล์/เอกสารเก่าที่ทำให้ version หรือ preview ชนกัน
+- ก่อนลบ source/class/route ต้องค้น reference และถอด reference ก่อน
+- ห้ามลบไฟล์เพียงเพราะชื่อดูเก่า
+- ลบเฉพาะของที่ superseded/unreferenced และไม่กระทบ build path
+
+RELEASE GATE
+GitHub main
+→ Project Policy
+→ Version/Package Consistency
+→ Build + Unit Test
+→ Runtime/Navigation
+→ Core QR Validation
+→ TH/EN + Region
+→ Responsive/Safe Area
+→ Camera/Scanner real device
+→ Play Console/Test
+→ Final QA
+→ Release
+
+หลักถาวร:
+ห้าม Fake
+ห้าม Random
+ห้าม Hardcode ค่าที่อ้างว่าเป็นข้อมูลจริง
+ไม่มีข้อมูล = ว่าง / -- / ไม่ทราบ / Error
+แก้ Root Cause เท่านั้น
+ห้ามตัดฟังก์ชันหลักเพื่อให้ build/UI ผ่าน
