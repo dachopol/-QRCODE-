@@ -1,10 +1,10 @@
-# QuickQR Business v15 — Final compatibility check
+# QuickQR Business v16 — Final compatibility check
 
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `15`
-- versionName: `15.0`
+- versionCode: `16`
+- versionName: `16.0`
 - JDK source/target: `17`
 
 ## AI Studio / Kotlin rules checked
@@ -24,6 +24,6 @@
 - Core QR features remain in runtime source.
 
 ## Build verification status
-- The v15 source passed the GitHub Actions Android gate after the Support/Security UI changes: JDK 17, Android SDK 36, Gradle 9.3.1, `:app:assembleDebug`, and `:app:testDebugUnitTest`.
-- The debug APK artifact is uploaded only after build/test success.
+- v16 requires a fresh GitHub Actions / AI Studio build after this version-and-cleanup update before it may be called runtime-verified.
+- The debug APK artifact must be accepted only after build/test success.
 - Real CameraX preview and QR scanning still require verification on a physical Android device before Play Console submission.
