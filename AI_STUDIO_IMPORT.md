@@ -52,3 +52,8 @@ This ZIP does not embed generated build outputs, private signing files, or an in
 - AI Studio / Android Emulator camera imagery can be synthetic and is not evidence of physical-device camera quality.
 - The Scanner screen now avoids binding CameraX on recognized emulator environments, shows a clear preview notice instead of synthetic imagery, and keeps gallery QR import available.
 - Real CameraX preview + QR scanning must be verified on an Android device before release.
+
+## v15 support/security UI
+- The Support sheet has only Report bug and Contact admin tabs; the Security status page is removed.
+- Anti-Root verification still runs from app lifecycle code in the background and may show the root warning when risk is detected.
+- The admin email address is not rendered as text; the contact button opens the configured mail target.
