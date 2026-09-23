@@ -399,32 +399,36 @@ fun ScannerScreen(
             }
 
             // Central Targeting Box with Corner Highlights and Laser
-            Box(
-                modifier = Modifier
-                    .size(260.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
-                    .background(Color.Transparent),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                // Animated laser line
+            if (!isEmulatorEnvironment) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .offset(y = laserOffset.dp)
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(
-                                    Color.Transparent,
-                                    Color(0xFF38BDF8),
-                                    Color(0xFF0284C7),
-                                    Color(0xFF38BDF8),
-                                    Color.Transparent
+                        .size(260.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    // Animated laser line
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .offset(y = laserOffset.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        Color(0xFF38BDF8),
+                                        Color(0xFF0284C7),
+                                        Color(0xFF38BDF8),
+                                        Color.Transparent
+                                    )
                                 )
                             )
-                        )
-                )
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(260.dp))
             }
 
             // Bottom Floating Controls
