@@ -9,7 +9,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ExampleUnitTest {
+class QuickQrCoreTest {
 
     @Test
     fun promptPayPhone_roundTripPreservesTargetAndAmount() {

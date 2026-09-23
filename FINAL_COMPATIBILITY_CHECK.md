@@ -25,6 +25,6 @@
 
 ## Build verification status
 - v17 requires a fresh GitHub Actions build/test run after this version-and-cleanup commit before it may be called CI-verified.
-- Do not reuse the old v16 CI result as proof for v17.
+- Do not reuse a prior-release CI result as proof for v17.
 - AI Studio snapshot/service failures must not be treated as source-code failure without compile/runtime evidence.
 - Real CameraX preview and QR scanning still require verification on a physical Android device before Play Console submission.

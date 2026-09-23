@@ -19,9 +19,8 @@
 - Monetization simulation remains disabled until real AdMob / Play Billing integration exists.
 
 ## Cleanup
-- Removed superseded `RELEASE_NOTES_V16.md` from the active project tree.
-- Previous v13-v15 release-note files were already removed.
-- Updated active documentation references from v16 to v17.
+- Removed superseded release-note files from the active project tree.
+- Updated all active documentation references to v17.
 - No runtime source/class/route was deleted unless it was confirmed superseded/unreferenced.
 
 ## Verification gate
