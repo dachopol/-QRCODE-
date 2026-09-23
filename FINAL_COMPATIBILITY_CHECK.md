@@ -24,4 +24,6 @@
 - Core QR features remain in runtime source.
 
 ## Build verification status
-Current `main` has received additional v13 refactoring after the earlier successful AI Studio build, including scanner, PromptPay, privacy, localization, and build-file cleanup. Static checks are recorded here, but a fresh Google AI Studio Build/Preview is still required before Play Console submission. Do not treat this document as proof of a successful current compile.
+- The v15 source passed the GitHub Actions Android gate after the Support/Security UI changes: JDK 17, Android SDK 36, Gradle 9.3.1, `:app:assembleDebug`, and `:app:testDebugUnitTest`.
+- The debug APK artifact is uploaded only after build/test success.
+- Real CameraX preview and QR scanning still require verification on a physical Android device before Play Console submission.
