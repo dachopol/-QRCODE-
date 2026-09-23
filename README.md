@@ -4,8 +4,8 @@ Android app for scanning and generating QR codes for business use.
 
 ## Package / version
 - Application ID: `com.aistudio.qrgenerator.kmpzqr`
-- Version name: `15.0`
-- Version code: `15`
+- Version name: `16.0`
+- Version code: `16`
 - Min SDK: 24
 - Target SDK: 36
 
@@ -39,11 +39,11 @@ The archive intentionally does **not** contain a partial Gradle wrapper. For loc
 
 
 ## AI Studio compatibility package
-See `AI_STUDIO_IMPORT.md`. This v15 package keeps the Play Console applicationId unchanged and removes optional build/test plugins that are not needed for app runtime.
+See `AI_STUDIO_IMPORT.md`. This v16 package keeps the Play Console applicationId unchanged and removes optional build/test plugins that are not needed for app runtime.
 
 ## Developer email rule
 - Developer identity: `215334638+AnakinYoo@users.noreply.github.com`
-- In v15, the owner explicitly uses this address as the hidden target behind the in-app admin contact button; the raw address is not shown in the UI.
+- The owner explicitly uses this address as the hidden target behind the in-app admin contact button; the raw address is not shown in the UI.
 
 ## Device UI / language follow-up
 The latest source follows the permanent UI, localization, Card-only, and adaptive-layout rules in `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, and `UNIVERSAL_AUTO_LAYOUT_RULE.md`.
@@ -52,4 +52,4 @@ The latest source follows the permanent UI, localization, Card-only, and adaptiv
 - Do not remove core menus, actions, or QR features just to make a screen fit.
 - Use wrapping, minimum height, scrolling, safe areas, and adaptive layout instead of clipping.
 - Long user-generated history values may be shortened only when the full value remains accessible.
-- See `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, `UNIVERSAL_AUTO_LAYOUT_RULE.md`, and `RELEASE_NOTES_V13.md`.
+- See `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, `UNIVERSAL_AUTO_LAYOUT_RULE.md`, and `RELEASE_NOTES_V16.md`.
