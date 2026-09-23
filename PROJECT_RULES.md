@@ -1,10 +1,10 @@
-# PROJECT_RULES.md — QuickQR Business v14
+# PROJECT_RULES.md — QuickQR Business — Current
 
 ## หลักบังคับ
 - ห้าม Fake/Random/Hardcode ข้อมูลที่อ้างว่าเป็นข้อมูลจริง; ไม่มีข้อมูลให้แสดงว่าง/ไม่ทราบ/ผิดพลาด
 - package ต้องคง `com.aistudio.qrgenerator.kmpzqr` เว้นแต่ผู้ใช้สั่งเปลี่ยนโดยชัดเจน
 - ห้ามฝังอีเมลส่วนตัวเดิมใน source code; developer identity ใช้ `215334638+AnakinYoo@users.noreply.github.com` ตามกฎล่าสุด
-- v15: ปุ่มติดต่อแอดมินใช้ developer identity เป็น hidden mail target ตามคำสั่งเจ้าของโปรเจกต์; ห้ามแสดงที่อยู่อีเมลดิบบนหน้าจอ และห้ามนำอีเมลนี้ไปอ้างเป็น Play Console support mailbox ที่รับข้อความจริง
+- ปุ่มติดต่อแอดมินใช้ developer identity เป็น hidden mail target ตามคำสั่งเจ้าของโปรเจกต์; ห้ามแสดงที่อยู่อีเมลดิบบนหน้าจอ และห้ามนำอีเมลนี้ไปอ้างเป็น Play Console support mailbox ที่รับข้อความจริง
 - ห้ามเปิด VIP/Wallet/TopUp/รายได้/โฆษณาจำลองเป็นข้อมูลจริง
 
 ## BUILD / KOTLIN
@@ -121,3 +121,13 @@
 - CameraX Preview and ImageAnalysis must be unbound when leaving the scanner screen.
 - Prefer PreviewView COMPATIBLE mode when embedded preview/emulator SurfaceView rendering is corrupted.
 - Do not treat synthetic/emulator camera imagery as proof of physical-device camera quality; verify on a real device before release.
+
+
+## RELEASE SOURCE OF TRUTH / CLEANUP RULE — 2026-09-23
+- `main` ของ GitHub เป็น Source of Truth หลัง resolve conflict แล้ว
+- เลขเวอร์ชันหลักอ่านจาก `app/build.gradle.kts`; UI badge อ่านจาก `BuildConfig.VERSION_NAME`; metadata/docs ต้องตรงกัน
+- ทุก release ใหม่ต้องเพิ่ม `versionCode` และห้ามย้อนกลับไปใช้เลขที่ Play Console เคยรับแล้ว
+- หลังอัปเดตทั้งโปรเจกต์ ให้ลบเอกสาร release เก่าที่เจ้าของโปรเจกต์สั่งให้ยกเลิก และแก้ reference ให้ชี้รุ่นปัจจุบันก่อนลบ
+- ห้ามลบ source/class/route ที่ยังถูกอ้างอิงหรือเป็นฟังก์ชันหลักเพื่อทำความสะอาดไฟล์
+- ก่อนลบไฟล์ runtime ต้องค้น reference และยืนยันว่า build path ที่เหลือไม่พึ่งไฟล์นั้น
+- ไฟล์หรือข้อมูลเก่าที่ทำให้เวอร์ชัน/กฎ/พรีวิวขัดกับ Source of Truth ต้องถูกแทนที่ ไม่เก็บซ้ำเป็น active source
