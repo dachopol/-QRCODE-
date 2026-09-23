@@ -1,9 +1,9 @@
 package com.example.ui.screens
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.view.Surface
 import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -39,7 +39,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -50,12 +49,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,6 +77,7 @@ import com.example.ui.theme.AppPillShape
 import com.example.ui.theme.AppSectionShape
 import com.example.util.localizedText
 import com.example.util.QrScannerUtil
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @Composable
@@ -116,6 +114,20 @@ fun ScannerScreen(
 
     var isTorchOn by remember { mutableStateOf(false) }
     var cameraInstance by remember { mutableStateOf<Camera?>(null) }
+    var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
+    var cameraError by remember { mutableStateOf<String?>(null) }
+    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                cameraProvider?.unbindAll()
+            } catch (_: Exception) {
+            }
+            cameraExecutor.shutdown()
+            cameraInstance = null
+        }
+    }
 
     // Laser scanning animation
     val infiniteTransition = rememberInfiniteTransition(label = "laser")
@@ -136,56 +148,101 @@ fun ScannerScreen(
             .testTag("scanner_screen")
     ) {
         if (hasCameraPermission) {
-            // CameraX Viewfinder
+            // CameraX Viewfinder. COMPATIBLE uses TextureView and is more stable
+            // in virtual devices / embedded previews than the default SurfaceView path.
             AndroidView(
                 factory = { ctx ->
-                    val previewView = PreviewView(ctx).apply {
+                    PreviewView(ctx).apply {
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
-                    }
+                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                        scaleType = PreviewView.ScaleType.FILL_CENTER
 
-                    val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-                    val cameraExecutor = Executors.newSingleThreadExecutor()
+                        val previewView = this
+                        val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+                        cameraProviderFuture.addListener({
+                            try {
+                                val provider = cameraProviderFuture.get()
+                                cameraProvider = provider
+                                cameraError = null
 
-                    cameraProviderFuture.addListener({
-                        val cameraProvider = cameraProviderFuture.get()
-                        val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
-                        }
+                                val rotation = previewView.display?.rotation ?: Surface.ROTATION_0
+                                val preview = Preview.Builder()
+                                    .setTargetRotation(rotation)
+                                    .build()
+                                    .also { it.setSurfaceProvider(previewView.surfaceProvider) }
 
-                        val imageAnalysis = ImageAnalysis.Builder()
-                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                            .build()
-                            .also {
-                                it.setAnalyzer(
-                                    cameraExecutor,
-                                    QrScannerUtil.QrCodeImageAnalyzer { scannedText ->
-                                        viewModel.onQrScanned(scannedText)
+                                val imageAnalysis = ImageAnalysis.Builder()
+                                    .setTargetRotation(rotation)
+                                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                    .build()
+                                    .also {
+                                        it.setAnalyzer(
+                                            cameraExecutor,
+                                            QrScannerUtil.QrCodeImageAnalyzer { scannedText ->
+                                                viewModel.onQrScanned(scannedText)
+                                            }
+                                        )
                                     }
+
+                                val cameraSelector = when {
+                                    provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ->
+                                        CameraSelector.DEFAULT_BACK_CAMERA
+                                    provider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ->
+                                        CameraSelector.DEFAULT_FRONT_CAMERA
+                                    else -> throw IllegalStateException("No camera available")
+                                }
+
+                                provider.unbindAll()
+                                cameraInstance = provider.bindToLifecycle(
+                                    lifecycleOwner,
+                                    cameraSelector,
+                                    preview,
+                                    imageAnalysis
                                 )
+                            } catch (e: Exception) {
+                                cameraInstance = null
+                                cameraError = e.message ?: "Camera unavailable"
                             }
-
-                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                        try {
-                            cameraProvider.unbindAll()
-                            val cam = cameraProvider.bindToLifecycle(
-                                lifecycleOwner,
-                                cameraSelector,
-                                preview,
-                                imageAnalysis
-                            )
-                            cameraInstance = cam
-                        } catch (_: Exception) {
-                        }
-                    }, ContextCompat.getMainExecutor(ctx))
-
-                    previewView
+                        }, ContextCompat.getMainExecutor(ctx))
+                    }
                 },
                 modifier = Modifier.fillMaxSize()
             )
+
+            cameraError?.let {
+                Surface(
+                    shape = AppSectionShape,
+                    color = Color.Black.copy(alpha = 0.72f),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = localizedText("ไม่สามารถเปิดกล้องได้", "Could not open the camera"),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = localizedText(
+                                "ยังสามารถเลือกรูป QR จากคลังภาพด้านล่างได้",
+                                "You can still choose a QR image from the gallery below"
+                            ),
+                            color = Color(0xFFCBD5E1),
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
         } else {
             // Permission Request Card
             Box(
