@@ -100,3 +100,15 @@
 - Benchmark ที่ใช้: QR & Barcode Scanner (Gamma Play), QR & Barcode Scanner (TeaCapps), QR TIGER QR Code Generator
 - Benchmark ใช้เพื่อกำหนดมาตรฐานด้าน speed, simplicity, scan actions, QR generation/customization และ business utility; ไม่ถือเป็นอันดับทางการของ Google Play
 - ก่อน redesign หรือเพิ่ม feature ให้ตรวจ PROJECT_RULES + PRODUCT_BRIEF + UI_CARD_ONLY_RULE + UNIVERSAL_AUTO_LAYOUT_RULE ร่วมกัน
+
+
+## WORKING APP / USABLE BUILD RULE
+- ทุก release ต้องเป็นแอปที่ใช้งานได้จริง ไม่ใช่ mockup, demo, placeholder หรือหน้าจอจำลอง
+- ฟังก์ชันหลักที่แสดงใน UI ต้องมี implementation จริงและกดใช้งานได้: Generate QR, PromptPay, Wi‑Fi, Store Link, Text, Business Card, Scanner, History, Language/Region และ Save/Share
+- ห้ามแสดงข้อมูลสุ่ม ข้อมูลตัวอย่าง หรือสถานะสำเร็จปลอมเป็นข้อมูลจริง
+- ห้ามเพิ่มปุ่ม/เมนูที่ไม่มี action จริง; ถ้าฟังก์ชันยังไม่พร้อมต้องซ่อนหรือระบุว่าไม่พร้อมอย่างชัดเจน
+- ก่อนถือว่า "ใช้งานได้" ต้องผ่านอย่างน้อย: compile/build สำเร็จ, เปิดแอปได้, navigation ใช้ได้, ฟังก์ชันหลักไม่ crash, input validation ทำงาน, QR ที่สร้างอ่านกลับได้, Scanner อ่าน QR ได้, History บันทึก/ลบได้, TH/EN ไม่ปน, Region/Currency ถูกต้อง, safe-area/overflow ผ่านบนจอเล็ก
+- ต้องทดสอบบน Preview/Emulator หรืออุปกรณ์จริงหลังเปลี่ยนโค้ดสำคัญ; static review อย่างเดียวห้ามใช้ยืนยันว่า build ใช้งานได้
+- ห้ามอ้างว่า build ผ่านหรือพร้อมเผยแพร่หากยังไม่ได้ยืนยันจาก build ล่าสุด
+- เมื่อมี error ให้แก้ root cause ทีละจุด ห้ามสุ่มแก้หรือลบฟังก์ชันเพื่อให้ compile ผ่าน
+- package ต้องคง `com.aistudio.qrgenerator.kmpzqr` เว้นแต่ผู้ใช้สั่งเปลี่ยนโดยตรง
