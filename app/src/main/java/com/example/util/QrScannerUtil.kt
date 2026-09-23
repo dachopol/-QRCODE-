@@ -20,6 +20,7 @@ object QrScannerUtil {
             val hints = EnumMap<DecodeHintType, Any>(DecodeHintType::class.java).apply {
                 put(DecodeHintType.POSSIBLE_FORMATS, listOf(com.google.zxing.BarcodeFormat.QR_CODE))
                 put(DecodeHintType.TRY_HARDER, true)
+                put(DecodeHintType.ALSO_INVERTED, true)
                 put(DecodeHintType.CHARACTER_SET, "UTF-8")
             }
             setHints(hints)
