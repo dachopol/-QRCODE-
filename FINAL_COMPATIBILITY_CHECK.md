@@ -24,6 +24,7 @@
 - Core QR features remain in runtime source.
 
 ## Build verification status
-- v16 requires a fresh GitHub Actions / AI Studio build after this version-and-cleanup update before it may be called runtime-verified.
-- The debug APK artifact must be accepted only after build/test success.
+- GitHub Actions on main passed for v16 source after the cleanup sequence (run 35852726815).
+- Debug build and unit-test gate are therefore source/build verified on CI.
+- AI Studio snapshot/service failures must not be treated as source-code failure without compile/runtime evidence.
 - Real CameraX preview and QR scanning still require verification on a physical Android device before Play Console submission.
