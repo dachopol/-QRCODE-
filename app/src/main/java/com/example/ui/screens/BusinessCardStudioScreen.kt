@@ -91,8 +91,12 @@ fun BusinessCardStudioScreen(
     val card by viewModel.businessCard.collectAsState()
     val scrollState = rememberScrollState()
 
-    // Live QR preview for business card
-    val liveQrBitmap = remember(card) {
+    // Resolve localized UI text in composable scope, then cache bitmap from pure values.
+    val liveQrNote = localizedText(
+        "พร้อมเพย์: ${card.promptPayId} | ${card.services}",
+        "PromptPay: ${card.promptPayId} | ${card.services}"
+    )
+    val liveQrBitmap = remember(card, liveQrNote) {
         val payload = QrCodeUtil.buildVCardPayload(
             fullName = card.fullName,
             org = card.businessName,
@@ -100,7 +104,7 @@ fun BusinessCardStudioScreen(
             phone = card.phoneNumber,
             email = card.email,
             url = if (card.facebook.isNotBlank()) "https://facebook.com/${card.facebook}" else "",
-            note = localizedText("พร้อมเพย์: ${card.promptPayId} | ${card.services}", "PromptPay: ${card.promptPayId} | ${card.services}")
+            note = liveQrNote
         )
         QrCodeUtil.generateQrBitmap(
             content = payload,
