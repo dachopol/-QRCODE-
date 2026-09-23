@@ -1,4 +1,4 @@
-# QuickQR Business v13 — Google AI Studio import
+# QuickQR Business v14 — Google AI Studio import
 
 ## Recommended (official) route
 Google AI Studio Build mode officially supports **Import from GitHub**. Import the repository as an **Android** project (Kotlin + Jetpack Compose), not as a Web app.
@@ -14,8 +14,8 @@ ZIP upload behavior can change between AI Studio releases. If using ZIP upload:
 ## Project identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `13`
-- versionName: `13.0`
+- versionCode: `14`
+- versionName: `14.0`
 
 ## Compatibility cleanup in this package
 - Single Android `:app` module
@@ -44,3 +44,8 @@ This package is optimized for **Google AI Studio source import**. The previous a
 If you later need command-line/Android Studio wrapper builds, generate a complete wrapper from a trusted Gradle installation and keep all wrapper files together.
 
 This ZIP does not embed generated build outputs, private signing files, or an incomplete Gradle wrapper.
+
+
+## Camera preview
+- `metadata.json` must include `requestFramePermissions: ["camera"]` for AI Studio frame camera access.
+- Android runtime still uses `android.permission.CAMERA` from `AndroidManifest.xml`.
