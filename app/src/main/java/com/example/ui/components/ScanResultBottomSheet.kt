@@ -94,11 +94,11 @@ fun ScanResultBottomSheet(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val (badgeBg, badgeText, badgeIcon) = when (result.type) {
-                        ParsedQrType.PROMPTPAY -> Triple(Color(0xFF0B2853), "พร้อมเพย์ (PromptPay)", Icons.Default.Payment)
-                        ParsedQrType.WIFI -> Triple(Color(0xFF0284C7), "Wi-Fi Network", Icons.Default.Wifi)
-                        ParsedQrType.URL -> Triple(Color(0xFF059669), "ลิงก์เว็บไซต์/ร้านค้า", Icons.Default.Language)
-                        ParsedQrType.VCARD -> Triple(Color(0xFF7C3AED), "นามบัตรดิจิทัล", Icons.Default.Phone)
-                        else -> Triple(Color(0xFF475569), "คิวอาร์โค้ด", Icons.Default.CheckCircle)
+                        ParsedQrType.PROMPTPAY -> Triple(Color(0xFF0B2853), localizedText("พร้อมเพย์", "PromptPay"), Icons.Default.Payment)
+                        ParsedQrType.WIFI -> Triple(Color(0xFF0284C7), localizedText("เครือข่าย Wi-Fi", "Wi-Fi network"), Icons.Default.Wifi)
+                        ParsedQrType.URL -> Triple(Color(0xFF059669), localizedText("ลิงก์เว็บไซต์/ร้านค้า", "Website / store link"), Icons.Default.Language)
+                        ParsedQrType.VCARD -> Triple(Color(0xFF7C3AED), localizedText("นามบัตรดิจิทัล", "Contact card"), Icons.Default.Phone)
+                        else -> Triple(Color(0xFF475569), localizedText("คิวอาร์โค้ด", "QR code"), Icons.Default.CheckCircle)
                     }
 
                     Surface(
@@ -252,7 +252,7 @@ fun ScanResultBottomSheet(
                     if (!result.promptPayId.isNullOrBlank()) {
                         Button(
                             onClick = {
-                                copyToClipboard(result.promptPayId, "เบอร์/เลขพร้อมเพย์")
+                                copyToClipboard(result.promptPayId, localizedNow("เลขพร้อมเพย์", "PromptPay ID"))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -298,7 +298,7 @@ fun ScanResultBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
-                    onClick = { copyToClipboard(result.rawText, "ข้อความคิวอาร์") },
+                    onClick = { copyToClipboard(result.rawText, localizedNow("ข้อความคิวอาร์", "QR content")) },
                     modifier = Modifier
                         .weight(1f)
                         .defaultMinSize(minHeight = 44.dp),
@@ -315,7 +315,7 @@ fun ScanResultBottomSheet(
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, result.rawText)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "แชร์ข้อมูล"))
+                        context.startActivity(Intent.createChooser(shareIntent, localizedNow("แชร์ข้อมูล", "Share content")))
                     },
                     modifier = Modifier
                         .weight(1f)

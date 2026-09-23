@@ -3,8 +3,8 @@
 ## ข้อมูลแอป
 - ชื่อแอป: QuickQR Business
 - Application ID / Package: `com.aistudio.qrgenerator.kmpzqr`
-- Version name: `15.0`
-- Version code: `15`
+- Version name: `16.0`
+- Version code: `16`
 - ประเภท: แอปสแกนและสร้าง QR Code สำหรับธุรกิจ
 
 ## คำอธิบายสั้น
@@ -47,12 +47,12 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 - ประเทศ/พื้นที่สำหรับการทดสอบ: [เลือกตามที่ต้องการ]
 
 ## Release notes สำหรับ Internal/Closed testing
-QuickQR Business v15.0 testing build: ปรับชื่อแอปและข้อมูลเวอร์ชันให้ตรงกัน ปิดระบบโฆษณา/กระเป๋าเงิน/การชำระเงินจำลองสำหรับการทดสอบ และเปิดฟังก์ชัน QR หลักให้ผู้ทดสอบใช้งานได้โดยไม่ต้องชำระเงิน
+QuickQR Business v16.0 testing build: ปรับชื่อแอปและข้อมูลเวอร์ชันให้ตรงกัน ปิดระบบโฆษณา/กระเป๋าเงิน/การชำระเงินจำลองสำหรับการทดสอบ และเปิดฟังก์ชัน QR หลักให้ผู้ทดสอบใช้งานได้โดยไม่ต้องชำระเงิน
 
 ## เช็กลิสต์ก่อนอัปโหลด AAB
 1. สร้าง AAB ด้วย release signing ที่ถูกต้อง
 2. ตรวจว่า package ยังเป็น `com.aistudio.qrgenerator.kmpzqr`
-3. ตรวจว่า versionCode เป็น 15 และมากกว่า build ที่เคยอัปโหลด
+3. ตรวจว่า versionCode เป็น 16 และมากกว่า build ที่เคยอัปโหลด
 4. ทดสอบกล้องจริง: สแกน QR จากกล้อง
 5. ทดสอบ Generator: PromptPay / Wi‑Fi / Store Link / Text / Business Card
 6. ทดสอบบันทึกและแชร์ภาพ QR

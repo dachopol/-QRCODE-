@@ -3,8 +3,8 @@
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `15`
-- versionName: `15.0`
+- versionCode: `16`
+- versionName: `16.0`
 - JDK source/target: `17`
 
 ## AI Studio / Kotlin rules checked
