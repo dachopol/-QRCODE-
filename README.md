@@ -43,7 +43,7 @@ See `AI_STUDIO_IMPORT.md`. This v15 package keeps the Play Console applicationId
 
 ## Developer email rule
 - Developer identity: `215334638+AnakinYoo@users.noreply.github.com`
-- This GitHub noreply address is display-only and is not used as a support mailbox or `mailto:` target.
+- In v15, the owner explicitly uses this address as the hidden target behind the in-app admin contact button; the raw address is not shown in the UI.
 
 ## Device UI / language follow-up
 The latest source follows the permanent UI, localization, Card-only, and adaptive-layout rules in `PROJECT_RULES.md`, `UI_CARD_ONLY_RULE.md`, and `UNIVERSAL_AUTO_LAYOUT_RULE.md`.
