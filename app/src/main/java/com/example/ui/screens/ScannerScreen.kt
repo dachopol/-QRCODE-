@@ -24,6 +24,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -119,6 +121,7 @@ fun ScannerScreen(
     var cameraInstance by remember { mutableStateOf<Camera?>(null) }
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
     var cameraError by remember { mutableStateOf<String?>(null) }
+    val cameraHasFlash = cameraInstance?.cameraInfo?.hasFlashUnit() == true
     val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
     val disposed = remember { AtomicBoolean(false) }
 
@@ -402,7 +405,9 @@ fun ScannerScreen(
             if (!isEmulatorEnvironment) {
                 Box(
                     modifier = Modifier
-                        .size(260.dp)
+                        .fillMaxWidth()
+                        .widthIn(max = 260.dp)
+                        .aspectRatio(1f)
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(24.dp))
                         .background(Color.Transparent),
@@ -428,7 +433,12 @@ fun ScannerScreen(
                     )
                 }
             } else {
-                Spacer(modifier = Modifier.height(260.dp))
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = 260.dp)
+                        .aspectRatio(1f)
+                )
             }
 
             // Bottom Floating Controls
@@ -440,7 +450,7 @@ fun ScannerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Torch toggle
-                if (hasCameraPermission && cameraInstance != null) {
+                if (hasCameraPermission && cameraHasFlash) {
                     IconButton(
                         onClick = {
                             isTorchOn = !isTorchOn
@@ -458,7 +468,7 @@ fun ScannerScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(20.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
 
                 // Choose from Gallery Button
@@ -469,6 +479,7 @@ fun ScannerScreen(
                         )
                     },
                     modifier = Modifier
+                        .weight(1f)
                         .defaultMinSize(minHeight = 52.dp)
                         .testTag("pick_gallery_button"),
                     shape = AppPillShape,
@@ -480,7 +491,9 @@ fun ScannerScreen(
                         text = localizedText("เลือกรูปจากคลังภาพ", "Choose image from gallery"),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2
                     )
                 }
             }
