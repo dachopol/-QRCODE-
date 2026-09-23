@@ -19,4 +19,4 @@
 - Runtime source files were not deleted merely for cleanup; project rules require reference checks before deleting classes/routes.
 
 ## Verification gate
-This update synchronizes source/version/docs and cleanup state. A fresh CI build, AI Studio preview/device test, and Play Console test gate are still required before claiming v16 is release-ready.
+Source/version/docs and cleanup state are synchronized. GitHub Actions on main passed for the current v16 source after cleanup. AI Studio snapshot/service errors remain external-service evidence unless a compile/runtime error proves otherwise. Physical-device camera/scanner verification and Play Console testing are still required before claiming release readiness.
