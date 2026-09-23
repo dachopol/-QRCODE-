@@ -3,6 +3,7 @@ package com.example.ui.components
 import com.example.BuildConfig
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -33,8 +34,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,8 +53,6 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,7 +69,8 @@ import com.example.MainViewModel
 import com.example.ui.theme.appTextFieldColors
 import com.example.util.localizedText
 import com.example.util.localizedNow
-import com.example.util.RootSecurityManager
+
+private const val ADMIN_SUPPORT_EMAIL = "215334638+AnakinYoo@users.noreply.github.com"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +108,7 @@ fun SupportAndBugReportBottomSheet(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = if (selectedTab == 0) Icons.Default.BugReport else if (selectedTab == 1) Icons.AutoMirrored.Filled.ContactSupport else Icons.Default.Security,
+                            imageVector = if (selectedTab == 0) Icons.Default.BugReport else Icons.AutoMirrored.Filled.ContactSupport,
                             contentDescription = null,
                             tint = Color(0xFF0284C7),
                             modifier = Modifier.size(20.dp)
@@ -119,13 +117,13 @@ fun SupportAndBugReportBottomSheet(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (selectedTab == 0) localizedText("แจ้งปัญหา", "Report a problem") else if (selectedTab == 1) localizedText("ติดต่อและช่วยเหลือ", "Support") else localizedText("ความปลอดภัยระบบ", "Security"),
+                            text = if (selectedTab == 0) localizedText("แจ้งปัญหา", "Report a problem") else localizedText("ติดต่อและช่วยเหลือ", "Support"),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = localizedText("ข้อมูลช่วยเหลือ ระบบ และการตรวจสอบความปลอดภัย", "Help, system information and security checks"),
+                            text = localizedText("แจ้งปัญหา ติดต่อแอดมิน และวิธีใช้งาน", "Report issues, contact admin and get help"),
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )
@@ -139,7 +137,7 @@ fun SupportAndBugReportBottomSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Tabs: Tab 0 = แจ้งบัค, Tab 1 = ติดต่อแอดมิน / FAQ, Tab 2 = ความปลอดภัย (Anti-Root)
+            // Tabs: Tab 0 = แจ้งบัค, Tab 1 = ติดต่อแอดมิน / FAQ
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color(0xFFF1F5F9),
@@ -184,25 +182,6 @@ fun SupportAndBugReportBottomSheet(
                         }
                     }
                 )
-                Tab(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.Security, contentDescription = null, modifier = Modifier.size(15.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = localizedText("ความปลอดภัย", "Security"),
-                                fontSize = 12.sp,
-                                fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 2
-                            )
-                        }
-                    }
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -210,164 +189,9 @@ fun SupportAndBugReportBottomSheet(
             when (selectedTab) {
                 0 -> BugReportForm(viewModel, onSuccess = onDismiss)
                 1 -> AdminContactSupportView()
-                2 -> SecurityStatusView()
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-        }
-    }
-}
-
-@Composable
-fun SecurityStatusView() {
-    val context = LocalContext.current
-    val rootResult by RootSecurityManager.rootState.collectAsState()
-    val isRooted = rootResult?.isRooted ?: false
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Status Card
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = if (isRooted) Color(0xFFFEF2F2) else Color(0xFFF0FDF4),
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                if (isRooted) Color(0xFFFECACA) else Color(0xFFBBF7D0)
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(if (isRooted) Color(0xFFFEE2E2) else Color(0xFFDCFCE7)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Security,
-                        contentDescription = null,
-                        tint = if (isRooted) Color(0xFFDC2626) else Color(0xFF16A34A),
-                        modifier = Modifier.size(26.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = if (isRooted) localizedText("ตรวจพบความเสี่ยง", "Risk detected") else localizedText("ปลอดภัย • ไม่พบการรูท", "Safe • No root detected"),
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isRooted) Color(0xFF991B1B) else Color(0xFF166534)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = if (isRooted) Color(0xFFEF4444) else Color(0xFF10B981)
-                        ) {
-                            Text(
-                                text = localizedText("เปิดใช้งานตลอด", "Always on"),
-                                color = Color.White,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = localizedText("ระบบ Anti-Root ตรวจสอบความปลอดภัยแบบเรียลไทม์", "Anti-Root security checks run in real time"),
-                        fontSize = 11.sp,
-                        color = Color(0xFF64748B)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Text(
-            text = localizedText("รายการตรวจสอบความสมบูรณ์ของระบบ:", "System integrity checks:"),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF334155)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val checks = listOf(
-            Triple("Root Binary Check (su, busybox)", !(rootResult?.suBinaryFound ?: false), "ตรวจหาไฟล์คำสั่งระดับผู้ดูแลระบบ"),
-            Triple("Root Management Apps (Magisk, SuperSU)", !(rootResult?.rootAppFound ?: false), "ตรวจหาแอปพลิเคชันจัดการสิทธิ์รูท"),
-            Triple("Process Execution Integrity", !(rootResult?.suExecutionSucceeded ?: false), "ป้องกันการเรียกคำสั่ง su ในเบื้องหลัง"),
-            Triple("System Partition Read-Only", !(rootResult?.rwMountsFound ?: false), "ตรวจสอบการดัดแปลงไฟล์ระบบ system rw"),
-            Triple("Official Build Signature", !(rootResult?.testKeysFound ?: false), "ตรวจสอบลายเซ็น OS Release-keys")
-        )
-
-        checks.forEach { (title, passed, subtitle) ->
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = title,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF0F172A)
-                        )
-                        Text(
-                            text = subtitle,
-                            fontSize = 10.sp,
-                            color = Color(0xFF64748B)
-                        )
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = if (passed) Color(0xFFDCFCE7) else Color(0xFFFEE2E2)
-                    ) {
-                        Text(
-                            text = if (passed) localizedText("✓ ผ่าน", "✓ Pass") else localizedText("✕ เสี่ยง", "✕ Risk"),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (passed) Color(0xFF16A34A) else Color(0xFFDC2626),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Re-scan button
-        Button(
-            onClick = {
-                RootSecurityManager.verifyDeviceIntegrity(context)
-            },
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853)),
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 46.dp)
-                .testTag("rescan_root_security_button")
-        ) {
-            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(localizedText("ตรวจสอบความปลอดภัยอุปกรณ์ใหม่", "Run security check again"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -558,7 +382,7 @@ fun AdminContactSupportView() {
             .fillMaxWidth()
             .testTag("admin_contact_view")
     ) {
-        // Support entry without embedding a private email address.
+        // Admin email remains hidden from the UI and is opened only through the button.
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -587,8 +411,8 @@ fun AdminContactSupportView() {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = localizedText(
-                        "ยังไม่ได้กำหนดอีเมลสาธารณะสำหรับฝ่ายช่วยเหลือ คุณสามารถแชร์คำขอช่วยเหลือผ่านแอปที่เลือกได้",
-                        "No public support email is configured. You can share a support request using an app of your choice."
+                        "แตะปุ่มด้านล่างเพื่อเขียนอีเมลถึงแอดมิน โดยไม่แสดงที่อยู่อีเมลบนหน้าจอ",
+                        "Tap the button below to email the admin without showing the address on screen."
                     ),
                     fontSize = 12.sp,
                     color = Color(0xFF334155),
@@ -599,29 +423,38 @@ fun AdminContactSupportView() {
                 Button(
                     onClick = {
                         try {
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.fromParts("mailto", ADMIN_SUPPORT_EMAIL, null)
                                 putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business support request")
                                 putExtra(Intent.EXTRA_TEXT, "QuickQR Business v${BuildConfig.VERSION_NAME}\n")
                             }
-                            context.startActivity(Intent.createChooser(intent, localizedNow("ติดต่อผ่าน", "Contact with")))
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    localizedNow("ไม่พบแอปอีเมลในเครื่อง", "No email app found"),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         } catch (_: Exception) {
                             Toast.makeText(
                                 context,
-                                localizedNow("ไม่พบแอปสำหรับแชร์คำขอ", "No app available to share the request"),
+                                localizedNow("ไม่สามารถเปิดแอปอีเมลได้", "Unable to open the email app"),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 44.dp),
+                        .defaultMinSize(minHeight = 44.dp)
+                        .testTag("email_admin_button"),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
                 ) {
-                    Icon(Icons.Default.SupportAgent, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(localizedText("แชร์คำขอช่วยเหลือ", "Share support request"), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(localizedText("ส่งอีเมลถึงแอดมิน", "Email admin"), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
