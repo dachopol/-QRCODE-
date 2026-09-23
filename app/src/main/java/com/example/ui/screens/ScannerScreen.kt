@@ -26,6 +26,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
@@ -140,14 +141,14 @@ fun ScannerScreen(
 
     // Laser scanning animation
     val infiniteTransition = rememberInfiniteTransition(label = "laser")
-    val laserOffset by infiniteTransition.animateFloat(
+    val laserProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 240f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "laserOffset"
+        label = "laserProgress"
     )
 
     Box(
@@ -403,8 +404,9 @@ fun ScannerScreen(
 
             // Central Targeting Box with Corner Highlights and Laser
             if (!isEmulatorEnvironment) {
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
+                        .weight(1f, fill = false)
                         .fillMaxWidth()
                         .widthIn(max = 260.dp)
                         .aspectRatio(1f)
@@ -418,7 +420,10 @@ fun ScannerScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(3.dp)
-                            .offset(y = laserOffset.dp)
+                            .offset(
+                                y = (maxHeight - 3.dp)
+                                    .coerceAtLeast(0.dp) * laserProgress
+                            )
                             .background(
                                 Brush.horizontalGradient(
                                     listOf(
@@ -435,6 +440,7 @@ fun ScannerScreen(
             } else {
                 Spacer(
                     modifier = Modifier
+                        .weight(1f, fill = false)
                         .fillMaxWidth()
                         .widthIn(max = 260.dp)
                         .aspectRatio(1f)
