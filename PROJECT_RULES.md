@@ -1,4 +1,4 @@
-# PROJECT_RULES.md — QuickQR Business v13
+# PROJECT_RULES.md — QuickQR Business v14
 
 ## หลักบังคับ
 - ห้าม Fake/Random/Hardcode ข้อมูลที่อ้างว่าเป็นข้อมูลจริง; ไม่มีข้อมูลให้แสดงว่าง/ไม่ทราบ/ผิดพลาด
@@ -112,3 +112,11 @@
 - ห้ามอ้างว่า build ผ่านหรือพร้อมเผยแพร่หากยังไม่ได้ยืนยันจาก build ล่าสุด
 - เมื่อมี error ให้แก้ root cause ทีละจุด ห้ามสุ่มแก้หรือลบฟังก์ชันเพื่อให้ compile ผ่าน
 - package ต้องคง `com.aistudio.qrgenerator.kmpzqr` เว้นแต่ผู้ใช้สั่งเปลี่ยนโดยตรง
+
+
+## CAMERA / PREVIEW RULE
+- AI Studio preview metadata must request `camera` when scanner preview is enabled.
+- Android runtime camera permission remains `android.permission.CAMERA`.
+- CameraX Preview and ImageAnalysis must be unbound when leaving the scanner screen.
+- Prefer PreviewView COMPATIBLE mode when embedded preview/emulator SurfaceView rendering is corrupted.
+- Do not treat synthetic/emulator camera imagery as proof of physical-device camera quality; verify on a real device before release.
