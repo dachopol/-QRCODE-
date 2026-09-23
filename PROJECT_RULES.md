@@ -41,7 +41,10 @@
 - ก่อนลบไฟล์/คลาส/route ต้องตรวจ reference และผลกระทบต่อฟังก์ชันที่เหลือก่อนเสมอ
 
 ## PLAY / VERSION
-- versionCode ใหม่ต้องสูงกว่า versionCode ที่มีใน Play Console
+- ยกเลิกกฎที่ล็อกเป้าหมายเวอร์ชันไว้ที่ v12/12.0 หรือเลขคงที่อื่นจากแชทก่อนหน้า
+- Source of Truth ของเลขเวอร์ชันคือ `app/build.gradle.kts`; เอกสารและ UI ต้องตามค่านี้
+- เวอร์ชันปัจจุบันของ main คือ `versionCode = 16`, `versionName = "16.0"`
+- ก่อนอัปโหลด Play Console ต้องตรวจว่า versionCode สูงกว่ารุ่นที่ Play Console เคยรับจริง
 - Publish ล้มเหลวแต่ build ผ่าน: ตรวจ versionCode, package, signing, permissions/API และ publish log ก่อนกด AI Fix
 
 ## RULE PRIORITY — 2026-09-22
