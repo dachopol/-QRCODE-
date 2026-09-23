@@ -4,6 +4,7 @@
 - ห้าม Fake/Random/Hardcode ข้อมูลที่อ้างว่าเป็นข้อมูลจริง; ไม่มีข้อมูลให้แสดงว่าง/ไม่ทราบ/ผิดพลาด
 - package ต้องคง `com.aistudio.qrgenerator.kmpzqr` เว้นแต่ผู้ใช้สั่งเปลี่ยนโดยชัดเจน
 - ห้ามฝังอีเมลส่วนตัวเดิมใน source code; developer identity ใช้ `215334638+AnakinYoo@users.noreply.github.com` ตามกฎล่าสุด
+- v15: ปุ่มติดต่อแอดมินใช้ developer identity เป็น hidden mail target ตามคำสั่งเจ้าของโปรเจกต์; ห้ามแสดงที่อยู่อีเมลดิบบนหน้าจอ และห้ามนำอีเมลนี้ไปอ้างเป็น Play Console support mailbox ที่รับข้อความจริง
 - ห้ามเปิด VIP/Wallet/TopUp/รายได้/โฆษณาจำลองเป็นข้อมูลจริง
 
 ## BUILD / KOTLIN
