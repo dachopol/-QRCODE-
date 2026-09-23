@@ -1,6 +1,6 @@
 {
   "name": "QuickQR Business",
-  "description": "QuickQR Business v16.0 - แอปสร้างและสแกน QR สำหรับธุรกิจ พร้อม PromptPay, Wi-Fi, Store Link, Digital Business Card, Region/Currency consistency และ local history",
+  "description": "QuickQR Business v17.0 - แอปสร้างและสแกน QR สำหรับธุรกิจ พร้อม PromptPay, Wi-Fi, Store Link, Digital Business Card, Region/Currency consistency และ local history",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": []
 }

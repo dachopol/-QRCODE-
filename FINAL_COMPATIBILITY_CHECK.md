@@ -1,10 +1,10 @@
-# QuickQR Business v16 — Final compatibility check
+# QuickQR Business v17 — Final compatibility check
 
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `16`
-- versionName: `16.0`
+- versionCode: `17`
+- versionName: `17.0`
 - JDK source/target: `17`
 
 ## AI Studio / Kotlin rules checked
@@ -24,7 +24,7 @@
 - Core QR features remain in runtime source.
 
 ## Build verification status
-- GitHub Actions on main passed for v16 source after the cleanup sequence (run 35852726815).
-- Debug build and unit-test gate are therefore source/build verified on CI.
+- v17 requires a fresh GitHub Actions build/test run after this version-and-cleanup commit before it may be called CI-verified.
+- Do not reuse the old v16 CI result as proof for v17.
 - AI Studio snapshot/service failures must not be treated as source-code failure without compile/runtime evidence.
 - Real CameraX preview and QR scanning still require verification on a physical Android device before Play Console submission.

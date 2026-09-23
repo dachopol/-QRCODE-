@@ -1,4 +1,4 @@
-# QuickQR Business v16 — Google AI Studio import
+# QuickQR Business v17 — Google AI Studio import
 
 ## Recommended (official) route
 Google AI Studio Build mode officially supports **Import from GitHub**. Import the repository as an **Android** project (Kotlin + Jetpack Compose), not as a Web app.
@@ -14,8 +14,8 @@ ZIP upload behavior can change between AI Studio releases. If using ZIP upload:
 ## Project identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `16`
-- versionName: `16.0`
+- versionCode: `17`
+- versionName: `17.0`
 
 ## Compatibility cleanup in this package
 - Single Android `:app` module
@@ -53,7 +53,7 @@ This ZIP does not embed generated build outputs, private signing files, or an in
 - The Scanner screen now avoids binding CameraX on recognized emulator environments, shows a clear preview notice instead of synthetic imagery, and keeps gallery QR import available.
 - Real CameraX preview + QR scanning must be verified on an Android device before release.
 
-## v16 support/security UI
+## v17 support/security UI
 - The Support sheet has only Report bug and Contact admin tabs; the Security status page is removed.
 - Anti-Root verification still runs from app lifecycle code in the background and may show the root warning when risk is detected.
 - The admin email address is not rendered as text; the contact button opens the configured mail target.
