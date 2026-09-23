@@ -303,13 +303,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ).show()
             return
         }
-        if (QrValidationUtil.validatePromptPayTarget(target) is ValidationResult.Invalid) {
-            Toast.makeText(
-                getApplication(),
-                localizedNow("ข้อมูลพร้อมเพย์ไม่ถูกต้อง", "Invalid PromptPay ID"),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
+        when (val validation = QrValidationUtil.validatePromptPayTarget(target)) {
+            is ValidationResult.Invalid -> {
+                Toast.makeText(
+                    getApplication(),
+                    validation.reason,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+            ValidationResult.Valid -> Unit
         }
         if (QrValidationUtil.validateAmount(_promptPayAmount.value) is ValidationResult.Invalid) {
             Toast.makeText(

@@ -96,4 +96,22 @@ class QuickQrCoreTest {
         assertEquals("hello@example.com", parsed.contactEmail)
     }
 
+    @Test
+    fun promptPayPlus66_isAcceptedAndNormalizesToThaiLocalNumber() {
+        val input = "+66812345678"
+        assertEquals(com.example.util.ValidationResult.Valid, com.example.util.QrValidationUtil.validatePromptPayTarget(input))
+        val payload = PromptPayGenerator.generatePayload(input, 150.0)
+        val parsed = PromptPayGenerator.parsePromptPay(payload)
+        assertNotNull(parsed)
+        assertEquals("0812345678", parsed?.first)
+        assertEquals(150.0, parsed?.second ?: 0.0, 0.001)
+    }
+
+    @Test
+    fun promptPayShortPhone_isRejectedWithSpecificReason() {
+        val result = com.example.util.QrValidationUtil.validatePromptPayTarget("0895469")
+        assertTrue(result is com.example.util.ValidationResult.Invalid)
+        val reason = (result as com.example.util.ValidationResult.Invalid).reason
+        assertTrue(reason.contains("10 หลัก"))
+    }
 }

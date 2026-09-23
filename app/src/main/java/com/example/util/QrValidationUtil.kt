@@ -27,32 +27,45 @@ object QrValidationUtil {
     /**
      * Validates Thai PromptPay target (Phone number or 13-digit Thai Citizen ID).
      */
+    fun normalizePromptPayTarget(target: String): String {
+        val clean = target
+            .replace("-", "")
+            .replace(" ", "")
+            .replace("(", "")
+            .replace(")", "")
+            .trim()
+
+        return when {
+            clean.startsWith("+66") && clean.length == 12 -> "0" + clean.substring(3)
+            clean.startsWith("66") && clean.length == 11 -> "0" + clean.substring(2)
+            else -> clean
+        }
+    }
+
     fun validatePromptPayTarget(target: String): ValidationResult {
-        val clean = target.replace("-", "").replace(" ", "").trim()
+        val clean = normalizePromptPayTarget(target)
         if (clean.isEmpty()) {
             return ValidationResult.Invalid("กรุณากรอกเบอร์โทรศัพท์ หรือเลขประจำตัวประชาชน")
         }
 
         if (clean.length == 10) {
-            // Mobile phone: must start with 0 (e.g. 06, 08, 09) and contain only digits
             if (!clean.matches(Regex("^0[689]\\d{8}$"))) {
-                return ValidationResult.Invalid("เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก (เช่น 0812345678)")
+                return ValidationResult.Invalid("เบอร์พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก เช่น 0812345678")
             }
             return ValidationResult.Valid
         }
 
         if (clean.length == 13) {
-            // Thai National ID: must be 13 digits with official checksum verification
             if (!clean.matches(Regex("^\\d{13}$"))) {
                 return ValidationResult.Invalid("เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก")
             }
             if (!verifyThaiIdChecksum(clean)) {
-                return ValidationResult.Invalid("เลขบัตรประชาชนไม่ถูกต้องตามหลักการคำนวณ Checksum 13 หลัก")
+                return ValidationResult.Invalid("เลขบัตรประชาชน 13 หลักไม่ผ่านการตรวจสอบ")
             }
             return ValidationResult.Valid
         }
 
-        return ValidationResult.Invalid("กรุณากรอกเบอร์โทรศัพท์ (10 หลัก) หรือเลขบัตรประชาชน (13 หลัก)")
+        return ValidationResult.Invalid("พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก หรือเลขบัตรประชาชน 13 หลัก")
     }
 
     /**

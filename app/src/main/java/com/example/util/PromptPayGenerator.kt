@@ -12,7 +12,7 @@ object PromptPayGenerator {
      * or 13-digit Thai ID. Amount is optional and always expressed in THB.
      */
     fun generatePayload(target: String, amount: Double?): String {
-        val cleanTarget = target.replace("-", "").replace(" ", "").trim()
+        val cleanTarget = QrValidationUtil.normalizePromptPayTarget(target)
 
         val subtag = if (cleanTarget.length == 13) {
             tlv("02", cleanTarget)
