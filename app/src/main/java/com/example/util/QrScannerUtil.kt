@@ -85,14 +85,21 @@ object QrScannerUtil {
                     rotationDegrees = imageProxy.imageInfo.rotationDegrees
                 )
 
+                // Decode only the central square that matches the visible scan target.
+                // This reduces accidental reads from a nearby QR code outside the frame.
+                val cropSize = (minOf(rotated.width, rotated.height) * 0.70f)
+                    .toInt()
+                    .coerceAtLeast(1)
+                val cropLeft = ((rotated.width - cropSize) / 2).coerceAtLeast(0)
+                val cropTop = ((rotated.height - cropSize) / 2).coerceAtLeast(0)
                 val source = PlanarYUVLuminanceSource(
                     rotated.data,
                     rotated.width,
                     rotated.height,
-                    0,
-                    0,
-                    rotated.width,
-                    rotated.height,
+                    cropLeft,
+                    cropTop,
+                    cropSize,
+                    cropSize,
                     false
                 )
                 val result = createReader().decodeWithState(
