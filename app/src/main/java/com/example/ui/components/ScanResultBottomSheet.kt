@@ -252,7 +252,7 @@ fun ScanResultBottomSheet(
                     if (!result.promptPayId.isNullOrBlank()) {
                         Button(
                             onClick = {
-                                copyToClipboard(result.promptPayId, localizedText("เลขพร้อมเพย์", "PromptPay ID"))
+                                copyToClipboard(result.promptPayId, localizedNow("เลขพร้อมเพย์", "PromptPay ID"))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -298,7 +298,7 @@ fun ScanResultBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
-                    onClick = { copyToClipboard(result.rawText, localizedText("ข้อความคิวอาร์", "QR content")) },
+                    onClick = { copyToClipboard(result.rawText, localizedNow("ข้อความคิวอาร์", "QR content")) },
                     modifier = Modifier
                         .weight(1f)
                         .defaultMinSize(minHeight = 44.dp),
@@ -315,7 +315,7 @@ fun ScanResultBottomSheet(
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, result.rawText)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, localizedText("แชร์ข้อมูล", "Share content")))
+                        context.startActivity(Intent.createChooser(shareIntent, localizedNow("แชร์ข้อมูล", "Share content")))
                     },
                     modifier = Modifier
                         .weight(1f)
