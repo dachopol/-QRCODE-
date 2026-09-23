@@ -1,9 +1,10 @@
 # QuickQR Business — Competitor benchmark (2026-09-23)
 
 ## Public Google Play reference points
-- Gamma Play — QR & Barcode Scanner: about 4.8 stars and 500M+ downloads. Strengths: extremely simple auto-scan flow and broad QR/barcode format support.
-- TeaCapps — QR & Barcode Scanner: about 4.6 stars and 100M+ downloads. Strengths: common barcode formats and context-specific actions.
-- QRbot: about 4.6 stars and 5M+ downloads. Strengths: broad formats and fast actions.
+Observed on Google Play on 2026-09-23. Ratings can vary slightly by locale/device.
+- Gamma Play — QR & Barcode Scanner: 4.8 stars, 500M+ downloads. Strengths: extremely simple auto-scan flow and broad QR/barcode format support.
+- TeaCapps — QR & Barcode Scanner: 4.6 stars, 100M+ downloads. Strengths: common barcode formats, context-specific actions, and Safe Browsing-based link handling.
+- QRbot: 4.6 stars, 5M+ downloads. Strengths: broad formats and fast post-scan actions.
 - QR Toolkit: Scanner, Generator: differentiates with on-device preview before opening links, scan-from-image, Wi-Fi/vCard generation, logo/customization, and searchable history.
 
 Sources checked on Google Play on 2026-09-23:
