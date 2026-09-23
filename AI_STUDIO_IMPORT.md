@@ -49,3 +49,6 @@ This ZIP does not embed generated build outputs, private signing files, or an in
 ## Camera preview
 - `metadata.json` must include `requestFramePermissions: ["camera"]` for AI Studio frame camera access.
 - Android runtime still uses `android.permission.CAMERA` from `AndroidManifest.xml`.
+- AI Studio / Android Emulator camera imagery can be synthetic and is not evidence of physical-device camera quality.
+- The Scanner screen now avoids binding CameraX on recognized emulator environments, shows a clear preview notice instead of synthetic imagery, and keeps gallery QR import available.
+- Real CameraX preview + QR scanning must be verified on an Android device before release.
