@@ -58,3 +58,18 @@ QuickQR Business v17.0 testing build: ปรับชื่อแอปและ
 6. ทดสอบบันทึกและแชร์ภาพ QR
 7. ทดสอบ History
 8. ยืนยัน Privacy Policy และ Data safety ให้ตรงกับ AAB ที่อัปโหลดจริง
+
+
+## Submission pack
+Use these current v17 documents together:
+- `PLAY_CONSOLE_SUBMISSION_PACK.md`
+- `STORE_LISTING_TH_EN.md`
+- `DATA_SAFETY_V17.md`
+- `PRIVACY_POLICY_TH_EN.md`
+- `docs/privacy-policy.html`
+
+Owner-only fields still required before Play review:
+- Real monitored support email
+- Public HTTPS privacy-policy URL
+- Final target-audience/category confirmation
+- Store graphics/screenshots from current v17

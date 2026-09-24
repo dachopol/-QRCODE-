@@ -58,3 +58,11 @@ The latest source follows the permanent UI, localization, Card-only, and adaptiv
 ## Automation rule source
 - Project-specific automation rules: `ใช้แชทสร้างแอพอัปโหลดอัตโนมัติ.txt`
 - This file is scoped to QuickQR Business. Cross-project rules may contribute general safeguards only; project-specific features must not be imported automatically.
+
+
+## Google Play submission documents
+- `PLAY_CONSOLE_SUBMISSION_PACK.md`
+- `STORE_LISTING_TH_EN.md`
+- `DATA_SAFETY_V17.md`
+- `PRIVACY_POLICY_TH_EN.md`
+- `docs/privacy-policy.html`
