@@ -136,7 +136,11 @@ fun HistoryScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            listOf("ทั้งหมด", "สร้างแล้ว", "สแกนแล้ว").forEachIndexed { index, label ->
+            listOf(
+                localizedText("ทั้งหมด", "All"),
+                localizedText("สร้างแล้ว", "Created"),
+                localizedText("สแกนแล้ว", "Scanned")
+            ).forEachIndexed { index, label ->
                 FilterChip(
                     selected = selectedFilter == index,
                     onClick = { selectedFilter = index },
