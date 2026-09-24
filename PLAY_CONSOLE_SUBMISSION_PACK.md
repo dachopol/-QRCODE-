@@ -144,8 +144,10 @@ QuickQR Business v17.0 ปรับความสอดคล้องของ
 QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, responsive UI, and startup branding. It also removes superseded project files while preserving QR generation, scanning, business cards, and local history.
 
 ## 15. Submission blockers — must be completed by owner
-- [x] Real Play support email: chenkung12@gmail.com
+- [x] Support email recorded in project documents: chenkung12@gmail.com
+- [ ] Owner verifies this mailbox receives support requests
 - [ ] Public HTTPS Privacy Policy URL
+- [ ] Privacy policy link or text accessible inside the app
 - [ ] Final target audience confirmation
 - [ ] Final category confirmation
 - [ ] Store icon 512×512
@@ -157,3 +159,32 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 - [ ] Physical-device scanner test
 - [ ] Data Safety rechecked against final AAB / active tracks
 - [ ] IARC questionnaire submitted
+
+
+## 16. ขั้นตอนดำเนินการต่อ — ตรวจเอกสาร 24 September 2026
+
+### ตรวจแล้วจากไฟล์ main ในรอบนี้
+- `app/build.gradle.kts`: versionName 17.0 / versionCode 17 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
+- `app/src/main/AndroidManifest.xml`: CAMERA, camera optional, allowBackup=false; ไม่พบ INTERNET ใน manifest ต้นทางนี้
+- Privacy Policy ทั้ง Markdown และ HTML มี `chenkung12@gmail.com` ตรงกัน การมีอีเมลในเอกสารไม่ได้ยืนยันว่ารับเมลได้จริง
+- การตรวจนี้เป็น source/document review ไม่ใช่ผลตรวจ merged manifest, final AAB, CI หรืออุปกรณ์จริง
+
+### งานถัดไปตามลำดับ
+1. เผยแพร่ `docs/privacy-policy.html` เป็นหน้า HTTPS สาธารณะ จากนั้นตรวจเปิดแบบไม่ล็อกอินและตรวจเนื้อหาที่แสดงจริง
+2. ใส่ URL ที่ตรวจแล้วในหัวข้อ 8 และใน Play Console; ตรวจว่าภายในแอปมีลิงก์หรือข้อความนโยบายให้อ่านได้
+3. ใช้ `STORE_LISTING_TH_EN.md` กรอกชื่อและคำอธิบาย แนบ icon, feature graphic และภาพจาก build ที่จะส่งจริง
+4. ยืนยันหมวดหมู่ กลุ่มอายุ และประเทศจำหน่ายตามกลุ่มผู้ใช้จริง; Business และ 18+ ในเอกสารนี้ยังเป็นข้อเสนอ ไม่ใช่ค่าที่เจ้าของยืนยันแล้ว
+5. ตรวจ App access, Ads, Data Safety, Financial features และ IARC ตามคำถามที่ Console แสดงจริง การสร้าง QR ไม่ใช่หลักฐานให้ตอบว่าไม่มี financial features โดยอัตโนมัติ
+6. ตรวจ package, versionCode ที่ Play เคยรับ, upload certificate และ signing ของ AAB จริงก่อนอัปโหลด ห้ามส่ง keystore/password ในแชทหรือ commit ลง repo
+7. ทดสอบผ่าน test track พร้อมตรวจกล้องจริง, QR round-trip, Save/Share, History, TH/EN, PromptPay THB และจอเล็ก บันทึกผลตาม build ที่ติดตั้ง
+8. ตรวจรายงาน Console และรายการที่ยังไม่เสร็จก่อนส่ง review; ยังไม่ถือว่าเผยแพร่แล้ว
+
+### URL และสถานะที่ยังไม่ยืนยัน
+- Candidate เท่านั้น: `https://dachopol.github.io/-QRCODE-/privacy-policy.html`
+- เครื่องมือตรวจเว็บในรอบนี้เข้าถึง candidate ไม่สำเร็จ จึงยังยืนยันไม่ได้ว่าเว็บเปิดแล้ว และไม่สรุปว่าเป็น HTTP 404
+- Public Privacy Policy URL: ยังไม่ยืนยัน
+- CI ล่าสุด / signed AAB / การอัปโหลด / device QA / Console declarations: ยังไม่ได้ตรวจในรอบนี้
+- ห้ามทำเครื่องหมายผ่านจากรายงานเก่าหรือการมีไฟล์เอกสารเพียงอย่างเดียว
+
+Official reference: https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
+Google Play requires a publicly accessible privacy policy URL and a privacy policy link or text inside the app.
