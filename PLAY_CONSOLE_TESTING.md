@@ -38,7 +38,7 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 
 ## สิ่งที่ต้องกรอกเองก่อนส่ง
 - Project developer identity email: 215334638+AnakinYoo@users.noreply.github.com
-- Play Console support email: [ใส่อีเมลที่รับข้อความได้จริง — ไม่ใช้ GitHub noreply]
+- Play Console support email: chenkung12@gmail.com
 - Privacy policy URL: [ใส่ URL นโยบายความเป็นส่วนตัว]
 - App category: แนะนำเลือก Tools หรือ Business ตามตำแหน่งตลาดที่ต้องการ
 - Store icon 512×512: [ต้องอัปโหลด]
