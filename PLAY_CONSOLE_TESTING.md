@@ -69,7 +69,7 @@ Use these current v17 documents together:
 - `docs/privacy-policy.html`
 
 Owner-only fields still required before Play review:
-- Real monitored support email
+- Real monitored support email: chenkung12@gmail.com
 - Public HTTPS privacy-policy URL
 - Final target-audience/category confirmation
 - Store graphics/screenshots from current v17
