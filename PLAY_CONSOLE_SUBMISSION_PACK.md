@@ -72,7 +72,7 @@ Use:
 Before review you still need a public HTTPS URL that anyone can open without login.
 
 Required owner input:
-- Support/contact email that can actually receive mail: **[OWNER INPUT REQUIRED]**
+- Support/contact email that can actually receive mail: **chenkung12@gmail.com**
 - Public Privacy Policy URL: **[OWNER INPUT REQUIRED]**
 
 Do not use the GitHub noreply address as the Play support mailbox.
@@ -144,7 +144,7 @@ QuickQR Business v17.0 ปรับความสอดคล้องของ
 QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, responsive UI, and startup branding. It also removes superseded project files while preserving QR generation, scanning, business cards, and local history.
 
 ## 15. Submission blockers — must be completed by owner
-- [ ] Real Play support email
+- [x] Real Play support email: chenkung12@gmail.com
 - [ ] Public HTTPS Privacy Policy URL
 - [ ] Final target audience confirmation
 - [ ] Final category confirmation
