@@ -100,3 +100,9 @@ Positioning: Small-business QR utility
 - Google Play: QR TIGER — QR Code Generator
 
 Last benchmark research: 2026-09-23
+
+
+## FUTURE ROADMAP — CRYPTO QR
+- วางแผนเพิ่ม Crypto QR ในอนาคต โดยแยกจาก PromptPay และ Region/Currency flow เดิม
+- สถานะปัจจุบัน: **Planned / Not enabled in runtime**
+- รายละเอียดและ Gate อยู่ใน `ROADMAP_CRYPTO_QR.md`
