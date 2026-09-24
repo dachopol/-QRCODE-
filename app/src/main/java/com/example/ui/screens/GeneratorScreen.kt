@@ -25,6 +25,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Language
@@ -63,6 +66,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -98,6 +102,7 @@ fun GeneratorScreen(
 ) {
     val category by viewModel.generatorCategory.collectAsState()
     val scrollState = rememberScrollState()
+    var showAppearance by rememberSaveable { mutableStateOf(false) }
 
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
@@ -174,23 +179,53 @@ fun GeneratorScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Color customization controls for QR code
-            QrColorCustomizerCard(
-                darkColor = qrDarkColor,
-                lightColor = qrLightColor,
-                onDarkColorChange = { viewModel.setQrForegroundColor(it) },
-                onLightColorChange = { viewModel.setQrBackgroundColor(it) },
-                includeCenterLogo = includeCenterLogo,
-                onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             when (category) {
                 0 -> PromptPayForm(viewModel)
                 1 -> WifiForm(viewModel)
                 2 -> StoreLinkForm(viewModel)
                 3 -> TextForm(viewModel)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                onClick = { showAppearance = !showAppearance },
+                shape = AppCardShape,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                modifier = Modifier.fillMaxWidth().testTag("qr_appearance_toggle")
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Palette, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        localizedText("ปรับแต่ง QR", "QR appearance"),
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Icon(
+                        if (showAppearance) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = if (showAppearance)
+                            localizedText("ย่อการปรับแต่ง", "Collapse appearance")
+                        else localizedText("เปิดการปรับแต่ง", "Expand appearance")
+                    )
+                }
+            }
+            AnimatedVisibility(visible = showAppearance) {
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    QrColorCustomizerCard(
+                        darkColor = qrDarkColor,
+                        lightColor = qrLightColor,
+                        onDarkColorChange = { viewModel.setQrForegroundColor(it) },
+                        onLightColorChange = { viewModel.setQrBackgroundColor(it) },
+                        includeCenterLogo = includeCenterLogo,
+                        onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -255,13 +290,13 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                 text = localizedText("เบอร์มือถือ หรือ เลขบัตรประชาชน 13 หลัก", "Phone number or 13-digit ID"),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
-                color = Color(0xFF1E293B)
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = target,
                 onValueChange = { viewModel.setPromptPayTarget(it) },
-                placeholder = { Text(localizedText("เช่น 0812345678 หรือ 1234567890123", "e.g. 0812345678 or 1234567890123"), color = Color(0xFF94A3B8)) },
+                placeholder = { Text(localizedText("เช่น 0812345678 หรือ 1234567890123", "e.g. 0812345678 or 1234567890123"), color = Color(0xFF64748B)) },
                 leadingIcon = {
                     Icon(Icons.Default.Phone, contentDescription = null, tint = Color(0xFF0284C7))
                 },
@@ -290,7 +325,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                     text = localizedText("ระบุยอดเงิน (บาท) *ไม่กรอกก็ได้", "Amount (THB) — optional"),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
-                    color = Color(0xFF1E293B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (amount.isNotBlank()) {
                     Text(
@@ -308,7 +343,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
             OutlinedTextField(
                 value = amount,
                 onValueChange = { viewModel.setPromptPayAmount(it) },
-                placeholder = { Text(localizedText("0.00 (เว้นว่างไว้หากให้ลูกค้ากรอกเอง)", "0.00 (leave blank for payer to enter amount)"), color = Color(0xFF94A3B8)) },
+                placeholder = { Text(localizedText("0.00 (เว้นว่างไว้หากให้ลูกค้ากรอกเอง)", "0.00 (leave blank for payer to enter amount)"), color = Color(0xFF64748B)) },
                 leadingIcon = {
                     Text("฿", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF059669))
                 },
@@ -359,13 +394,13 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                 text = localizedText("ชื่อร้านค้า / ช่างรับเหมา / ฟรีแลนซ์", "Shop / Contractor / Freelancer"),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
-                color = Color(0xFF1E293B)
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = shopName,
                 onValueChange = { viewModel.setPromptPayShopName(it) },
-                placeholder = { Text(localizedText("เช่น ร้านส้มตำเจ๊น้อย, ช่างกานต์การช่าง", "e.g. My Shop, Somchai Service"), color = Color(0xFF94A3B8)) },
+                placeholder = { Text(localizedText("เช่น ร้านส้มตำเจ๊น้อย, ช่างกานต์การช่าง", "e.g. My Shop, Somchai Service"), color = Color(0xFF64748B)) },
                 leadingIcon = {
                     Icon(Icons.Default.Store, contentDescription = null, tint = Color(0xFF64748B))
                 },
@@ -424,18 +459,18 @@ private fun WifiForm(viewModel: MainViewModel) {
                 text = localizedText("สร้าง QR เข้า Wi-Fi อัตโนมัติ", "Generate Wi-Fi QR"),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // SSID
-            Text(localizedText("ชื่อเครือข่าย Wi-Fi (SSID)", "Wi-Fi network name (SSID)"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color(0xFF1E293B))
+            Text(localizedText("ชื่อเครือข่าย Wi-Fi (SSID)", "Wi-Fi network name (SSID)"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = ssid,
                 onValueChange = { viewModel.setWifiSsid(it) },
-                placeholder = { Text("เช่น Shop-Guest-WiFi", color = Color(0xFF94A3B8)) },
+                placeholder = { Text(localizedText("เช่น Shop-Guest-WiFi", "e.g. Shop-Guest-WiFi"), color = Color(0xFF64748B)) },
                 leadingIcon = { Icon(Icons.Default.Wifi, contentDescription = null, tint = Color(0xFF0284C7)) },
                 singleLine = true,
                 modifier = Modifier
@@ -450,18 +485,18 @@ private fun WifiForm(viewModel: MainViewModel) {
 
             // Password
             if (security != WifiSecurity.OPEN) {
-                Text(localizedText("รหัสผ่าน Wi-Fi", "Wi-Fi password"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color(0xFF1E293B))
+                Text(localizedText("รหัสผ่าน Wi-Fi", "Wi-Fi password"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(6.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.setWifiPassword(it) },
-                    placeholder = { Text("รหัสผ่าน Wi-Fi", color = Color(0xFF94A3B8)) },
+                    placeholder = { Text(localizedText("รหัสผ่าน Wi-Fi", "Wi-Fi password"), color = Color(0xFF64748B)) },
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF0284C7)) },
                     trailingIcon = {
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
                                 if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = null
+                                contentDescription = if (showPassword) localizedText("ซ่อนรหัสผ่าน", "Hide password") else localizedText("แสดงรหัสผ่าน", "Show password")
                             )
                         }
                     },
@@ -491,7 +526,7 @@ private fun WifiForm(viewModel: MainViewModel) {
                         onClick = { viewModel.setWifiSecurity(sec) },
                         label = {
                             Text(
-                                text = sec.name,
+                                text = if (sec == WifiSecurity.OPEN) localizedText("เปิด", "Open") else sec.name,
                                 fontSize = 12.sp,
                                 maxLines = 1,
                                 softWrap = false
@@ -514,7 +549,7 @@ private fun WifiForm(viewModel: MainViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(localizedText("เครือข่ายที่ซ่อนอยู่", "Hidden SSID"), fontSize = 13.sp, color = Color(0xFF334155))
+                Text(localizedText("เครือข่ายที่ซ่อนอยู่", "Hidden network"), modifier = Modifier.weight(1f).padding(end = 12.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 Switch(
                     checked = isHidden,
                     onCheckedChange = { viewModel.setWifiHidden(it) }
@@ -557,7 +592,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                 text = localizedText("สร้าง QR ลิงก์ร้านค้าและโซเชียลมีเดีย", "Generate store and social link QR"),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -586,16 +621,15 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, if (isSel) Color(0xFF0B2853) else Color(0xFFE2E8F0)),
                         modifier = Modifier
                             .wrapContentWidth()
+                            .defaultMinSize(minHeight = 48.dp)
                             .clickable { viewModel.setStorePlatform(p) }
                     ) {
                         Text(
-                            text = p.title,
+                            text = localizedText(p.title, if (p == StorePlatform.WEBSITE) "Store website" else p.title),
                             color = if (isSel) Color.White else Color(0xFF334155),
                             fontSize = 12.sp,
                             fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
-                            maxLines = 1,
-                            softWrap = false,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
                         )
                     }
                 }
@@ -603,12 +637,25 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(localizedText("ระบุข้อมูล / ลิงก์", "Enter ID / link"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color(0xFF1E293B))
+            Text(localizedText("ระบุข้อมูล / ลิงก์", "Enter ID / link"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = storeValue,
                 onValueChange = { viewModel.setStoreValue(it) },
-                placeholder = { Text(platform.placeholder, color = Color(0xFF94A3B8)) },
+                placeholder = {
+                    Text(
+                        localizedText(platform.placeholder, when (platform) {
+                            StorePlatform.SHOPEE -> "Username or shop link"
+                            StorePlatform.LAZADA -> "Shop name or link"
+                            StorePlatform.TIKTOK -> "Username"
+                            StorePlatform.LINE_OA -> "LINE ID, e.g. @myshop"
+                            StorePlatform.FACEBOOK -> "Page name or ID"
+                            StorePlatform.INSTAGRAM -> "Username"
+                            StorePlatform.WEBSITE -> "www.mywebsite.com"
+                        }),
+                        color = Color(0xFF64748B)
+                    )
+                },
                 leadingIcon = { Icon(Icons.Default.Language, contentDescription = null, tint = Color(0xFF0284C7)) },
                 singleLine = true,
                 modifier = Modifier
@@ -639,7 +686,7 @@ private fun StoreLinkForm(viewModel: MainViewModel) {
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(localizedText("สร้าง QR ลิงก์ร้านค้า", "Generate store link QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("สร้าง QR ลิงก์ร้านค้า", "Generate store link QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             }
         }
     }
@@ -660,7 +707,7 @@ private fun TextForm(viewModel: MainViewModel) {
                 text = localizedText("สร้าง QR ข้อความทั่วไป", "Generate text QR"),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -668,7 +715,7 @@ private fun TextForm(viewModel: MainViewModel) {
             OutlinedTextField(
                 value = text,
                 onValueChange = { viewModel.setRawText(it) },
-                placeholder = { Text(localizedText("พิมพ์ข้อความที่ต้องการสร้าง QR...", "Enter text for the QR code..."), color = Color(0xFF94A3B8)) },
+                placeholder = { Text(localizedText("พิมพ์ข้อความที่ต้องการสร้าง QR...", "Enter text for the QR code..."), color = Color(0xFF64748B)) },
                 minLines = 4,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -691,7 +738,7 @@ private fun TextForm(viewModel: MainViewModel) {
             ) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(localizedText("สร้าง QR ข้อความ", "Generate text QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                Text(localizedText("สร้าง QR ข้อความ", "Generate text QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             }
         }
     }

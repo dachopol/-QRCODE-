@@ -191,6 +191,30 @@ object QrScannerUtil {
         }
     }
 
+    // A backslash escapes the following character, including a field delimiter.
+    private fun splitWifiFields(payload: String): List<String> {
+        val fields = mutableListOf<String>()
+        val field = StringBuilder()
+        var escaped = false
+        for (character in payload) {
+            when {
+                escaped -> {
+                    field.append(character)
+                    escaped = false
+                }
+                character == '\\' -> escaped = true
+                character == ';' -> {
+                    fields.add(field.toString())
+                    field.setLength(0)
+                }
+                else -> field.append(character)
+            }
+        }
+        if (escaped) field.append('\\')
+        if (field.isNotEmpty()) fields.add(field.toString())
+        return fields
+    }
+
     /**
      * Classifies a decoded QR payload into PromptPay, Wi-Fi, URL, vCard or text.
      */
@@ -229,7 +253,7 @@ object QrScannerUtil {
             var pass = ""
             var sec = "WPA"
 
-            trimmed.substring(5).split(";").forEach { part ->
+            splitWifiFields(trimmed.substring(5)).forEach { part ->
                 if (part.startsWith("S:")) ssid = part.substring(2)
                 if (part.startsWith("P:")) pass = part.substring(2)
                 if (part.startsWith("T:")) sec = part.substring(2)

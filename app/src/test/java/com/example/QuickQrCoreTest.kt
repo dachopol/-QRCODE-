@@ -76,6 +76,36 @@ class QuickQrCoreTest {
     }
 
     @Test
+    fun scannerWifi_readsEscapedFieldsWithoutCreatingExtraFields() {
+        val parsed = QrScannerUtil.parseQrContent(
+            """WIFI:S:Shop\;T\:nopass;T:WPA;P:p\;ass\:word\,\"\\;;"""
+        )
+        assertEquals(ParsedQrType.WIFI, parsed.type)
+        assertEquals("Shop;T:nopass", parsed.wifiSsid)
+        assertEquals("WPA", parsed.wifiSecurity)
+        assertEquals("p;ass:word,\"\\", parsed.wifiPass)
+    }
+
+    @Test
+    fun scannerWifi_roundTripPreservesSpecialCharactersAndThai() {
+        val ssid = "ร้าน;\\Wi-Fi,:\""
+        val password = "p\\;:a,\"ss"
+        val payload = com.example.util.QrCodeUtil.buildWifiPayload(ssid, password)
+        val parsed = QrScannerUtil.parseQrContent(payload)
+        assertEquals(ssid, parsed.wifiSsid)
+        assertEquals(password, parsed.wifiPass)
+        assertEquals("WPA", parsed.wifiSecurity)
+    }
+
+    @Test
+    fun scannerWifi_handlesEscapedBackslashBeforeDelimiterAndOpenNetwork() {
+        val parsed = QrScannerUtil.parseQrContent("""WIFI:S:Shop\\;T:nopass;P:;;""")
+        assertEquals("Shop\\", parsed.wifiSsid)
+        assertEquals("nopass", parsed.wifiSecurity)
+        assertEquals("", parsed.wifiPass)
+    }
+
+    @Test
     fun scannerVCard_extractsContactFields() {
         val parsed = QrScannerUtil.parseQrContent(
             """
