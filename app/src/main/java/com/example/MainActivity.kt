@@ -43,12 +43,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -56,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
 import com.example.ui.components.LanguageAndCurrencyDialog
 import com.example.ui.components.QrPreviewDialog
 import com.example.ui.components.RootSecurityWarningDialog
@@ -89,7 +93,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
-                MainAppScreen(viewModel = viewModel)
+                var showSplash by remember { mutableStateOf(true) }
+
+                LaunchedEffect(Unit) {
+                    delay(900)
+                    showSplash = false
+                }
+
+                if (showSplash) {
+                    QuickQrSplashScreen()
+                } else {
+                    MainAppScreen(viewModel = viewModel)
+                }
             }
         }
     }
@@ -98,6 +113,59 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // Anti-Root Security: Continuous verification whenever app returns to foreground
         RootSecurityManager.verifyDeviceIntegrityAsync(this, lifecycleScope)
+    }
+}
+
+@Composable
+private fun QuickQrSplashScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8FAFC))
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(112.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Color(0xFF0B2853), Color(0xFF0284C7))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "QuickQR Business icon",
+                    modifier = Modifier.size(88.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "QuickQR Business",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F172A)
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "by AnakinYoo",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF64748B)
+            )
+        }
     }
 }
 

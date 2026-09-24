@@ -23,6 +23,11 @@
 - Updated all active documentation references to v17.
 - No runtime source/class/route was deleted unless it was confirmed superseded/unreferenced.
 
+## Startup splash
+- Added a lightweight startup screen using the QuickQR app icon.
+- Shows **QuickQR Business** and **by AnakinYoo** before entering the main app.
+- Uses existing project resources and no new dependency; core QR navigation is unchanged.
+
 ## Verification gate
 - This commit must pass fresh GitHub Actions build + unit-test gates.
 - AI Studio snapshot/service errors are treated as external-service evidence unless compile/runtime logs prove a source failure.
