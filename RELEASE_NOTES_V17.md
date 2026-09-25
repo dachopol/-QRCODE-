@@ -31,4 +31,4 @@
 ## Verification gate
 - This commit must pass fresh GitHub Actions build + unit-test gates.
 - AI Studio snapshot/service errors are treated as external-service evidence unless compile/runtime logs prove a source failure.
-- Physical-device camera/scanner verification and Play Console testing are still required before release readiness.
+- Physical-device camera/scanner and core QR round-trip verification are complete. Release signing and Play Console upload/track verification remain required before release readiness.
