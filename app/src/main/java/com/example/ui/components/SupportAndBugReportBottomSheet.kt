@@ -52,6 +52,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,7 +86,7 @@ fun SupportAndBugReportBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -121,18 +122,18 @@ fun SupportAndBugReportBottomSheet(
                             text = if (selectedTab == 0) localizedText("แจ้งปัญหา", "Report a problem") else localizedText("ติดต่อและช่วยเหลือ", "Support"),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = localizedText("แจ้งปัญหา ติดต่อแอดมิน และวิธีใช้งาน", "Report issues, contact admin and get help"),
                             fontSize = 11.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = Color(0xFF64748B))
+                    Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -141,7 +142,7 @@ fun SupportAndBugReportBottomSheet(
             // Tabs: Tab 0 = แจ้งบัค, Tab 1 = ติดต่อแอดมิน / FAQ
             TabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = Color(0xFFF1F5F9),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 contentColor = Color(0xFF0B2853),
                 modifier = Modifier.clip(RoundedCornerShape(12.dp))
             ) {
@@ -249,7 +250,7 @@ fun BugReportForm(
             Text(
                 text = localizedText("เลือกแอปที่ต้องการใช้ส่งรายงาน", "Choose an app to send the report"),
                 fontSize = 13.sp,
-                color = Color(0xFF64748B)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(20.dp))
             Button(
@@ -266,7 +267,7 @@ fun BugReportForm(
                 text = localizedText("เลือกหมวดหมู่ปัญหาที่พบ:", "Choose issue category:"),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF334155)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -387,7 +388,7 @@ fun AdminContactSupportView() {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F9FF))
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -405,7 +406,7 @@ fun AdminContactSupportView() {
                         localizedText("ช่วยเหลือ", "Support"),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -416,7 +417,7 @@ fun AdminContactSupportView() {
                         "Tap the button below to email the admin without showing the address on screen."
                     ),
                     fontSize = 12.sp,
-                    color = Color(0xFF334155),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 18.sp
                 )
 
@@ -463,7 +464,7 @@ fun AdminContactSupportView() {
         Spacer(modifier = Modifier.height(14.dp))
 
         // FAQ Section
-        Text(localizedText("คำถามและวิธีใช้งานเบื้องต้น", "FAQ"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+        Text(localizedText("คำถามและวิธีใช้งานเบื้องต้น", "FAQ"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(8.dp))
 
         val faqs = listOf(
@@ -478,20 +479,20 @@ fun AdminContactSupportView() {
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
                         text = "• $question",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = answer,
                         fontSize = 11.sp,
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp
                     )
                 }
@@ -502,7 +503,7 @@ fun AdminContactSupportView() {
         Text(
             text = "QuickQR Business v${BuildConfig.VERSION_NAME}",
             fontSize = 11.sp,
-            color = Color(0xFF94A3B8),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(8.dp))

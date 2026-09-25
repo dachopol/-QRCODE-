@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +104,7 @@ fun HistoryScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFF8FAFC), GlassAccent, Color(0xFFF8FAFC))
+                    listOf(MaterialTheme.colorScheme.background, GlassAccent, MaterialTheme.colorScheme.background)
                 )
             )
             .padding(16.dp)
@@ -119,21 +121,21 @@ fun HistoryScreen(
                     text = localizedText("ประวัติ", "History"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = localizedText("รายการทั้งหมด ${filteredItems.size} รายการ", "${filteredItems.size} saved items"),
                     fontSize = 12.sp,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Filter chips
+        // Filter chips remain reachable with large fonts on narrow screens.
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(
@@ -152,7 +154,7 @@ fun HistoryScreen(
                             softWrap = false
                         )
                     },
-                    modifier = Modifier.defaultMinSize(minWidth = 74.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 74.dp, minHeight = 48.dp),
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF0B2853),
                         selectedLabelColor = Color.White
@@ -180,13 +182,13 @@ fun HistoryScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = localizedText("ยังไม่มีประวัติในหมวดหมู่นี้", "No history in this category"),
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = localizedText("ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น", "Create or scan a QR code to get started"),
-                        color = Color(0xFF94A3B8),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp
                     )
                 }
@@ -263,7 +265,7 @@ private fun HistoryItemCard(
         "WIFI" -> Pair(Icons.Default.Wifi, Color(0xFF0284C7))
         "STORE_LINK" -> Pair(Icons.Default.Language, Color(0xFF059669))
         "VCARD" -> Pair(Icons.Default.Phone, Color(0xFF7C3AED))
-        else -> Pair(Icons.Default.QrCode, Color(0xFF475569))
+        else -> Pair(Icons.Default.QrCode, MaterialTheme.colorScheme.onSurfaceVariant)
     }
 
     val dateFormatted = remember(item.timestamp) {
@@ -273,7 +275,7 @@ private fun HistoryItemCard(
 
     Card(
         shape = AppCardShape,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -313,7 +315,7 @@ private fun HistoryItemCard(
                             text = item.title,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFF0F172A),
+                            color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -339,7 +341,7 @@ private fun HistoryItemCard(
                     Text(
                         text = item.subtitle,
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -347,7 +349,7 @@ private fun HistoryItemCard(
                     Text(
                         text = dateFormatted,
                         fontSize = 10.sp,
-                        color = Color(0xFF94A3B8)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

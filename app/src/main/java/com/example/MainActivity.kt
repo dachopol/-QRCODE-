@@ -122,7 +122,7 @@ private fun QuickQrSplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center
@@ -155,7 +155,7 @@ private fun QuickQrSplashScreen() {
                 text = "QuickQR Business",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -164,7 +164,7 @@ private fun QuickQrSplashScreen() {
                 text = "by AnakinYoo",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF64748B)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -228,7 +228,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                                     text = localizedString("app_title"),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp,
-                                    color = Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Surface(
@@ -276,7 +276,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             Text(
                                 text = "•",
                                 fontSize = 9.sp,
-                                color = Color(0xFF94A3B8)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
@@ -302,17 +302,17 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     }
 
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White.copy(alpha = 0.96f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
             )
         },
         bottomBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 8.dp,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
                 NavigationBar(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 0.dp,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -343,8 +343,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = Color(0xFF0284C7),
                                 selectedTextColor = Color(0xFF0369A1),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF475569),
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 indicatorColor = GlassAccent
                             ),
                             modifier = Modifier.testTag(tag)

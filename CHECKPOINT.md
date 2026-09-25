@@ -1,5 +1,16 @@
 # QuickQR continuation checkpoint
 
+## Latest verified outcome (supersedes prior blocked-build notes)
+- User approved main upload. Code commit: 0c61307bb175f4f2e91583cf7a4c9a2e7ae145f6.
+- Build/test PASS on GitHub: assembleDebug + testDebugUnitTest; APK upload PASS.
+- Evidence: https://github.com/dachopol/-QRCODE-/actions/runs/36067250936
+- Local git push lacked credentials; upload used the configured GitHub connector.
+- Local main was aligned with the remote; local-prepared-quickqr preserves the
+  original local commit with identical file contents.
+- Remaining: real-device TH/EN, layout, QR actions, camera and competitor measures.
+- Follow the remaining device checks below; do not repeat already-passed CI
+  unless code changes or a concrete new risk requires it.
+
 ## Source
 - Repository: dachopol/-QRCODE-, main
 - Base commit: 0d158c5493b3aebc490a004a7c38fe8ad20ad470
@@ -55,3 +66,11 @@ with an open network. Existing plain Wi-Fi test remains.
    until measurements exist. UI/privacy assessment requires separate evidence.
 
 DoD remains blocked on build/test of the patch and real-device runtime validation.
+# Full-app Canva style continuation — 2026-09-25
+
+- Applied semantic light/dark surfaces to navigation, history, card forms, QR customization, preview, language/region and support screens.
+- Stacked business contact fields, enlarged color/reset/close controls, and made history filters scroll at large font sizes.
+- Localized scan-result type badges for TH/EN. Preserved QR bitmap palettes, card preview colors and existing actions.
+- Canva generation remains blocked by quota_exceeded; this continuation updates Android source using the existing design direction.
+- Current patch: diff check passed; CI build/unit tests pending. Previous CI result below applies only to 0c61307.
+- Device validation (small-screen TH/EN, light/dark, font scaling, navigation, scan/save/share) is still required.

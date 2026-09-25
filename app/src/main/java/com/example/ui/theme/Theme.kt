@@ -22,6 +22,9 @@ private val DarkColorScheme =
     surface = Color(0xFF1E293B),
     onPrimary = Color.White,
     onSurface = Color(0xFFE2E8F0),
+    onSurfaceVariant = Color(0xFFCBD5E1),
+    surfaceVariant = Color(0xFF334155),
+    outlineVariant = Color(0xFF475569),
     onBackground = Color(0xFFE2E8F0)
   )
 
@@ -35,7 +38,10 @@ private val LightColorScheme =
     onPrimary = Color.White,
     onSecondary = Color.White,
     onBackground = Color(0xFF0F172A),
-    onSurface = Color(0xFF0F172A)
+    onSurface = Color(0xFF0F172A),
+    onSurfaceVariant = Color(0xFF475569),
+    surfaceVariant = Color(0xFFF1F5F9),
+    outlineVariant = Color(0xFFCBD5E1)
   )
 
 @Composable
@@ -53,8 +59,8 @@ fun appTextFieldColors(
         cursorColor = focusedBorderColor,
         focusedBorderColor = focusedBorderColor,
         unfocusedBorderColor = unfocusedBorderColor,
-        focusedPlaceholderColor = Color(0xFF94A3B8),
-        unfocusedPlaceholderColor = Color(0xFF94A3B8),
+        focusedPlaceholderColor = Color(0xFF64748B),
+        unfocusedPlaceholderColor = Color(0xFF64748B),
         focusedLeadingIconColor = Color(0xFF0284C7),
         unfocusedLeadingIconColor = Color(0xFF64748B),
         focusedTrailingIconColor = Color(0xFF0284C7),

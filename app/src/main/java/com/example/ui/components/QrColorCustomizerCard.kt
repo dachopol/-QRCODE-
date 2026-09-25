@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,7 +121,7 @@ fun QrColorCustomizerCard(
             .fillMaxWidth()
             .testTag("qr_color_customizer_card"),
         shape = AppCardShape,
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.96f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f)),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
@@ -159,7 +160,7 @@ fun QrColorCustomizerCard(
                         text = localizedText("ปรับแต่ง QR", "Customize QR"),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -170,13 +171,13 @@ fun QrColorCustomizerCard(
                         onLightColorChange(Color.White)
                     },
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(48.dp)
                         .testTag("reset_qr_colors_button")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = localizedText("รีเซ็ตสีเริ่มต้น", "Reset colors"),
-                        tint = Color(0xFF64748B),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -188,7 +189,7 @@ fun QrColorCustomizerCard(
                 Surface(
                     shape = AppSectionShape,
                     color = GlassAccent,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -200,9 +201,10 @@ fun QrColorCustomizerCard(
                     ) {
                         Text(
                             text = localizedText("ตรากลาง QR", "Center logo"),
+                            modifier = Modifier.weight(1f),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E293B)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Switch(
                             checked = includeCenterLogo,
@@ -286,7 +288,7 @@ fun QrColorCustomizerCard(
                     text = localizedText("สีพื้นหลัง QR", "QR background color"),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -342,7 +344,7 @@ fun QrColorCustomizerCard(
                             text = displayName,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
+                            color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2
                         )
                     }
@@ -364,7 +366,7 @@ fun QrColorCustomizerCard(
                     text = localizedText("สีลวดลาย QR", "QR pattern color"),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -410,7 +412,7 @@ fun QrColorCustomizerCard(
                             text = displayName,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
+                            color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2
                         )
                     }

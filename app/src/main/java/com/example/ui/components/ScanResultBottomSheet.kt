@@ -41,6 +41,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,7 +78,7 @@ fun ScanResultBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -92,13 +93,13 @@ fun ScanResultBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     val (badgeBg, badgeText, badgeIcon) = when (result.type) {
-                        ParsedQrType.PROMPTPAY -> Triple(Color(0xFF0B2853), "พร้อมเพย์ (PromptPay)", Icons.Default.Payment)
-                        ParsedQrType.WIFI -> Triple(Color(0xFF0284C7), "Wi-Fi Network", Icons.Default.Wifi)
-                        ParsedQrType.URL -> Triple(Color(0xFF059669), "ลิงก์เว็บไซต์/ร้านค้า", Icons.Default.Language)
-                        ParsedQrType.VCARD -> Triple(Color(0xFF7C3AED), "นามบัตรดิจิทัล", Icons.Default.Phone)
-                        else -> Triple(Color(0xFF475569), "คิวอาร์โค้ด", Icons.Default.CheckCircle)
+                        ParsedQrType.PROMPTPAY -> Triple(Color(0xFF0B2853), localizedText("พร้อมเพย์", "PromptPay"), Icons.Default.Payment)
+                        ParsedQrType.WIFI -> Triple(Color(0xFF0284C7), localizedText("เครือข่าย Wi-Fi", "Wi-Fi network"), Icons.Default.Wifi)
+                        ParsedQrType.URL -> Triple(Color(0xFF059669), localizedText("ลิงก์เว็บไซต์/ร้านค้า", "Website / Store link"), Icons.Default.Language)
+                        ParsedQrType.VCARD -> Triple(Color(0xFF7C3AED), localizedText("นามบัตรดิจิทัล", "Digital business card"), Icons.Default.Phone)
+                        else -> Triple(Color(0xFF475569), localizedText("คิวอาร์โค้ด", "QR code"), Icons.Default.CheckCircle)
                     }
 
                     Surface(
@@ -127,7 +128,7 @@ fun ScanResultBottomSheet(
             // Main Details Card
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -135,7 +136,7 @@ fun ScanResultBottomSheet(
                         text = result.title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -143,7 +144,7 @@ fun ScanResultBottomSheet(
                     Text(
                         text = result.subtitle,
                         fontSize = 14.sp,
-                        color = Color(0xFF475569),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
                     )
 

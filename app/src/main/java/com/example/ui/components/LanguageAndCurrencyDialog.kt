@@ -36,6 +36,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -117,7 +118,7 @@ fun LanguageAndCurrencyDialog(
                 .fillMaxHeight(0.85f)
                 .clip(AppCardShape)
                 .testTag("language_currency_dialog"),
-            color = Color.White.copy(alpha = 0.97f),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f),
             border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder)
         ) {
             Column(
@@ -152,7 +153,7 @@ fun LanguageAndCurrencyDialog(
                                 text = if (selectedTab == 0) localizedString("tab_language") else localizedString("tab_currency"),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = if (selectedTab == 0) "${currentLanguage.code.uppercase()} • ${currentLanguage.nativeName}"
@@ -167,15 +168,15 @@ fun LanguageAndCurrencyDialog(
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE2E8F0))
+                            .background(MaterialTheme.colorScheme.outlineVariant)
                             .testTag("close_lang_currency_dialog_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = localizedString("close"),
-                            tint = Color(0xFF475569)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -185,8 +186,8 @@ fun LanguageAndCurrencyDialog(
                 // Primary Tabs: Language vs Google Currency
                 PrimaryTabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = Color(0xFFE2E8F0),
-                    contentColor = Color(0xFF0F172A),
+                    containerColor = MaterialTheme.colorScheme.outlineVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(AppPillShape)
@@ -248,14 +249,14 @@ fun LanguageAndCurrencyDialog(
                         Text(
                             text = if (selectedTab == 0) localizedString("search_language") else localizedString("search_currency"),
                             fontSize = 13.sp,
-                            color = Color(0xFF94A3B8)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = Color(0xFF64748B)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     trailingIcon = {
@@ -269,7 +270,7 @@ fun LanguageAndCurrencyDialog(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = localizedText("ล้าง", "Clear"),
-                                    tint = Color(0xFF64748B)
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -277,8 +278,8 @@ fun LanguageAndCurrencyDialog(
                     singleLine = true,
                     shape = AppSectionShape,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedBorderColor = Color(0xFF0284C7),
                         unfocusedBorderColor = Color(0xFFCBD5E1)
                     )
@@ -344,11 +345,11 @@ private fun LanguageItemCard(
             .testTag("lang_item_${language.code}"),
         shape = AppSectionShape,
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Color(0xFFEFF6FF) else Color.White
+            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
         border = androidx.compose.foundation.BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) Color(0xFF0284C7) else Color(0xFFE2E8F0)
+            color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.outlineVariant
         ),
         elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 0.dp)
     ) {
@@ -369,7 +370,7 @@ private fun LanguageItemCard(
                     text = language.nativeName,
                     fontSize = 15.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                    color = if (isSelected) Color(0xFF0284C7) else Color(0xFF0F172A)
+                    color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -378,7 +379,7 @@ private fun LanguageItemCard(
                     text = language.code.uppercase(),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (isSelected) {
                     Spacer(modifier = Modifier.width(8.dp))
@@ -415,11 +416,11 @@ private fun CurrencyItemCard(
             .testTag("currency_item_${currency.code}"),
         shape = AppSectionShape,
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Color(0xFFF0FDF4) else Color.White
+            containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
         border = androidx.compose.foundation.BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) Color(0xFF10B981) else Color(0xFFE2E8F0)
+            color = if (isSelected) Color(0xFF10B981) else MaterialTheme.colorScheme.outlineVariant
         ),
         elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 0.dp)
     ) {
@@ -446,7 +447,7 @@ private fun CurrencyItemCard(
                     ),
                     fontSize = 15.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                    color = if (isSelected) Color(0xFF059669) else Color(0xFF0F172A)
+                    color = if (isSelected) Color(0xFF059669) else MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -455,7 +456,7 @@ private fun CurrencyItemCard(
                     text = "${currency.code} ${currency.symbol}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) Color(0xFF059669) else Color(0xFF475569)
+                    color = if (isSelected) Color(0xFF059669) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (isSelected) {
                     Spacer(modifier = Modifier.width(8.dp))

@@ -41,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,7 +90,7 @@ fun QrPreviewDialog(
                 .padding(4.dp)
                 .testTag("qr_preview_dialog"),
             shape = AppCardShape,
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(12.dp)
         ) {
             Column(
@@ -110,17 +111,17 @@ fun QrPreviewDialog(
                             text = preview.title,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = preview.subtitle,
                             fontSize = 12.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = Color(0xFF64748B))
+                        Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -160,7 +161,7 @@ fun QrPreviewDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(AppSectionShape)
-                        .background(Color(0xFFF8FAFC))
+                        .background(MaterialTheme.colorScheme.background)
                         .border(1.dp, GlassBorder, AppSectionShape)
                         .padding(12.dp),
                     contentAlignment = Alignment.Center
@@ -264,4 +265,3 @@ fun QrPreviewDialog(
         }
     }
 }
-
