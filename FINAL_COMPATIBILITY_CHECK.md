@@ -67,3 +67,36 @@ Verified on code commit `d44490917c66ae6e39b8e0cc167569112597fa3e`, Android CI r
 
 ### Signing boundary
 The CI release bundle is unsigned because no release keystore/signing secrets are injected into the workflow. This proves release-bundle compilation, not Play Console upload readiness. Signing and Play upload remain **TO VERIFY**.
+
+
+## Physical Android QA — 2026-09-25
+Verified on a real **realme RMX3241** (Android API 33), physical display 1080×2400, density 480, 3-button system navigation, font scale 1.1.
+
+### PASS
+- Installed and launched QuickQR Business v17.0 / versionCode 17 using package `com.aistudio.qrgenerator.kmpzqr`.
+- Main navigation reaches Generate, Business Card, Scanner and History without crash.
+- Generate options verified on-device: PromptPay, Wi-Fi, Store Link, Text/URL and Location.
+- TH/EN switching works on the reviewed main flows.
+- Region selection is coupled to currency; US→USD was verified while PromptPay stayed THB/฿.
+- Business Card preview/actions render; History filters/empty state render.
+- Support sheet opens; issue categories now switch fully between TH/EN.
+- Camera permission dialog identifies QuickQR Business correctly.
+- CameraX opened the physical rear camera as an active camera client; flash/gallery controls rendered.
+- Leaving Scanner disconnected camera 0 and closed the camera client.
+- Foreground Location permission flow is correct; no background-location permission is requested.
+- With Location enabled but no device fix available, the app timed out to “Current location is unavailable” instead of inventing coordinates.
+- Real-device 3-button safe-area regression was found and fixed. Final code commit `accba8b239ecc39330c1335a49c95f777f09e22d` uses an adaptive custom bottom bar with the navigation-bar inset on the outer Surface. EN and TH labels are visibly above the system navigation controls.
+- Temporary QA permissions were cleared by the final clean install; Camera/Fine/Coarse Location are all denied after testing.
+
+### CI evidence for the safe-area fix
+- Android CI run `36151591187`: PASS
+- Project policy: PASS
+- Compile / unit test / lint / release bundle: PASS
+- Built-artifact verification: PASS
+- Debug APK and unsigned release AAB artifact upload: PASS
+
+### Still TO VERIFY
+- Successful real-coordinate acquisition and map opening on a device that has an actual GPS/network location fix.
+- Landscape runtime. ADB could read rotation settings but the device denied shell `WRITE_SETTINGS`, so rotation was not forced.
+- Additional large-font accessibility matrix beyond the device's current font scale 1.1.
+- Release keystore signing and Play Console upload/acceptance.
