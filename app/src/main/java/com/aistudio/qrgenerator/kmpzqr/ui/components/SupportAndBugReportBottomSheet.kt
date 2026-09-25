@@ -73,6 +73,7 @@ import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 
 private const val ADMIN_SUPPORT_EMAIL = "215334638+AnakinYoo@users.noreply.github.com"
+private const val PRIVACY_POLICY_URL = "https://dachopol.github.io/-QRCODE-/privacy-policy.html"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -458,6 +459,44 @@ fun AdminContactSupportView() {
                     Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(localizedText("ส่งอีเมลถึงแอดมิน", "Email admin"), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Button(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    localizedNow("ไม่พบแอปสำหรับเปิดนโยบายความเป็นส่วนตัว", "No app available to open the privacy policy"),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } catch (_: Exception) {
+                            Toast.makeText(
+                                context,
+                                localizedNow("ไม่สามารถเปิดนโยบายความเป็นส่วนตัวได้", "Unable to open the privacy policy"),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 44.dp)
+                        .testTag("privacy_policy_button"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                ) {
+                    Text(
+                        localizedText("นโยบายความเป็นส่วนตัว", "Privacy Policy"),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
         }
