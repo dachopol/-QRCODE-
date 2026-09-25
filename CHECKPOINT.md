@@ -163,3 +163,26 @@ This supersedes the earlier synthetic-small-screen TO VERIFY note. A separate 72
 Emulator note:
 - Existing AVDs were present, but their referenced Android 37.1 system image was not installed.
 - A temporary system-image install attempt was stopped once physical `sw360dp` evidence was confirmed; no fake emulator PASS is claimed and no persistent AVD configuration was changed.
+
+
+## Small-screen + large-font emulator QA — 2026-09-26
+Android Emulator evidence:
+- Effective display: 720×1280
+- Font scale: 1.30
+- Source fix commits: `124e3ce470056b1599abbacd15ed46f8bdc712b7`, `efc89d4d1f2f69b1842f16e489667a73d38a8e92`
+- Android CI run `36184920392`: SUCCESS
+
+Verified:
+- Main screen renders on 720×1280 without critical overflow: PASS
+- Header shows full `QuickQR Business` title at 130% font: PASS
+- Version `v17.0` remains visible: PASS
+- Compact locale control remains accessible and is shortened to `LANG/CURRENCY` form such as `EN/USD`: PASS
+- Bottom navigation labels remain readable at 130% font: PASS
+- Horizontal generator tab strip scrolls and exposes Text/URL and Location: PASS
+- Location screen remains reachable on small screen: PASS
+- Vertical scrolling exposes Allow, Map, and Generate Location QR actions above the fixed bottom navigation: PASS
+- No core feature was removed to satisfy the compact layout: PASS
+
+Cleanup:
+- Emulator font scale restored to 1.0 after testing.
+- Emulator stopped after QA.
