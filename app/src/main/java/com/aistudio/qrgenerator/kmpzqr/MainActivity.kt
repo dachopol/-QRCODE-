@@ -217,7 +217,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(if (compactLargeText) 32.dp else 36.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 androidx.compose.ui.graphics.Brush.linearGradient(
@@ -230,11 +230,11 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             imageVector = Icons.Default.QrCode,
                             contentDescription = "App Logo",
                             tint = Color.White,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(if (compactLargeText) 20.dp else 22.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(if (compactLargeText) 6.dp else 10.dp))
 
                     Column(
                         modifier = Modifier.weight(1f)
@@ -273,38 +273,49 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         color = GlassAccent,
                         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                         modifier = Modifier
-                            .padding(start = 6.dp, end = 4.dp)
+                            .padding(start = if (compactLargeText) 2.dp else 6.dp, end = if (compactLargeText) 2.dp else 4.dp)
                             .wrapContentWidth()
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
                             .testTag("open_language_currency_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
+                            modifier = Modifier.padding(horizontal = if (compactLargeText) 5.dp else 7.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = currentLanguage.code.uppercase(),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0369A1),
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Text(
-                                text = "•",
-                                fontSize = 9.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Text(
-                                text = "${currentCurrency.flagEmoji} ${currentCurrency.code}",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF059669),
-                                maxLines = 1,
-                                softWrap = false
-                            )
+                            if (compactLargeText) {
+                                Text(
+                                    text = "${currentLanguage.code.uppercase()}/${currentCurrency.code}",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0369A1),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            } else {
+                                Text(
+                                    text = currentLanguage.code.uppercase(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0369A1),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "•",
+                                    fontSize = 9.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "${currentCurrency.flagEmoji} ${currentCurrency.code}",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF059669),
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            }
                         }
                     }
 
