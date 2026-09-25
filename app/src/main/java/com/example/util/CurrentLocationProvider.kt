@@ -152,7 +152,10 @@ object CurrentLocationProvider {
                 manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
             }
         } catch (_: SecurityException) {
-            onError(LocationError.PERMISSION_REQUIRED)
+            if (!completed) {
+                completed = true
+                onError(LocationError.PERMISSION_REQUIRED)
+            }
         } catch (_: Exception) {
             finish(null)
         }
