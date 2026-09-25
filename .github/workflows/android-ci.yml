@@ -66,6 +66,51 @@ jobs:
       - name: Compile, test, lint and release bundle
         run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
 
+      - name: Verify built artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          AAB="app/build/outputs/bundle/release/app-release.aab"
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          APP_ID="$(sed -n 's/.*applicationId = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts)"
+          test -f "$APK"
+          test -f "$AAB"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
+          "$BUILD_TOOLS/aapt" dump badging "$APK" | tee /tmp/quickqr-badging.txt
+          grep -Fq "package: name='$APP_ID'" /tmp/quickqr-badging.txt
+          grep -Fq "versionCode='$VERSION_CODE'" /tmp/quickqr-badging.txt
+          grep -Fq "versionName='$VERSION_NAME'" /tmp/quickqr-badging.txt
+          grep -Fq "uses-permission: name='android.permission.CAMERA'" /tmp/quickqr-badging.txt
+          grep -Fq "uses-permission: name='android.permission.ACCESS_COARSE_LOCATION'" /tmp/quickqr-badging.txt
+          grep -Fq "uses-permission: name='android.permission.ACCESS_FINE_LOCATION'" /tmp/quickqr-badging.txt
+          if grep -Eq "android.permission.(INTERNET|ACCESS_BACKGROUND_LOCATION)" /tmp/quickqr-badging.txt; then
+            echo "Forbidden permission found in built APK"
+            exit 1
+          fi
+          unzip -t "$APK" >/dev/null
+          unzip -t "$AAB" >/dev/null
+          if unzip -l "$AAB" | grep -Eq 'META-INF/.*\.(RSA|DSA|EC|SF)        uses: actions/upload-artifact@v4
+        with:
+          name: quickqr-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload unsigned release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickqr-unsigned-release-aab
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 7
+; then
+            echo "Expected unsigned CI AAB but signature files were found"
+            exit 1
+          fi
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
