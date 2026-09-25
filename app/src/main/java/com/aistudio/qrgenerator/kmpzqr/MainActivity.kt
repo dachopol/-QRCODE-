@@ -305,6 +305,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
         },
         bottomBar = {
             Surface(
+                modifier = Modifier.navigationBarsPadding(),
                 color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 8.dp,
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
