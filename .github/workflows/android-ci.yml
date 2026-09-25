@@ -42,6 +42,27 @@ jobs:
         with:
           gradle-version: "9.3.1"
 
+      - name: Verify project policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_ID="$(sed -n 's/.*applicationId = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          NAMESPACE="$(sed -n 's/.*namespace = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts)"
+          test "$APP_ID" = "com.aistudio.qrgenerator.kmpzqr"
+          test "$NAMESPACE" = "$APP_ID"
+          test -n "$VERSION_NAME"
+          test "${VERSION_CODE:-0}" -gt 0
+          if find app/src -type f -path '*/com/example/*' | grep -q .; then
+            echo "Legacy com/example source is still active"
+            exit 1
+          fi
+          if grep -Eq 'ACCESS_BACKGROUND_LOCATION|android.permission.INTERNET' app/src/main/AndroidManifest.xml; then
+            echo "Forbidden permission found in manifest"
+            exit 1
+          fi
+          grep -Fq "QuickQR Business v${VERSION_NAME}" metadata.json
       - name: Compile, test, lint and release bundle
         run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
 
