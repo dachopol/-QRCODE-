@@ -86,6 +86,18 @@ enum class CardColorTheme(
     ROSE_MODERN("โรส คอนแทรคเตอร์ (Coral)", 0xFF9F1239, 0xFFF43F5E, 0xFFFFF1F2)
 }
 
+data class GeoPoint(
+    val latitude: Double,
+    val longitude: Double
+) {
+    fun isValid(): Boolean =
+        latitude.isFinite() &&
+            longitude.isFinite() &&
+            latitude in -90.0..90.0 &&
+            longitude in -180.0..180.0 &&
+            !(latitude == 0.0 && longitude == 0.0)
+}
+
 enum class ParsedQrType {
     PROMPTPAY,
     WIFI,
