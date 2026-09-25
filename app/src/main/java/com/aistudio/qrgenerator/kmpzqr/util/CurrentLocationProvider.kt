@@ -61,6 +61,12 @@ object CurrentLocationProvider {
             .maxByOrNull { it.time }
     }
 
+    private fun enabledProviders(manager: LocationManager): List<String> =
+        listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+            .filter { provider ->
+                runCatching { manager.isProviderEnabled(provider) }.getOrDefault(false)
+            }
+
     @SuppressLint("MissingPermission")
     fun requestCurrentLocation(
         context: Context,
@@ -73,18 +79,9 @@ object CurrentLocationProvider {
         }
 
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val gpsEnabled =
-            runCatching { manager.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrDefault(false)
-        val networkEnabled =
-            runCatching { manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) }.getOrDefault(false)
+        val providers = enabledProviders(manager)
 
-        val provider = when {
-            gpsEnabled -> LocationManager.GPS_PROVIDER
-            networkEnabled -> LocationManager.NETWORK_PROVIDER
-            else -> null
-        }
-
-        if (provider == null) {
+        if (providers.isEmpty()) {
             onError(LocationError.SERVICES_DISABLED)
             return
         }
@@ -102,25 +99,41 @@ object CurrentLocationProvider {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val cancellationSignal = CancellationSignal()
+                val signals = providers.associateWith { CancellationSignal() }
+                var remaining = providers.size
+
                 val timeout = Runnable {
                     if (!completed) {
-                        cancellationSignal.cancel()
+                        signals.values.forEach { signal -> runCatching { signal.cancel() } }
                         finish(null)
                     }
                 }
                 handler.postDelayed(timeout, REQUEST_TIMEOUT_MS)
 
-                manager.getCurrentLocation(
-                    provider,
-                    cancellationSignal,
-                    ContextCompat.getMainExecutor(context)
-                ) { location ->
-                    handler.removeCallbacks(timeout)
-                    finish(location)
+                providers.forEach { provider ->
+                    manager.getCurrentLocation(
+                        provider,
+                        signals.getValue(provider),
+                        ContextCompat.getMainExecutor(context)
+                    ) { location ->
+                        if (completed) return@getCurrentLocation
+
+                        if (isUsable(location)) {
+                            handler.removeCallbacks(timeout)
+                            signals.values.forEach { signal -> runCatching { signal.cancel() } }
+                            finish(location)
+                        } else {
+                            remaining -= 1
+                            if (remaining <= 0) {
+                                handler.removeCallbacks(timeout)
+                                finish(null)
+                            }
+                        }
+                    }
                 }
             } else {
                 lateinit var listener: LocationListener
+
                 val timeout = Runnable {
                     if (!completed) {
                         runCatching { manager.removeUpdates(listener) }
@@ -130,6 +143,7 @@ object CurrentLocationProvider {
 
                 listener = object : LocationListener {
                     override fun onLocationChanged(location: Location) {
+                        if (!isUsable(location) || completed) return
                         handler.removeCallbacks(timeout)
                         runCatching { manager.removeUpdates(this) }
                         finish(location)
@@ -140,16 +154,14 @@ object CurrentLocationProvider {
 
                     override fun onProviderEnabled(provider: String) = Unit
 
-                    override fun onProviderDisabled(provider: String) {
-                        handler.removeCallbacks(timeout)
-                        runCatching { manager.removeUpdates(this) }
-                        finish(null, LocationError.SERVICES_DISABLED)
-                    }
+                    override fun onProviderDisabled(provider: String) = Unit
                 }
 
                 handler.postDelayed(timeout, REQUEST_TIMEOUT_MS)
-                @Suppress("DEPRECATION")
-                manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
+                providers.forEach { provider ->
+                    @Suppress("DEPRECATION")
+                    manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
+                }
             }
         } catch (_: SecurityException) {
             if (!completed) {
