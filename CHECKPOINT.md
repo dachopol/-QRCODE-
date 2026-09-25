@@ -72,5 +72,6 @@ DoD remains blocked on build/test of the patch and real-device runtime validatio
 - Stacked business contact fields, enlarged color/reset/close controls, and made history filters scroll at large font sizes.
 - Localized scan-result type badges for TH/EN. Preserved QR bitmap palettes, card preview colors and existing actions.
 - Canva generation remains blocked by quota_exceeded; this continuation updates Android source using the existing design direction.
-- Current patch: diff check passed; CI build/unit tests pending. Previous CI result below applies only to 0c61307.
+- Source commit e4137da3260fdf65f9d687a384d97afde4789f03: diff check, assembleDebug and testDebugUnitTest passed; debug APK uploaded.
+- Verified CI: https://github.com/dachopol/-QRCODE-/actions/runs/36081108095
 - Device validation (small-screen TH/EN, light/dark, font scaling, navigation, scan/save/share) is still required.
