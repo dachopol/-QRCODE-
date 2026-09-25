@@ -15,7 +15,7 @@ val hasReleaseSigning =
   file(releaseKeystorePath).exists()
 
 android {
-  namespace = "com.example"
+  namespace = "com.aistudio.qrgenerator.kmpzqr"
   compileSdk = 36
 
   defaultConfig {
