@@ -130,3 +130,19 @@ Still to verify before production:
 - Light-mode runtime check.
 - Release keystore signing.
 - Play Console upload / signing / versionCode acceptance.
+
+
+## Physical layout/theme QA — 2026-09-26
+Test device: realme RMX3241 physical Android device.
+
+Verified:
+- Landscape runtime (2400×1080 effective display, rotation 90°): PASS
+- Header / generator tabs / input area / bottom navigation remain reachable in landscape: PASS
+- Light mode runtime: PASS
+- Dark/Auto mode restored after test: PASS
+- Device font scale during testing: 1.15; primary screens remained readable without critical clipping: PASS for 115% scaling
+
+Small-screen simulation:
+- TO VERIFY on a separate smaller physical device or emulator.
+- This realme build blocks ADB shell changes to `wm size`, `user_rotation`, and `font_scale` with system permission restrictions, so no fake/simulated PASS is claimed.
+- No source change was made solely to force a synthetic small-screen result.
