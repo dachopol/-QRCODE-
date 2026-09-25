@@ -55,6 +55,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
@@ -188,6 +190,11 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val navScannerLabel = localizedString("nav_scanner")
     val navHistoryLabel = localizedString("nav_history")
 
+    val configuration = LocalConfiguration.current
+    val fontScale = LocalDensity.current.fontScale
+    val compactLayout = configuration.screenWidthDp <= 360
+    val compactLargeText = compactLayout && fontScale >= 1.25f
+
     val navItems = listOf(
         Triple(navGenerateLabel, Icons.Default.QrCode, "nav_generate"),
         Triple(navCardLabel, Icons.Default.Badge, "nav_card"),
@@ -235,7 +242,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         Text(
                             text = localizedString("app_title"),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
+                            fontSize = if (compactLargeText) 14.sp else if (compactLayout) 16.sp else 18.sp,
+                            lineHeight = if (compactLargeText) 16.sp else 20.sp,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2
                         )
@@ -350,8 +358,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = label,
-                                fontSize = if (isSelected) 12.sp else 11.sp,
-                                lineHeight = 14.sp,
+                                fontSize = when {
+                                    compactLargeText -> 9.sp
+                                    compactLayout -> if (isSelected) 11.sp else 10.sp
+                                    isSelected -> 12.sp
+                                    else -> 11.sp
+                                },
+                                lineHeight = if (compactLargeText) 11.sp else 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                                 color = if (isSelected) Color(0xFF0369A1) else MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
