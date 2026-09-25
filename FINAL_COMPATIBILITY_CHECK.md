@@ -53,3 +53,17 @@ Location hardening commit `ae5b97f02555db51fefc90e2f45b8d87d8c12e4a`:
 - Release signing and Play Console upload verification.
 
 Do not describe the app as production-ready until the remaining device and Play Console checks have evidence.
+
+
+## Lint / bundle gate
+Verified on code commit `d44490917c66ae6e39b8e0cc167569112597fa3e`, Android CI run `36094198127`:
+- Source policy check: PASS
+- Debug build: PASS
+- Unit tests: PASS
+- Android lint: PASS
+- Release bundle compile: PASS
+- Debug APK artifact: PASS
+- Unsigned release AAB artifact: PASS
+
+### Signing boundary
+The CI release bundle is unsigned because no release keystore/signing secrets are injected into the workflow. This proves release-bundle compilation, not Play Console upload readiness. Signing and Play upload remain **TO VERIFY**.
