@@ -16,6 +16,8 @@ Android app for scanning and generating QR codes for business use.
 - Simulated slip approval is disabled.
 - Core QR features can be tested without payment or ads.
 - Camera permission is used for QR scanning.
+- Approximate/precise location permission is requested only for the Location QR/map feature; no background location is used.
+- Location QR uses real foreground device coordinates and stores the generated payload locally; map opening is a user action through an external app.
 - QR history is stored locally on the device.
 
 ## Build / import

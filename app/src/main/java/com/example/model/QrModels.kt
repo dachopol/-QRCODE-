@@ -5,6 +5,7 @@ enum class QrCategory(val titleTh: String, val subtitleTh: String) {
     BUSINESS_CARD("นามบัตรดิจิทัล", "สำหรับร้านค้า ช่าง ฟรีแลนซ์"),
     WIFI("ไวไฟ (Wi-Fi)", "สแกนเชื่อมต่อทันที"),
     STORE_LINK("ลิงก์ร้านค้า", "Shopee, TikTok, LINE, เว็บไซต์"),
+    LOCATION("พิกัดแผนที่", "สร้าง QR จากจุดปัจจุบัน"),
     TEXT("ข้อความทั่วไป", "ข้อความและรายละเอียด")
 }
 
@@ -88,6 +89,7 @@ enum class CardColorTheme(
 enum class ParsedQrType {
     PROMPTPAY,
     WIFI,
+    GEO,
     URL,
     VCARD,
     PHONE,
@@ -108,5 +110,7 @@ data class ParsedQrResult(
     val contactName: String? = null,
     val contactPhone: String? = null,
     val contactEmail: String? = null,
-    val contactOrg: String? = null
+    val contactOrg: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )

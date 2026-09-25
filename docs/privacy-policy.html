@@ -17,11 +17,11 @@ hr{border:0;border-top:1px solid #e2e8f0;margin:32px 0}
 <h2>ภาษาไทย</h2>
 <p>QuickQR Business โดย AnakinYoo เคารพความเป็นส่วนตัวของผู้ใช้ นโยบายนี้อธิบายการจัดการข้อมูลของแอปเวอร์ชันปัจจุบัน</p>
 <h3>ข้อมูลที่ใช้ภายในอุปกรณ์</h3>
-<p>แอปอาจประมวลผลหรือจัดเก็บภายในอุปกรณ์: ข้อมูล QR และประวัติ QR, ข้อมูลพร้อมเพย์, ข้อมูล Wi‑Fi, ข้อมูลนามบัตร/ธุรกิจ, รูปภาพที่เลือกเพื่อสแกน, ภาพกล้องสำหรับสแกนแบบเรียลไทม์, ภาพ QR ที่สร้าง/บันทึก และการตั้งค่าภาษา/ภูมิภาค/สกุลเงิน</p>
+<p>แอปอาจประมวลผลหรือจัดเก็บภายในอุปกรณ์: ข้อมูล QR และประวัติ QR, ข้อมูลพร้อมเพย์, ข้อมูล Wi‑Fi, ข้อมูลนามบัตร/ธุรกิจ, รูปภาพที่เลือกเพื่อสแกน, ภาพกล้องสำหรับสแกนแบบเรียลไทม์, พิกัดละติจูด/ลองจิจูดจริงเมื่อผู้ใช้เลือกฟีเจอร์พิกัด, ภาพ QR ที่สร้าง/บันทึก และการตั้งค่าภาษา/ภูมิภาค/สกุลเงิน</p>
 <h3>การส่งข้อมูลออกจากอุปกรณ์</h3>
-<p>build ปัจจุบันไม่มีระบบบัญชีผู้ใช้ ไม่มี AdMob ไม่มี Play Billing และไม่มีสิทธิ์ INTERNET สำหรับการเชื่อมต่อเครือข่ายของแอปเอง การแชร์ QR, ส่งรายงานปัญหา, ติดต่อแอดมิน หรือเปิดลิงก์ จะเกิดขึ้นเมื่อผู้ใช้สั่งและผ่านแอป/บริการภายนอกที่ผู้ใช้เลือก</p>
-<h3>กล้องและรูปภาพ</h3>
-<p>สิทธิ์กล้องใช้เพื่อสแกน QR Code ภายใต้ implementation ปัจจุบัน ภาพกล้องสำหรับการสแกนถูกประมวลผลบนอุปกรณ์</p>
+<p>build ปัจจุบันไม่มีระบบบัญชีผู้ใช้ ไม่มี AdMob ไม่มี Play Billing และไม่มีสิทธิ์ INTERNET สำหรับการเชื่อมต่อเครือข่ายของแอปเอง การแชร์ QR, แชร์ QR พิกัด, ส่งรายงานปัญหา, ติดต่อแอดมิน, เปิดแผนที่ หรือเปิดลิงก์ จะเกิดขึ้นเมื่อผู้ใช้สั่งและผ่านแอป/บริการภายนอกที่ผู้ใช้เลือก พิกัดจะถูกส่งออกจากแอปเมื่อผู้ใช้เลือกเปิดหรือแชร์เอง</p>
+<h3>กล้อง รูปภาพ และตำแหน่ง</h3>
+<p>สิทธิ์กล้องใช้เพื่อสแกน QR Code ภายใต้ implementation ปัจจุบัน ภาพกล้องสำหรับการสแกนถูกประมวลผลบนอุปกรณ์ เมื่อผู้ใช้เลือกฟีเจอร์พิกัดแผนที่ แอปจะขอสิทธิ์ตำแหน่งแบบ foreground และอ่านพิกัดจริงจากอุปกรณ์เพื่อสร้าง QR <code>geo:</code> หรือเปิดแอปแผนที่ แอปไม่ขอ Background Location และไม่ส่งพิกัดไปยังเซิร์ฟเวอร์ของผู้พัฒนา</p>
 <h3>การจัดเก็บและลบ</h3>
 <p>ประวัติ QR และโปรไฟล์ธุรกิจถูกเก็บในฐานข้อมูลภายในแอป Android backup ถูกปิด ผู้ใช้สามารถลบประวัติ ล้างข้อมูลแอป หรือถอนการติดตั้งแอปได้</p>
 <h3>พร้อมเพย์</h3>
@@ -32,11 +32,11 @@ hr{border:0;border-top:1px solid #e2e8f0;margin:32px 0}
 <h2>English</h2>
 <p>QuickQR Business by AnakinYoo respects user privacy. This policy describes data handling in the current build.</p>
 <h3>On-device data</h3>
-<p>The app may process or store on-device: QR content/history, PromptPay identifiers, Wi-Fi information, business-card/profile information, selected images, camera frames used for scanning, generated/saved QR images, and language/region/currency preferences.</p>
+<p>The app may process or store on-device: QR content/history, PromptPay identifiers, Wi-Fi information, business-card/profile information, selected images, camera frames used for scanning, real latitude/longitude when the user chooses the location feature, generated/saved QR images, and language/region/currency preferences.</p>
 <h3>Off-device transfer</h3>
-<p>The current build has no account system, no AdMob, no Play Billing, and no INTERNET permission for app-controlled networking. Sharing QR content, sending bug reports, contacting support, or opening links occurs only after a user action through an external app/service selected or opened by the user.</p>
-<h3>Camera and images</h3>
-<p>Camera permission is used for QR scanning. Under the current implementation, scanning frames are processed on-device.</p>
+<p>The current build has no account system, no AdMob, no Play Billing, and no INTERNET permission for app-controlled networking. Sharing QR content or a location QR, sending bug reports, contacting support, opening a map, or opening links occurs only after a user action through an external app/service selected or opened by the user. Location coordinates leave the app only when the user explicitly opens or shares them.</p>
+<h3>Camera, images, and location</h3>
+<p>Camera permission is used for QR scanning. Under the current implementation, scanning frames are processed on-device. When the user chooses the map-location feature, the app requests foreground location permission and reads the real device location to create a <code>geo:</code> QR or open a map app. The app does not request background location and does not send coordinates to a developer server.</p>
 <h3>Storage and deletion</h3>
 <p>QR history and business profile data are stored locally. Android backup is disabled. Users can delete history, clear app data, or uninstall the app.</p>
 <h3>PromptPay</h3>

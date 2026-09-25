@@ -309,6 +309,17 @@ object QrScannerUtil {
             )
         }
 
+        LocationQrUtil.parseGeoOrNull(trimmed)?.let { point ->
+            return ParsedQrResult(
+                rawText = raw,
+                type = ParsedQrType.GEO,
+                title = localizedNow("พิกัดแผนที่", "Map location"),
+                subtitle = LocationQrUtil.formatPoint(point),
+                latitude = point.latitude,
+                longitude = point.longitude
+            )
+        }
+
         if (
             trimmed.startsWith("http://", ignoreCase = true) ||
             trimmed.startsWith("https://", ignoreCase = true) ||

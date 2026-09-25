@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class QrItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val type: String, // PROMPTPAY, WIFI, STORE_LINK, VCARD, TEXT, SCAN_RESULT
+    val type: String, // PROMPTPAY, WIFI, STORE_LINK, LOCATION, VCARD, TEXT, SCAN_RESULT
     val title: String,
     val subtitle: String,
     val rawContent: String,

@@ -144,4 +144,24 @@ class QuickQrCoreTest {
         val reason = (result as com.example.util.ValidationResult.Invalid).reason
         assertTrue(reason.contains("10 หลัก"))
     }
+
+    @Test
+    fun locationQr_roundTripUsesRealCoordinateFormat() {
+        val point = com.example.model.GeoPoint(14.056637, 99.805625)
+        val payload = com.example.util.LocationQrUtil.buildGeoPayload(point)
+        val parsed = com.example.util.LocationQrUtil.parseGeo(payload)
+
+        assertEquals(point.latitude, parsed.latitude, 0.0000001)
+        assertEquals(point.longitude, parsed.longitude, 0.0000001)
+        assertEquals(ParsedQrType.GEO, QrScannerUtil.parseQrContent(payload).type)
+    }
+
+    @Test
+    fun locationQr_rejectsPlaceholderAndOutOfRangeCoordinates() {
+        assertFalse(com.example.model.GeoPoint(0.0, 0.0).isValid())
+        assertEquals(null, com.example.util.LocationQrUtil.parseGeoOrNull("geo:0,0"))
+        assertEquals(null, com.example.util.LocationQrUtil.parseGeoOrNull("geo:91,100"))
+        assertEquals(null, com.example.util.LocationQrUtil.parseGeoOrNull("geo:13,181"))
+    }
+
 }

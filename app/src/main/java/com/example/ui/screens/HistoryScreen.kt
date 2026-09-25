@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCode
@@ -66,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import com.example.MainViewModel
 import com.example.ui.theme.AppCardShape
 import com.example.ui.theme.GlassAccent
+import com.example.util.LocationQrUtil
 import com.example.util.localizedText
 import com.example.util.localizedNow
 import com.example.data.QrItemEntity
@@ -204,8 +206,12 @@ fun HistoryScreen(
                         onCopy = { copyToClipboard(item.rawContent) },
                         onDelete = { itemToDelete = item },
                         onClick = {
-                            // Re-open in preview
-                            if (item.type == "PROMPTPAY" && item.targetId != null) {
+                            // Re-open in preview or map; all location data comes from the saved QR payload.
+                            if (item.type == "LOCATION" || item.type == "GEO") {
+                                LocationQrUtil.parseGeoOrNull(item.rawContent)?.let { point ->
+                                    LocationQrUtil.openMap(context, point)
+                                } ?: copyToClipboard(item.rawContent)
+                            } else if (item.type == "PROMPTPAY" && item.targetId != null) {
                                 val payload = PromptPayGenerator.generatePayload(item.targetId, item.amount)
                                 val qr = QrCodeUtil.generateQrBitmap(payload, size = 900)
                                 if (qr != null) {
@@ -264,6 +270,7 @@ private fun HistoryItemCard(
         "PROMPTPAY" -> Pair(Icons.Default.Payments, Color(0xFF0B2853))
         "WIFI" -> Pair(Icons.Default.Wifi, Color(0xFF0284C7))
         "STORE_LINK" -> Pair(Icons.Default.Language, Color(0xFF059669))
+        "LOCATION", "GEO" -> Pair(Icons.Default.LocationOn, Color(0xFF0891B2))
         "VCARD" -> Pair(Icons.Default.Phone, Color(0xFF7C3AED))
         else -> Pair(Icons.Default.QrCode, MaterialTheme.colorScheme.onSurfaceVariant)
     }

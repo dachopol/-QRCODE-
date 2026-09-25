@@ -13,11 +13,15 @@ import com.example.data.MerchantProfileEntity
 import com.example.data.QrItemEntity
 import com.example.model.CardColorTheme
 import com.example.model.DigitalBusinessCard
+import com.example.model.GeoPoint
 import com.example.model.ParsedQrResult
 import com.example.model.StoreLinkModel
 import com.example.model.StorePlatform
 import com.example.model.WifiSecurity
+import com.example.util.CurrentLocationProvider
 import com.example.util.ImageExporter
+import com.example.util.LocationError
+import com.example.util.LocationQrUtil
 import com.example.util.PromptPayGenerator
 import com.example.util.QrCodeUtil
 import com.example.util.QrScannerUtil
@@ -54,7 +58,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
 
-    // Sub-tab under Generator: 0=PromptPay, 1=Wi-Fi, 2=Store Links, 3=Text
+    // Sub-tab under Generator: 0=PromptPay, 1=Wi-Fi, 2=Store Links, 3=Text, 4=Location
     private val _generatorCategory = MutableStateFlow(0)
     val generatorCategory: StateFlow<Int> = _generatorCategory.asStateFlow()
 
@@ -91,6 +95,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Text State
     private val _rawText = MutableStateFlow("")
     val rawText: StateFlow<String> = _rawText.asStateFlow()
+
+    // Current location state (foreground, user-requested only)
+    private val _currentLocation = MutableStateFlow<GeoPoint?>(null)
+    val currentLocation: StateFlow<GeoPoint?> = _currentLocation.asStateFlow()
+
+    private val _isLoadingLocation = MutableStateFlow(false)
+    val isLoadingLocation: StateFlow<Boolean> = _isLoadingLocation.asStateFlow()
+
+    private val _locationError = MutableStateFlow<String?>(null)
+    val locationError: StateFlow<String?> = _locationError.asStateFlow()
 
     // Digital Business Card State
     private val _businessCard = MutableStateFlow(DigitalBusinessCard())
@@ -220,6 +234,49 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setRawText(text: String) {
         _rawText.value = text
+    }
+
+    fun setLocationError(message: String?) {
+        _locationError.value = message
+    }
+
+    fun fetchCurrentLocation() {
+        if (_isLoadingLocation.value) return
+        _isLoadingLocation.value = true
+        _locationError.value = null
+        CurrentLocationProvider.requestCurrentLocation(
+            context = getApplication(),
+            onResult = { location ->
+                val point = location?.let { GeoPoint(it.latitude, it.longitude) }
+                if (point != null && point.isValid()) {
+                    _currentLocation.value = point
+                    _locationError.value = null
+                } else {
+                    _locationError.value = localizedNow(
+                        "ไม่พบพิกัดปัจจุบันจากอุปกรณ์",
+                        "The device did not return a current location"
+                    )
+                }
+                _isLoadingLocation.value = false
+            },
+            onError = { error ->
+                _isLoadingLocation.value = false
+                _locationError.value = when (error) {
+                    LocationError.PERMISSION_REQUIRED -> localizedNow(
+                        "ต้องอนุญาตสิทธิ์ตำแหน่งก่อน",
+                        "Location permission is required"
+                    )
+                    LocationError.SERVICES_DISABLED -> localizedNow(
+                        "กรุณาเปิดบริการตำแหน่งของเครื่อง",
+                        "Turn on the device location service"
+                    )
+                    LocationError.UNAVAILABLE -> localizedNow(
+                        "ไม่สามารถอ่านพิกัดปัจจุบันได้",
+                        "Current location is unavailable"
+                    )
+                }
+            }
+        )
     }
 
     fun updateBusinessCard(card: DigitalBusinessCard) {
@@ -492,6 +549,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         title = localizedNow("ลิงก์ร้าน ${_storePlatform.value.title}", "Store link: ${_storePlatform.value.title}"),
                         subtitle = fullUrl,
                         rawContent = fullUrl,
+                        isScan = false
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Generate a location QR from the real foreground device location.
+     */
+    fun generateLocation() {
+        val point = _currentLocation.value
+        if (point == null || !point.isValid()) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ยังไม่มีพิกัดปัจจุบัน", "No current location is available"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        executeQrAction {
+            val payload = LocationQrUtil.buildGeoPayload(point)
+            val centerLogo = if (_includeCenterLogo.value) {
+                QrCodeUtil.createDefaultCenterLogo("LOCATION")
+            } else {
+                null
+            }
+            val qrBitmap = QrCodeUtil.generateQrBitmap(
+                content = payload,
+                size = QrCodeUtil.DEFAULT_SIZE,
+                darkColor = _qrForegroundColor.value.toArgb(),
+                lightColor = _qrBackgroundColor.value.toArgb(),
+                centerLogo = centerLogo
+            ) ?: return@executeQrAction
+
+            val subtitle = LocationQrUtil.formatPoint(point)
+            _activePreview.value = ActiveQrPreview(
+                title = localizedNow("พิกัดปัจจุบัน", "Current location"),
+                subtitle = subtitle,
+                rawContent = payload,
+                qrBitmap = qrBitmap,
+                type = "LOCATION"
+            )
+
+            viewModelScope.launch(Dispatchers.IO) {
+                dao.insertQrItem(
+                    QrItemEntity(
+                        type = "LOCATION",
+                        title = localizedNow("พิกัดปัจจุบัน", "Current location"),
+                        subtitle = subtitle,
+                        rawContent = payload,
                         isScan = false
                     )
                 )

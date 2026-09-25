@@ -16,15 +16,18 @@ QuickQR Business โดย AnakinYoo เคารพความเป็นส�
 - รูปภาพที่ผู้ใช้เลือกเพื่อสแกน QR
 - ภาพจากกล้องที่ใช้สำหรับสแกน QR แบบเรียลไทม์
 - รูปภาพ QR ที่ผู้ใช้สร้างหรือบันทึก
+- พิกัดละติจูด/ลองจิจูดจริงจากอุปกรณ์ เมื่อผู้ใช้เลือกสร้าง QR พิกัดหรือเปิดแผนที่
 - การตั้งค่าภาษา ภูมิภาค และสกุลเงิน
 
 ### 2. การส่งข้อมูลออกจากอุปกรณ์
 ใน build ปัจจุบัน แอปไม่มีระบบบัญชีผู้ใช้ ไม่มี AdMob ไม่มี Play Billing และไม่มีสิทธิ์ INTERNET สำหรับการเชื่อมต่อเครือข่ายของแอปเอง
 
-แอปอาจเปิด Android Share Sheet, แอปอีเมล หรือแอปภายนอกเมื่อผู้ใช้เป็นผู้กดดำเนินการเอง เช่น แชร์ QR, ส่งรายงานปัญหา, ติดต่อแอดมิน หรือเปิดลิงก์จาก QR ผู้ใช้เป็นผู้เลือกปลายทางของการส่งข้อมูลดังกล่าว
+แอปอาจเปิด Android Share Sheet, แอปอีเมล แอปแผนที่ หรือแอปภายนอกเมื่อผู้ใช้เป็นผู้กดดำเนินการเอง เช่น แชร์ QR, แชร์ QR พิกัด, ส่งรายงานปัญหา, ติดต่อแอดมิน หรือเปิดลิงก์จาก QR ผู้ใช้เป็นผู้เลือกปลายทางของการส่งข้อมูลดังกล่าว พิกัดจะถูกส่งให้แอปภายนอกก็ต่อเมื่อผู้ใช้เลือกเปิดหรือแชร์เอง
 
-### 3. กล้องและรูปภาพ
+### 3. กล้อง รูปภาพ และตำแหน่ง
 สิทธิ์กล้องใช้เพื่อสแกน QR Code เท่านั้น ภาพกล้องสำหรับการสแกนถูกประมวลผลบนอุปกรณ์ตาม implementation ปัจจุบัน
+
+เมื่อผู้ใช้เลือกฟีเจอร์พิกัดแผนที่ แอปจะขอสิทธิ์ตำแหน่งแบบ foreground และอ่านพิกัดจริงจากอุปกรณ์เพื่อสร้าง QR `geo:` หรือเปิดแอปแผนที่ แอปไม่ขอ Background Location และไม่ส่งพิกัดไปยังเซิร์ฟเวอร์ของผู้พัฒนา
 
 ผู้ใช้สามารถเลือกรูปจากอุปกรณ์เพื่อให้แอปตรวจหา QR ได้ รูปดังกล่าวถูกใช้ตามการกระทำของผู้ใช้
 
@@ -63,15 +66,18 @@ Depending on user actions, the app may process or store the following on the dev
 - Images selected by the user for QR scanning
 - Camera frames used for real-time QR scanning
 - QR images generated or saved by the user
+- Real device latitude/longitude when the user chooses the location QR or opens a map
 - Language, region, and currency preferences
 
 ### 2. Off-device transfer
 The current build has no user account system, no AdMob, no Play Billing, and no INTERNET permission for app-controlled networking.
 
-The app can open the Android Share Sheet, an email app, or another external app only after a user action, for example to share a QR code, send a bug report, contact support, or open a scanned link. The user selects or controls the destination application/service.
+The app can open the Android Share Sheet, an email app, a map app, or another external app only after a user action, for example to share a QR code or location QR, send a bug report, contact support, or open a scanned link. The user selects or controls the destination application/service. Location coordinates are passed to an external app only when the user explicitly opens or shares them.
 
-### 3. Camera and images
+### 3. Camera, images, and location
 Camera permission is used for QR scanning. Under the current implementation, camera frames used for scanning are processed on-device.
+
+When the user chooses the map-location feature, the app requests foreground location permission and reads the real device location to create a `geo:` QR or open a map app. The app does not request background location and does not send coordinates to a developer server.
 
 Users can select an image from their device for QR decoding. The selected image is used for the user-requested scan action.
 

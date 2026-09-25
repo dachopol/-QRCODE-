@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Phone
@@ -55,7 +56,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.model.GeoPoint
 import com.example.model.ParsedQrResult
+import com.example.util.LocationQrUtil
 import com.example.util.localizedText
 import com.example.util.localizedNow
 import com.example.model.ParsedQrType
@@ -99,6 +102,7 @@ fun ScanResultBottomSheet(
                         ParsedQrType.WIFI -> Triple(Color(0xFF0284C7), localizedText("เครือข่าย Wi-Fi", "Wi-Fi network"), Icons.Default.Wifi)
                         ParsedQrType.URL -> Triple(Color(0xFF059669), localizedText("ลิงก์เว็บไซต์/ร้านค้า", "Website / Store link"), Icons.Default.Language)
                         ParsedQrType.VCARD -> Triple(Color(0xFF7C3AED), localizedText("นามบัตรดิจิทัล", "Digital business card"), Icons.Default.Phone)
+                        ParsedQrType.GEO -> Triple(Color(0xFF0891B2), localizedText("พิกัดแผนที่", "Map location"), Icons.Default.LocationOn)
                         else -> Triple(Color(0xFF475569), localizedText("คิวอาร์โค้ด", "QR code"), Icons.Default.CheckCircle)
                     }
 
@@ -285,6 +289,31 @@ fun ScanResultBottomSheet(
                             Icon(Icons.Default.Phone, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(localizedText("โทรหาผู้ติดต่อ (${result.contactPhone})", "Call contact (${result.contactPhone})"), fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+
+                ParsedQrType.GEO -> {
+                    val latitude = result.latitude
+                    val longitude = result.longitude
+                    if (latitude != null && longitude != null) {
+                        Button(
+                            onClick = {
+                                LocationQrUtil.openMap(context, GeoPoint(latitude, longitude))
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0891B2))
+                        ) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                localizedText("เปิดพิกัดในแผนที่", "Open location in map"),
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }

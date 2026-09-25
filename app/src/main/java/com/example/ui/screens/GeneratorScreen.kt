@@ -1,5 +1,9 @@
 package com.example.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,6 +36,9 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCode
@@ -55,12 +62,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +80,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -81,6 +90,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.MainViewModel
 import com.example.model.StoreLinkModel
 import com.example.model.StorePlatform
@@ -90,6 +100,7 @@ import com.example.ui.theme.AppCardShape
 import com.example.ui.theme.AppPillShape
 import com.example.ui.theme.GlassAccent
 import com.example.ui.theme.appTextFieldColors
+import com.example.util.LocationQrUtil
 import com.example.util.localizedText
 import com.example.util.LocalizationManager
 import com.example.util.localizedString
@@ -112,12 +123,14 @@ fun GeneratorScreen(
     val catWifi = localizedString("cat_wifi")
     val catStore = localizedString("cat_store")
     val catText = localizedString("cat_text")
+    val catLocation = localizedString("cat_location")
 
     val categories = listOf(
         Pair(catPromptpay, Icons.Default.Payments),
         Pair(catWifi, Icons.Default.Wifi),
         Pair(catStore, Icons.Default.Store),
-        Pair(catText, Icons.Default.TextFields)
+        Pair(catText, Icons.Default.TextFields),
+        Pair(catLocation, Icons.Default.LocationOn)
     )
 
     Column(
@@ -133,9 +146,10 @@ fun GeneratorScreen(
                 )
             )
     ) {
-        // Four equal-width generator categories
-        PrimaryTabRow(
+        // Scrollable generator categories keep all actions reachable on small screens.
+        ScrollableTabRow(
             selectedTabIndex = category,
+            edgePadding = 8.dp,
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.primary
         ) {
@@ -184,6 +198,7 @@ fun GeneratorScreen(
                 1 -> WifiForm(viewModel)
                 2 -> StoreLinkForm(viewModel)
                 3 -> TextForm(viewModel)
+                4 -> LocationForm(viewModel)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -739,6 +754,221 @@ private fun TextForm(viewModel: MainViewModel) {
                 Icon(Icons.Default.QrCode, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(localizedText("สร้าง QR ข้อความ", "Generate text QR"), fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun LocationForm(viewModel: MainViewModel) {
+    val context = LocalContext.current
+    val currentLocation by viewModel.currentLocation.collectAsState()
+    val isLoading by viewModel.isLoadingLocation.collectAsState()
+    val locationError by viewModel.locationError.collectAsState()
+
+    val permissionDeniedMessage = localizedText(
+        "ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง",
+        "Location permission was not granted"
+    )
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (result.values.any { it }) {
+            viewModel.fetchCurrentLocation()
+        } else {
+            viewModel.setLocationError(permissionDeniedMessage)
+        }
+    }
+
+    val hasLocationPermission =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission && currentLocation == null && locationError == null) {
+            viewModel.fetchCurrentLocation()
+        }
+    }
+
+    Card(
+        shape = AppCardShape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color(0xFF0284C7)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = localizedText("พิกัดแผนที่จากจุดปัจจุบัน", "Map location from the current point"),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = localizedText(
+                    "ใช้พิกัดจริงจากอุปกรณ์เมื่อคุณอนุญาตเท่านั้น แอปไม่ใช้พิกัด 0,0 และไม่ขอสิทธิ์ตำแหน่งเบื้องหลัง",
+                    "Uses the device's real location only after permission. No 0,0 placeholder and no background location permission."
+                ),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 19.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (currentLocation != null) {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = Color(0xFFECFDF5),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Text(
+                            text = localizedText("พร้อมใช้งาน", "Ready"),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF047857)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = localizedText("ละติจูด: ", "Latitude: ") +
+                                LocationQrUtil.formatCoordinate(currentLocation!!.latitude),
+                            fontSize = 14.sp,
+                            color = Color(0xFF065F46)
+                        )
+                        Text(
+                            text = localizedText("ลองจิจูด: ", "Longitude: ") +
+                                LocationQrUtil.formatCoordinate(currentLocation!!.longitude),
+                            fontSize = 14.sp,
+                            color = Color(0xFF065F46)
+                        )
+                    }
+                }
+            } else {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (isLoading) {
+                            localizedText("กำลังอ่านพิกัดจากอุปกรณ์...", "Reading the device location...")
+                        } else {
+                            localizedText("ยังไม่มีพิกัดปัจจุบัน", "No current location yet")
+                        },
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(14.dp)
+                    )
+                }
+            }
+
+            if (!locationError.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = locationError.orEmpty(),
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Button(
+                onClick = {
+                    if (hasLocationPermission) {
+                        viewModel.fetchCurrentLocation()
+                    } else {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            )
+                        )
+                    }
+                },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 52.dp)
+                    .testTag("location_permission_or_refresh_button"),
+                shape = AppPillShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7))
+            ) {
+                Icon(
+                    imageVector = if (hasLocationPermission) Icons.Default.Refresh else Icons.Default.LocationOn,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (hasLocationPermission) {
+                        localizedText("รีเฟรชจุดปัจจุบัน", "Refresh current point")
+                    } else {
+                        localizedText("อนุญาตและใช้จุดปัจจุบัน", "Allow and use current point")
+                    },
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = {
+                    currentLocation?.let { LocationQrUtil.openMap(context, it) }
+                },
+                enabled = currentLocation != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
+                    .testTag("open_current_location_map_button"),
+                shape = AppPillShape
+            ) {
+                Icon(Icons.Default.Map, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = localizedText("เปิดแผนที่จุดปัจจุบัน", "Open current point in map"),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { viewModel.generateLocation() },
+                enabled = currentLocation != null && !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 52.dp)
+                    .testTag("generate_location_qr_button"),
+                shape = AppPillShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B2853))
+            ) {
+                Icon(Icons.Default.QrCode, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = localizedText("สร้าง QR พิกัดแผนที่", "Generate location QR"),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

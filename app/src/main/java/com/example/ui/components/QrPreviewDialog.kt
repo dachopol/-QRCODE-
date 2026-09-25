@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Share
@@ -61,6 +62,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.ActiveQrPreview
 import com.example.util.ImageExporter
+import com.example.util.LocationQrUtil
 import com.example.ui.theme.AppCardShape
 import com.example.ui.theme.AppPillShape
 import com.example.ui.theme.AppSectionShape
@@ -81,6 +83,9 @@ fun QrPreviewDialog(
         preview.standeeBitmap
     } else {
         preview.qrBitmap
+    }
+    val mapPoint = remember(preview.type, preview.rawContent) {
+        if (preview.type == "LOCATION") LocationQrUtil.parseGeoOrNull(preview.rawContent) else null
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -203,6 +208,25 @@ fun QrPreviewDialog(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                if (mapPoint != null) {
+                    OutlinedButton(
+                        onClick = { LocationQrUtil.openMap(context, mapPoint) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 44.dp)
+                            .testTag("open_generated_location_map_button"),
+                        shape = AppPillShape
+                    ) {
+                        Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            localizedText("เปิดพิกัดในแผนที่", "Open location in map"),
+                            fontSize = 13.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 // Action Buttons
                 Row(

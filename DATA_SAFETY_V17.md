@@ -3,7 +3,8 @@
 Source basis: current GitHub main / v17.0.
 
 ## Current technical facts
-- Manifest permission: Camera only.
+- Manifest permissions: Camera, approximate location, and precise location.
+- Location is requested only for the foreground Location QR/map flow; no background location permission is declared.
 - No `INTERNET` permission.
 - No AdMob SDK.
 - No Google Play Billing SDK.
@@ -11,6 +12,7 @@ Source basis: current GitHub main / v17.0.
 - QR history and business profile use local Room storage.
 - Android backup is disabled.
 - Camera frames and selected images are processed on-device for QR decoding.
+- Real device coordinates are processed on-device for Location QR/map actions; coordinates are not sent to a developer server.
 - Generated QR images can be saved locally.
 - Sharing is initiated by the user through Android Share Sheet.
 - Admin email / bug report is initiated by the user through an external email/share app.
@@ -63,7 +65,7 @@ Re-open this declaration before release if any of these are added:
 - Crypto price API
 - Remote bug-report backend
 - Account system
-- Location permission
+- Background location, remote map APIs, analytics, or any other location transmission
 - Contacts/files/background upload
 
 ## Important Play Console rule

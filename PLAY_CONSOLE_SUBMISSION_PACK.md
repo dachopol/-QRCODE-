@@ -27,7 +27,7 @@ Required graphics/assets:
 ## 3. App access
 Recommended Play Console answer for current v17:
 - Does all or part of the app require login, membership, location restriction, or special credentials? **No**
-- Reviewer instructions: **No login required. All core QR functions are available immediately after install. Camera permission is requested only when scanning QR codes.**
+- Reviewer instructions: **No login required. All core QR functions are available immediately after install. Camera permission is requested only when scanning; foreground location permission is requested only when the user opens the Location QR/map feature.**
 
 ## 4. Ads
 Current v17:
@@ -44,8 +44,12 @@ Current v17:
 - Paid unlock / ad-free entitlement: **No in current runtime**
 
 ## 6. Permissions
-Declared Android permission:
+Declared Android permissions:
 - `android.permission.CAMERA` — used to scan QR codes.
+- `android.permission.ACCESS_COARSE_LOCATION` — approximate foreground location for Location QR/map.
+- `android.permission.ACCESS_FINE_LOCATION` — precise foreground location when the user grants it.
+
+The app does not declare `android.permission.ACCESS_BACKGROUND_LOCATION`.
 
 Other source facts:
 - Camera hardware is optional.
@@ -59,6 +63,7 @@ Current source-based assessment:
 - App-controlled off-device collection: **None identified**
 - App-controlled data sharing: **None identified**
 - Camera/photo data is processed on-device for QR scanning.
+- Location coordinates are processed on-device for the Location QR/map feature and are passed to an external map/share app only after explicit user action.
 - QR history and business card profile are stored locally on-device.
 - User-triggered Android Share Sheet / email actions can transfer content to a third-party app selected by the user.
 
@@ -98,7 +103,7 @@ Based on current v17 source, expected questionnaire answers are:
 - User-to-user communication: No
 - User-generated social feed: No
 - In-app unrestricted web browsing: No
-- Location sharing: No
+- Location sharing: **TO VERIFY against the exact Console question** — the app can encode the current location in a QR and the user can explicitly open/share that QR through Android.
 
 The final rating is assigned by IARC after the questionnaire; do not claim a rating before Play Console returns it.
 
@@ -134,7 +139,8 @@ Before production:
 14. History save/delete works.
 15. TH/EN switches the whole supported screen.
 16. Region/currency UI remains consistent; PromptPay stays THB.
-17. Small phone / portrait / landscape has no blocking overflow.
+17. Open Location QR, grant approximate/precise permission, verify real coordinates, open the map, and generate/share the location QR.
+18. Small phone / portrait / landscape has no blocking overflow.
 
 ## 14. Release notes — Internal / Closed testing
 **Thai**

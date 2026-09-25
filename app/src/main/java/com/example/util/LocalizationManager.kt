@@ -90,6 +90,7 @@ object LocalizationManager {
         "cat_wifi" to mapOf("th" to "Wi-Fi", "en" to "Wi-Fi"),
         "cat_store" to mapOf("th" to "ลิงก์ร้านค้า", "en" to "Store Link"),
         "cat_text" to mapOf("th" to "ข้อความ", "en" to "Text / URL"),
+        "cat_location" to mapOf("th" to "พิกัดแผนที่", "en" to "Location"),
         "field_promptpay_id" to mapOf(
             "th" to "เบอร์โทรศัพท์ หรือ เลขบัตรประชาชน",
             "en" to "Phone Number or Citizen/Tax ID"
