@@ -63,6 +63,7 @@ jobs:
             exit 1
           fi
           grep -Fq "QuickQR Business v${VERSION_NAME}" metadata.json
+
       - name: Compile, test, lint and release bundle
         run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
 
@@ -92,21 +93,7 @@ jobs:
           fi
           unzip -t "$APK" >/dev/null
           unzip -t "$AAB" >/dev/null
-          if unzip -l "$AAB" | grep -Eq 'META-INF/.*\.(RSA|DSA|EC|SF)        uses: actions/upload-artifact@v4
-        with:
-          name: quickqr-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload unsigned release AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: quickqr-unsigned-release-aab
-          path: app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: error
-          retention-days: 7
-; then
+          if unzip -l "$AAB" | grep -E 'META-INF/.*\.(RSA|DSA|EC|SF)$' >/dev/null; then
             echo "Expected unsigned CI AAB but signature files were found"
             exit 1
           fi
