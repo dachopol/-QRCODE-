@@ -74,10 +74,10 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload release AAB
+      - name: Upload unsigned release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: quickqr-release-aab
+          name: quickqr-unsigned-release-aab
           path: app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 7
