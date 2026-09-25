@@ -100,3 +100,35 @@ Verified on a real **realme RMX3241** (Android API 33), physical display 1080×2
 - Landscape runtime. ADB could read rotation settings but the device denied shell `WRITE_SETTINGS`, so rotation was not forced.
 - Additional large-font accessibility matrix beyond the device's current font scale 1.1.
 - Release keystore signing and Play Console upload/acceptance.
+
+
+## Physical Android runtime evidence — 2026-09-25
+Test device: realme RMX3241 (physical Android device). Precise location and device identifiers are intentionally not stored here.
+
+Verified against source commit `5b78529405808cbd221871c68bea36377d8ec4dc`:
+- Physical-device app launch: PASS
+- TH → EN language switch across main navigation: PASS
+- Region/currency pairing UI (for example Thailand/THB, United States/USD, Japan/JPY): PASS
+- Camera permission flow: PASS
+- CameraX live preview from physical camera: PASS
+- Foreground coarse/fine location permission flow: PASS
+- Real current location acquisition after network-assisted provider availability: PASS
+- Invalid `0,0` placeholder not used: PASS
+- Open current location in external map app: PASS
+- Generate Location QR from the acquired real point: PASS
+- Save generated QR image to `Pictures/QuickQR_Business`: PASS
+- Scanner gallery picker reads the saved Location QR back as Map location: PASS
+- History stores both Created and Scanned location entries: PASS
+
+Important runtime finding and fix:
+- An older installed v17 build could remain on “Reading the device location…” because it did not contain the current timeout implementation.
+- The latest source correctly exits unavailable requests rather than spinning forever.
+- Physical testing also exposed that choosing GPS exclusively when it was enabled could miss a usable indoor network fix.
+- Commit `5b78529405808cbd221871c68bea36377d8ec4dc` now races enabled GPS and Network providers and accepts the first valid real location.
+- Android CI run `36154569928`: PASS for policy, compile, tests, lint, bundle, artifact verification, debug APK and unsigned release AAB.
+
+Still to verify before production:
+- Small-screen / landscape / enlarged-font layout runtime.
+- Light-mode runtime check.
+- Release keystore signing.
+- Play Console upload / signing / versionCode acceptance.
