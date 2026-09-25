@@ -112,7 +112,7 @@ class QuickQrCoreTest {
             BEGIN:VCARD
             VERSION:3.0
             FN:Example Shop
-            ORG:QRprom
+            ORG:QuickQR Business
             TEL;TYPE=CELL:0812345678
             EMAIL:hello@example.com
             END:VCARD
@@ -121,7 +121,7 @@ class QuickQrCoreTest {
 
         assertEquals(ParsedQrType.VCARD, parsed.type)
         assertEquals("Example Shop", parsed.contactName)
-        assertEquals("QRprom", parsed.contactOrg)
+        assertEquals("QuickQR Business", parsed.contactOrg)
         assertEquals("0812345678", parsed.contactPhone)
         assertEquals("hello@example.com", parsed.contactEmail)
     }
