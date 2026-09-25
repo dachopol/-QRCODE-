@@ -74,7 +74,7 @@ Use:
 - `PRIVACY_POLICY_TH_EN.md`
 - `docs/privacy-policy.html`
 
-Before review you still need a public HTTPS URL that anyone can open without login.
+Public HTTPS privacy policy is verified at `https://dachopol.github.io/-QRCODE-/privacy-policy.html`; enter this exact URL in Play Console before review.
 
 Required owner input:
 - Support/contact email that can actually receive mail: **chenkung12@gmail.com**
@@ -176,8 +176,8 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 - การตรวจนี้เป็น source/document review ไม่ใช่ผลตรวจ merged manifest, final AAB, CI หรืออุปกรณ์จริง
 
 ### งานถัดไปตามลำดับ
-1. เผยแพร่ `docs/privacy-policy.html` เป็นหน้า HTTPS สาธารณะ จากนั้นตรวจเปิดแบบไม่ล็อกอินและตรวจเนื้อหาที่แสดงจริง
-2. ใส่ URL ที่ตรวจแล้วในหัวข้อ 8 และใน Play Console; ตรวจว่าภายในแอปมีลิงก์หรือข้อความนโยบายให้อ่านได้
+1. Privacy Policy HTTPS เปิดสาธารณะและตรวจ HTTP 200 แล้ว; ใส่ URL ที่ยืนยันแล้วใน Play Console
+2. ในแอปมีปุ่ม Privacy Policy ใน Support sheet แล้ว; release smoke test ให้กดเปิด URL นี้อีกครั้งบน build ที่จะส่งจริง
 3. ใช้ `STORE_LISTING_TH_EN.md` กรอกชื่อและคำอธิบาย แนบ icon, feature graphic และภาพจาก build ที่จะส่งจริง
 4. ยืนยันหมวดหมู่ กลุ่มอายุ และประเทศจำหน่ายตามกลุ่มผู้ใช้จริง; Business และ 18+ ในเอกสารนี้ยังเป็นข้อเสนอ ไม่ใช่ค่าที่เจ้าของยืนยันแล้ว
 5. ตรวจ App access, Ads, Data Safety, Financial features และ IARC ตามคำถามที่ Console แสดงจริง การสร้าง QR ไม่ใช่หลักฐานให้ตอบว่าไม่มี financial features โดยอัตโนมัติ
