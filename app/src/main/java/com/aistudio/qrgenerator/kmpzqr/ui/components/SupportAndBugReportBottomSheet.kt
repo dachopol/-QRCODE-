@@ -205,18 +205,19 @@ fun BugReportForm(
     onSuccess: () -> Unit
 ) {
     val context = LocalContext.current
-    var category by remember { mutableStateOf("QR พร้อมเพย์สแกนไม่ติด") }
+    var categoryIndex by remember { mutableStateOf(0) }
     var description by remember { mutableStateOf("") }
     var contactInfo by remember { mutableStateOf("") }
     var isShareOpened by remember { mutableStateOf(false) }
 
     val categories = listOf(
-        "QR พร้อมเพย์สแกนไม่ติด",
-        "Wi-Fi เชื่อมต่อไม่ได้",
-        "นามบัตรดิจิทัลมีปัญหา",
-        "สแกนเนอร์เปิดกล้องไม่ได้",
-        "ข้อเสนอแนะอื่นๆ"
+        localizedText("QR พร้อมเพย์สแกนไม่ติด", "PromptPay QR cannot be scanned"),
+        localizedText("Wi-Fi เชื่อมต่อไม่ได้", "Wi-Fi QR cannot connect"),
+        localizedText("นามบัตรดิจิทัลมีปัญหา", "Digital business card issue"),
+        localizedText("สแกนเนอร์เปิดกล้องไม่ได้", "Scanner cannot open camera"),
+        localizedText("ข้อเสนอแนะอื่นๆ", "Other feedback")
     )
+    val category = categories[categoryIndex]
 
     if (isShareOpened) {
         Column(
@@ -276,11 +277,11 @@ fun BugReportForm(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                categories.forEach { cat ->
-                    val isSelected = category == cat
+                categories.forEachIndexed { index, cat ->
+                    val isSelected = categoryIndex == index
                     FilterChip(
                         selected = isSelected,
-                        onClick = { category = cat },
+                        onClick = { categoryIndex = index },
                         label = {
                             Text(
                                 text = cat,
