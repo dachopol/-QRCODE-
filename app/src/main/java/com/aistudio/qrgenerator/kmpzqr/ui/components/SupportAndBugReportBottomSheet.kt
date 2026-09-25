@@ -432,15 +432,7 @@ fun AdminContactSupportView() {
                                 putExtra(Intent.EXTRA_SUBJECT, "QuickQR Business support request")
                                 putExtra(Intent.EXTRA_TEXT, "QuickQR Business v${BuildConfig.VERSION_NAME}\n")
                             }
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    localizedNow("ไม่พบแอปอีเมลในเครื่อง", "No email app found"),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            context.startActivity(intent)
                         } catch (_: Exception) {
                             Toast.makeText(
                                 context,
@@ -467,15 +459,7 @@ fun AdminContactSupportView() {
                     onClick = {
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    localizedNow("ไม่พบแอปสำหรับเปิดนโยบายความเป็นส่วนตัว", "No app available to open the privacy policy"),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            context.startActivity(intent)
                         } catch (_: Exception) {
                             Toast.makeText(
                                 context,
