@@ -188,3 +188,26 @@ Verified:
 Cleanup:
 - Emulator font scale restored to 1.0 after testing.
 - Emulator stopped after QA.
+
+
+## Release signing evidence — 2026-09-26
+A new owner-controlled Android upload key was created locally for QuickQR Business.
+
+Public signing evidence:
+- Alias: `upload`
+- Key: RSA 4096-bit
+- Signature algorithm: SHA256withRSA
+- Upload certificate SHA-256: `79:99:F5:7E:36:1E:F1:3C:2A:B5:F8:87:63:B5:8C:A7:B6:7F:58:DE:18:26:33:66:E6:3F:C5:77:9A:73:83:01`
+- Signed AAB verification with `jarsigner`: PASS
+- Signed AAB SHA-256: `E51EB8E3D79FD834F594357631163FA02C5C9CD2676906DF7D36640A64C9B59B`
+- Signed bundle source: Android CI artifact from source commit `0f391d0ab400c581e07a583e5e76a293d7f91ad9`
+
+Security:
+- Private keystore and passwords are stored only on the owner's local machine.
+- `*.jks`, `*.keystore`, `keystore.properties`, and `signing.properties` are ignored by Git.
+- Private signing material is not committed to this repository.
+
+Release boundary:
+- Local signed AAB: PASS
+- Play Console upload-key registration / reset (if an older upload key already exists): TO VERIFY
+- Play Console upload / signing / versionCode acceptance: TO VERIFY
