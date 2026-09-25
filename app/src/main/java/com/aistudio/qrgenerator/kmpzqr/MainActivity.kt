@@ -198,62 +198,74 @@ fun MainAppScreen(viewModel: MainViewModel) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    androidx.compose.ui.graphics.Brush.linearGradient(
-                                        listOf(Color(0xFF0B2853), Color(0xFF0284C7))
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center
+            Surface(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                androidx.compose.ui.graphics.Brush.linearGradient(
+                                    listOf(Color(0xFF0B2853), Color(0xFF0284C7))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.QrCode,
+                            contentDescription = "App Logo",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = localizedString("app_title"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2
+                        )
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Surface(
+                            shape = AppPillShape,
+                            color = Color(0xFF0284C7).copy(alpha = 0.12f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                Color(0xFF0284C7).copy(alpha = 0.3f)
+                            )
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.QrCode,
-                                contentDescription = "App Logo",
-                                tint = Color.White,
-                                modifier = Modifier.size(22.dp)
+                            Text(
+                                text = "v${BuildConfig.VERSION_NAME}",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0284C7),
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = localizedString("app_title"),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Surface(
-                                    shape = AppPillShape,
-                                    color = Color(0xFF0284C7).copy(alpha = 0.12f),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF0284C7).copy(alpha = 0.3f))
-                                ) {
-                                    Text(
-                                        text = "v${BuildConfig.VERSION_NAME}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0284C7),
-                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
-                                    )
-                                }
-                            }
-                        }
                     }
-                },
-                actions = {
-                    // Language & Google Currency Selector Button
+
                     Surface(
                         shape = AppPillShape,
                         color = GlassAccent,
                         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                         modifier = Modifier
-                            .padding(end = 4.dp)
+                            .padding(start = 6.dp, end = 4.dp)
                             .wrapContentWidth()
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
                             .testTag("open_language_currency_button")
@@ -298,10 +310,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             tint = Color(0xFF0284C7)
                         )
                     }
-
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
-            )
+                }
+            }
         },
         bottomBar = {
             Surface(
