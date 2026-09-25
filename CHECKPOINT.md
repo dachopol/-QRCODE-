@@ -1,77 +1,51 @@
-# QuickQR continuation checkpoint
+# QuickQR Business — Current Checkpoint
 
-## Latest verified outcome (supersedes prior blocked-build notes)
-- User approved main upload. Code commit: 0c61307bb175f4f2e91583cf7a4c9a2e7ae145f6.
-- Build/test PASS on GitHub: assembleDebug + testDebugUnitTest; APK upload PASS.
-- Evidence: https://github.com/dachopol/-QRCODE-/actions/runs/36067250936
-- Local git push lacked credentials; upload used the configured GitHub connector.
-- Local main was aligned with the remote; local-prepared-quickqr preserves the
-  original local commit with identical file contents.
-- Remaining: real-device TH/EN, layout, QR actions, camera and competitor measures.
-- Follow the remaining device checks below; do not repeat already-passed CI
-  unless code changes or a concrete new risk requires it.
+## Source of Truth
+- Repository: `dachopol/-QRCODE-`
+- Branch: `main`
+- Version source: `app/build.gradle.kts`
+- Version: `17.0` / versionCode `17`
+- applicationId: `com.aistudio.qrgenerator.kmpzqr`
+- namespace: `com.aistudio.qrgenerator.kmpzqr`
 
-## Source
-- Repository: dachopol/-QRCODE-, main
-- Base commit: 0d158c5493b3aebc490a004a7c38fe8ad20ad470
-- Version: 17.0 (17); package unchanged.
-- No prior CHECKPOINT.md or task_state.json existed in this checkout.
+## Current verified state
+- Android source package and namespace are aligned with the Play applicationId.
+- Legacy active source path `com/example` has been removed from the current Git tree.
+- Real foreground current-location flow is implemented for Location QR:
+  - requests coarse/fine location only when the user uses the location feature
+  - no background-location permission
+  - rejects invalid and `0,0` placeholder coordinates
+  - current-location request has a timeout
+  - last-known fallback is accepted only when recent
+  - user can refresh the point, open it in a map app, generate a `geo:` QR, scan it, and reopen saved location history
+- PromptPay remains THB-only.
+- No random/fake measurement or simulated VIP/Wallet/TopUp/Ad revenue is active.
+- UI version badge reads `BuildConfig.VERSION_NAME`.
 
-## Current task: canva-generator-ui
-Reviewed Canva page 1 thumbnail from design DAHWJiLYKhA:
-https://canva.link/sog58xmb2rklkq2
-Applied its form-first hierarchy to GeneratorScreen. Main forms and Generate
-actions now precede a collapsible appearance card. All existing color/logo controls
-remain available, with expansion state saved. Dark card labels use onSurface;
-white-field placeholders use a darker slate. Added password visibility labels,
-localized Open, room for hidden-network text, larger platform targets and wrapping
-for store/text Generate labels. No new dependency, package or version change.
-Static diff check passes. Build retry still exits 127: gradle command not found.
-Runtime appearance, small-screen layout and TH/EN switching remain unverified.
+## Build evidence
+Latest code verification before this documentation-only checkpoint:
+- Commit: `93745ffe6b44c2497791846e19b6f3683a3a9345`
+- GitHub Actions: Android CI run `36090386196`
+- Result: PASS
+- `:app:assembleDebug`: PASS
+- `:app:testDebugUnitTest`: PASS
+- Debug APK artifact upload: PASS
 
-## Prior pending task: generator-language-mixing
-User screenshots show EN with Thai Wi-Fi SSID/password placeholders, Website
-platform label, and LINE ID placeholder. Fixed these in GeneratorScreen.kt using
-the existing reactive localizedText helper; covered all store platform placeholder
-variants. Static diff check passes; runtime/build remain blocked as described below.
+Location hardening was also verified by Android CI run `36090047663`: PASS.
 
-## Prior pending task: wifi-escaped-payload-regression
-The generator escapes Wi-Fi fields, but the scanner used split(";") and did not
-unescape them. This truncated SSIDs/passwords and could interpret part of an SSID
-as another field. Replaced splitting with escape-aware field parsing.
+## Remaining release verification
+These items still require physical-device/runtime evidence before calling the app release-ready:
+- CameraX scan with a real Android camera.
+- Location permission flow and map opening on a real Android device.
+- TH/EN switching across the main flows.
+- Small-phone, landscape, font-scaling, light/dark and system-inset checks.
+- Generate/scan/save/share/history end-to-end checks on device.
+- Play Console versionCode/signing/upload validation for the intended release track.
 
-Added three JUnit regression tests: independent escaped payload, generator/parser
-round trip with Thai and special characters, and a literal trailing backslash
-with an open network. Existing plain Wi-Fi test remains.
-
-## Evidence and limits
-- Base Android CI passed compile, unit tests and APK upload:
-  https://github.com/dachopol/-QRCODE-/actions/runs/35960276382
-- git diff --check passes for the local patch.
-- New tests and Android build are NOT RUN: gradle command exited 127 (not found).
-- No adb or Gradle on PATH; no Android SDK at checked conventional locations.
-- Gradle distribution request timed out, curl exit 28, after redirect to GitHub.
-- The device test currently only checks application ID, not scan performance.
-- Local changes have NOT been pushed; base CI does not validate this patch.
-- No device/camera performance or competitor quality score is established.
-
-## Resume
-1. Review the patch and run on an Android build runner with JDK 17, Gradle 9.3.1,
-   Android SDK 36: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest.
-2. Inspect failures and fix root cause; do not report the patch as passing yet.
-3. Test generated Wi-Fi QR with special characters using gallery and real camera;
-   confirm displayed/copied SSID and password exactly match inputs.
-4. Measure competitors and QuickQR on the same phone, QR fixtures, lighting and
-   distances. Record decoding success and elapsed time; leave scores unknown
-   until measurements exist. UI/privacy assessment requires separate evidence.
-
-DoD remains blocked on build/test of the patch and real-device runtime validation.
-# Full-app Canva style continuation — 2026-09-25
-
-- Applied semantic light/dark surfaces to navigation, history, card forms, QR customization, preview, language/region and support screens.
-- Stacked business contact fields, enlarged color/reset/close controls, and made history filters scroll at large font sizes.
-- Localized scan-result type badges for TH/EN. Preserved QR bitmap palettes, card preview colors and existing actions.
-- Canva generation remains blocked by quota_exceeded; this continuation updates Android source using the existing design direction.
-- Source commit e4137da3260fdf65f9d687a384d97afde4789f03: diff check, assembleDebug and testDebugUnitTest passed; debug APK uploaded.
-- Verified CI: https://github.com/dachopol/-QRCODE-/actions/runs/36081108095
-- Device validation (small-screen TH/EN, light/dark, font scaling, navigation, scan/save/share) is still required.
+## Status
+- Build / unit tests: PASS
+- Real-data / anti-random review: PASS for the reviewed flows
+- Package / namespace cleanup: PASS
+- Location source flow: PASS
+- Physical-device runtime: TO VERIFY
+- Play Console production readiness: TO VERIFY
