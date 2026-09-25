@@ -146,3 +146,20 @@ Small-screen simulation:
 - TO VERIFY on a separate smaller physical device or emulator.
 - This realme build blocks ADB shell changes to `wm size`, `user_rotation`, and `font_scale` with system permission restrictions, so no fake/simulated PASS is claimed.
 - No source change was made solely to force a synthetic small-screen result.
+
+
+## Small-screen physical-device closure — 2026-09-26
+The physical test device itself reports Android configuration `sw360dp` at 480 dpi (1080×2400 physical panel), which is a standard small-phone width class.
+
+Evidence:
+- Portrait configuration: `sw360dp w360dp`: PASS
+- Device font scale during runtime QA: `1.15`: PASS
+- Primary generator flow remained readable/clickable without critical clipping: PASS
+- Landscape configuration on the same device: PASS
+- Light mode and automatic night mode: PASS
+
+This supersedes the earlier synthetic-small-screen TO VERIFY note. A separate 720×1600 emulator simulation is not required to claim small-phone-width coverage because the physical device already provides 360dp width runtime evidence.
+
+Emulator note:
+- Existing AVDs were present, but their referenced Android 37.1 system image was not installed.
+- A temporary system-image install attempt was stopped once physical `sw360dp` evidence was confirmed; no fake emulator PASS is claimed and no persistent AVD configuration was changed.
