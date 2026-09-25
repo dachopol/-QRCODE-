@@ -78,7 +78,7 @@ Before review you still need a public HTTPS URL that anyone can open without log
 
 Required owner input:
 - Support/contact email that can actually receive mail: **chenkung12@gmail.com**
-- Public Privacy Policy URL: **[OWNER INPUT REQUIRED]**
+- Public Privacy Policy URL: **https://dachopol.github.io/-QRCODE-/privacy-policy.html** — verified HTTPS 200 on 26 September 2026
 
 Do not use the GitHub noreply address as the Play support mailbox.
 
@@ -152,8 +152,8 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 ## 15. Submission blockers — must be completed by owner
 - [x] Support email recorded in project documents: chenkung12@gmail.com
 - [ ] Owner verifies this mailbox receives support requests
-- [ ] Public HTTPS Privacy Policy URL
-- [ ] Privacy policy link or text accessible inside the app
+- [x] Public HTTPS Privacy Policy URL — verified `https://dachopol.github.io/-QRCODE-/privacy-policy.html`
+- [x] Privacy policy access implemented in the Support sheet; Android ACTION_VIEW handler verified. Final post-fix foreground tap remains part of release smoke test.
 - [ ] Final target audience confirmation
 - [ ] Final category confirmation
 - [ ] Store icon 512×512
@@ -161,8 +161,8 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 - [ ] Current v17 phone screenshots
 - [ ] Production countries/regions
 - [ ] Release signing / upload key
-- [ ] AAB generated from current main
-- [ ] Physical-device scanner test
+- [x] AAB generated from current main by CI; current CI artifact is intentionally unsigned and not Play-upload-ready
+- [x] Physical-device scanner test — CameraX live preview + gallery scan-back verified on real Android device
 - [ ] Data Safety rechecked against final AAB / active tracks
 - [ ] IARC questionnaire submitted
 
@@ -186,10 +186,10 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 8. ตรวจรายงาน Console และรายการที่ยังไม่เสร็จก่อนส่ง review; ยังไม่ถือว่าเผยแพร่แล้ว
 
 ### URL และสถานะที่ยังไม่ยืนยัน
-- Candidate เท่านั้น: `https://dachopol.github.io/-QRCODE-/privacy-policy.html`
-- เครื่องมือตรวจเว็บในรอบนี้เข้าถึง candidate ไม่สำเร็จ จึงยังยืนยันไม่ได้ว่าเว็บเปิดแล้ว และไม่สรุปว่าเป็น HTTP 404
-- Public Privacy Policy URL: ยังไม่ยืนยัน
-- CI ล่าสุด / signed AAB / การอัปโหลด / device QA / Console declarations: ยังไม่ได้ตรวจในรอบนี้
+- Public Privacy Policy URL: `https://dachopol.github.io/-QRCODE-/privacy-policy.html` — HTTPS 200 verified on 26 September 2026
+- Physical-device QA: camera, location, map, QR round-trip, history, TH/EN, region/currency, landscape, light mode, and 360dp small-phone width verified
+- Current-main CI: policy, compile, tests, lint, bundle and artifact verification PASS
+- Signed AAB / Play upload / Console declarations: still not verified
 - ห้ามทำเครื่องหมายผ่านจากรายงานเก่าหรือการมีไฟล์เอกสารเพียงอย่างเดียว
 
 Official reference: https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
