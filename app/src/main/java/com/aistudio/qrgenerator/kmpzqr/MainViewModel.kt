@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 data class ActiveQrPreview(
     val title: String,
@@ -54,6 +55,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val dao = db.qrDao()
+    private val centerLogoFile = File(application.filesDir, "qr_center_logo.png")
 
     // Active bottom navigation tab: 0=Generate, 1=Card Studio, 2=Scanner, 3=History
     private val _currentTab = MutableStateFlow(0)
@@ -152,19 +154,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (uri == null) return
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap = decodeCenterLogo(uri)
+            val persisted = bitmap?.let { selected ->
+                try {
+                    centerLogoFile.outputStream().use { stream ->
+                        selected.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                    }
+                } catch (_: Exception) {
+                    false
+                }
+            } ?: false
+
             withContext(Dispatchers.Main) {
                 if (bitmap != null) {
                     _customCenterLogo.value = bitmap
                     _includeCenterLogo.value = true
                     Toast.makeText(
                         getApplication(),
-                        localizedNow("ใช้ตราร้านตรงกลาง QR แล้ว", "Custom center logo selected"),
+                        if (persisted) {
+                            localizedNow(
+                                "ใช้รูป/ตราร้านตรงกลาง QR แล้ว",
+                                "Custom center image/logo saved"
+                            )
+                        } else {
+                            localizedNow(
+                                "ใช้รูปกลาง QR แล้ว แต่ยังบันทึกถาวรไม่ได้",
+                                "Center image selected, but could not be saved persistently"
+                            )
+                        },
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
                     Toast.makeText(
                         getApplication(),
-                        localizedNow("ไม่สามารถอ่านรูปตราร้านได้", "Unable to read the selected logo"),
+                        localizedNow("ไม่สามารถอ่านรูปที่เลือกได้", "Unable to read the selected image"),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -174,6 +196,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearCustomCenterLogo() {
         _customCenterLogo.value = null
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (centerLogoFile.exists()) centerLogoFile.delete()
+            } catch (_: Exception) { }
+        }
     }
 
     private fun decodeCenterLogo(uri: Uri): Bitmap? {
@@ -217,8 +244,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
 
     init {
-        // Asynchronously load stored profile on IO thread to avoid main thread startup latency
+        // Load an optional custom QR center image from app-private storage.
         viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (centerLogoFile.exists()) {
+                    BitmapFactory.decodeFile(centerLogoFile.absolutePath)?.let { savedLogo ->
+                        _customCenterLogo.value = savedLogo
+                    }
+                }
+            } catch (_: Exception) { }
+
             try {
                 dao.getMerchantProfile().catch { }.collect { saved ->
                     if (saved != null) {
