@@ -56,7 +56,11 @@
     "upload v18 to QuickQR Business Internal Testing",
     "verify Play accepts versionCode/signature",
     "recheck publishing overview and app-review submission availability",
-    "do not publish Production"
+    "do not publish Production",
+    "after upload-key activation rebuild/sign from current main",
+    "verify Play acceptance of package versionCode and signer",
+    "confirm v18 availability to testers",
+    "send tester email only after v18 availability"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
@@ -90,7 +94,14 @@
     "full_description": "PASS - 1068/4000",
     "review_step": "PASS - reached step 2/2 with no validation error",
     "publishing_overview": "STAGED - not submitted for review",
-    "dashboard_checklist": "10/11 pending final review/release submission"
+    "dashboard_checklist": "10/11 pending final review/release submission",
+    "thai_locale": "PASS - th added and saved",
+    "thai_app_name": "PASS - 16/30",
+    "thai_short_description": "PASS - 69/80",
+    "thai_full_description": "PASS - 906/4000",
+    "thai_review_step": "PASS - step 2/2",
+    "review_submission": false,
+    "production_publish": false
   },
   "real_device": {
     "latest_main_debug_install": "PASS",
@@ -99,5 +110,13 @@
     "launch": "PASS",
     "immediate_crash_anr": "PASS",
     "visual_inspection": "TO VERIFY - secure device lock prevented screen inspection"
+  },
+  "internal_testing": {
+    "tester_lists_enabled": 3,
+    "tester_list_entries_total": 6,
+    "unique_testers": "TO VERIFY - possible duplicates across lists",
+    "opt_in_url": "https://play.google.com/apps/internaltest/4701595451590105540",
+    "tester_config_saved": true,
+    "email_timing": "after v18 is available on Internal Testing only"
   }
 }
