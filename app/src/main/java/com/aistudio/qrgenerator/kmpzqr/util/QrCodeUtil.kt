@@ -132,14 +132,22 @@ object QrCodeUtil {
         }
         canvas.drawRoundRect(cardRect, 18f, 18f, borderPaint)
 
-        // Draw the logo centered inside the padded card
-        val logoLeft = centerX - logoSizePx / 2f
-        val logoTop = centerY - logoSizePx / 2f
+        // Draw the logo centered without distorting its original aspect ratio.
+        val sourceWidth = logoBitmap.width.coerceAtLeast(1)
+        val sourceHeight = logoBitmap.height.coerceAtLeast(1)
+        val scale = minOf(
+            logoSizePx.toFloat() / sourceWidth.toFloat(),
+            logoSizePx.toFloat() / sourceHeight.toFloat()
+        )
+        val drawWidth = (sourceWidth * scale).coerceAtLeast(1f)
+        val drawHeight = (sourceHeight * scale).coerceAtLeast(1f)
+        val logoLeft = centerX - drawWidth / 2f
+        val logoTop = centerY - drawHeight / 2f
         val destRect = Rect(
             logoLeft.toInt(),
             logoTop.toInt(),
-            (logoLeft + logoSizePx).toInt(),
-            (logoTop + logoSizePx).toInt()
+            (logoLeft + drawWidth).toInt(),
+            (logoTop + drawHeight).toInt()
         )
         val logoPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
         canvas.drawBitmap(logoBitmap, null, destRect, logoPaint)
