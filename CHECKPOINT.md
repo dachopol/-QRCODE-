@@ -239,3 +239,17 @@ Verified on realme RMX3241 using a clean install of source-aligned v18 debug APK
 - v17 installed signature differed from the current local debug key, so in-place update was not possible; backup + clean install was used instead.
 - Current v18 debug signing certificate is test-only and is not Play release evidence.
 - Exact v18 owner-signed AAB + Play Console acceptance: TO VERIFY.
+
+
+## v18 physical-device smoke — 2026-09-27
+- Clean working copy cloned from GitHub `main` HEAD `bcecc854b8146a13ac81f351d3c7dbe538ca9be3`.
+- Local Gradle 9.3.1 / JDK 17 `:app:assembleDebug`: PASS.
+- Existing real-device v17 install could not be updated in-place because its signing certificate differs from the current debug key.
+- Before uninstalling v17, app-private `shared_prefs`, `databases`, and `files` were backed up locally on the owner-controlled PC; the installed v17 APK was also retained locally for rollback.
+- v18 debug APK clean install on realme RMX3241: PASS.
+- Installed package: `com.aistudio.qrgenerator.kmpzqr`.
+- Installed version: `18.0` / versionCode `18` / targetSdk `36`.
+- Cold launch: PASS; process remained alive after launch.
+- Immediate logcat FATAL EXCEPTION / app ANR scan: no match.
+- This smoke test does not prove Play release signing or Play Console acceptance.
+- Owner-signed v18 AAB + Play Console upload/version acceptance: TO VERIFY.
