@@ -12,15 +12,15 @@
     "targetSdk": 36
   },
   "release_candidate": {
-    "source_commit": "9c48bb719d8798468b6ba931e7463488c6ac52a1",
+    "source_commit": "aa907717b74216848e3d0d0d87c8c0dfb1a8b1ef",
     "filename": "QuickQR-Business-v18.0-code18-quickqrkey.aab",
-    "sha256": "3E368DDA1CFDD40A6AA0AB420CF87FF5350F4CA01F84BAD7EAC3F0F25D0F5E53",
+    "sha256": "E91BD74E0CE5BC487738B4EDC4893D48AA810F3A99F91EBFCD883C922F191D24",
     "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
     "jarsigner": "PASS",
     "build": "PASS",
     "stale_after_visual_polish": false,
     "rebuild_required_from_current_main": false,
-    "reuse_only_if_main_unchanged": true
+    "reuse_if_only_non_build_files_change": true
   },
   "play_console": {
     "target_app": "QuickQR Business",
@@ -49,7 +49,6 @@
     "verify_play_package_version_signature_acceptance",
     "review_release_notes_and_internal_testing_release",
     "verify_internal_testing_availability",
-    "verify_visual_polish_on_realme_after_user_unlocks_device",
     "upload v18 to QuickQR Business Internal Testing",
     "verify Play accepts versionCode/signature",
     "recheck publishing overview and app-review submission availability",
@@ -58,7 +57,8 @@
     "confirm v18 availability to testers",
     "send tester email only after v18 availability",
     "after upload-key activation verify main head",
-    "if main unchanged use verified candidate; otherwise rebuild/sign from current main"
+    "after upload-key activation verify main build-relevant diff",
+    "upload verified v18 AAB to QuickQR Business Internal Testing"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
@@ -73,7 +73,11 @@
     "unit_tests": "PASS",
     "instrumented_tests": "3/3 PASS",
     "emulator_smoke": "PASS",
-    "real_device_smoke": "TO VERIFY"
+    "real_device_smoke": "TO VERIFY",
+    "branded_start_screen": "PASS - visible after Android system splash",
+    "branded_start_transition": "PASS",
+    "splash_logo_consistency": "PASS",
+    "instrumented_tests_after_splash_fix": "3/3 PASS"
   },
   "store_listing": {
     "play_app": "QuickQR Business",
