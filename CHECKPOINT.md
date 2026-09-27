@@ -318,3 +318,22 @@ Verification:
 - Console message states the upload certificate was reset recently and is not usable before that timestamp.
 - The temporarily blocked AAB was removed from the draft; do not change package ID or create/reset another upload key in response to this temporary gate.
 - Next safe action after the activation time: re-upload the exact current v18 candidate (or rebuild from the then-current `main` if HEAD changes), verify package/version/signature acceptance, review release notes, and proceed only to **Internal Testing**. Production publication remains out of scope until the production gate is explicitly completed.
+
+
+## v18 visual polish + logo consistency — 2026-09-27
+- Visual source commit: `7b95de5aa5c506ec54aa44f78917e4f479c030b5`.
+- Scope: branding/UI only; QR generation, scanning, PromptPay payload logic, Wi-Fi, Store Link, Location, Business Card, History, package ID, signing policy, versionName/versionCode were not changed.
+- Header now uses the same canonical QR brand mark as the launcher/splash and shows **QuickQR Business** in full with `v18.0` as compact secondary text.
+- Generator category navigation was reduced from tall icon tabs to compact horizontally scrollable chips so primary content stays above the fold.
+- PromptPay card hierarchy was simplified: lighter card treatment, subtler border, smaller corner radius, and navy→blue branded section header.
+- Bottom navigation selected state now highlights the icon only instead of a large pill around the whole label, improving hierarchy and reducing visual crowding.
+- Global visual tokens: card radius 28dp → 22dp; section radius 20dp → 16dp.
+- Previous legacy launcher WebP files and the temporary Play Store PNG could not be decoded reliably by the standard image decoder. They were replaced by valid raster assets generated from the same canonical navy→blue QR brand design.
+- Launcher fallback assets now validate as WebP for mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi; Play Store source asset is `store-assets/play_store_icon_512.png` and validates as PNG 512×512.
+- Adaptive icon foreground was corrected to use even-odd fill so finder squares have real transparent centers and visually match the raster/store mark.
+- Local `:app:assembleDebug` + `:app:testDebugUnitTest` + `:app:assembleDebugAndroidTest`: PASS.
+- Emulator instrumented tests: **3/3 PASS**, including center-image QR encode/decode regression.
+- Emulator install / launch on version `18.0` code `18`: PASS; no immediate FATAL EXCEPTION / ANR observed.
+- Final emulator visual inspection: no visible overflow on the tested portrait layout; brand title, version, language/currency control, compact category chips, form card, CTA, and bottom navigation remain readable and reachable.
+- Real-device smoke for this exact visual-polish commit: TO VERIFY. Earlier v18 real-device smoke remains valid for the pre-polish build only.
+- IMPORTANT: the previously generated signed v18 AAB predates visual commit `7b95de5` and is now stale. Rebuild/sign from the then-current `main` after the Play upload-key activation gate before the next Internal Testing upload.
