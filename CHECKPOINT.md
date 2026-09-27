@@ -351,3 +351,21 @@ Verification:
 - Store draft save confirmation was observed after both the icon and screenshot changes: PASS.
 - Realme physical device: current `main` debug build installed successfully with versionName `18.0`, versionCode `18`; MainActivity launch succeeded and no immediate FATAL/ANR was observed.
 - Realme screen was protected by secure lock while the app was foregrounded, so visual inspection of the exact polish commit on the physical screen remains TO VERIFY; no attempt was made to bypass the device lock.
+
+
+## Play Store listing completed and staged — 2026-09-27
+- Canonical Play Store feature graphic added to source: `store-assets/feature_graphic_1024x500.png`.
+- Feature graphic dimensions validated: 1024×500 PNG.
+- Feature graphic uses the same QuickQR navy→blue brand mark and a real v18 Generate QR screenshot; no fabricated performance/result data is shown.
+- Play Console QuickQR Business feature graphic slot: PASS; saved as draft.
+- Default Store Listing locale: English (United States) / en-US.
+- App name persisted: `QuickQR Business` (16/30).
+- Short description populated from `STORE_LISTING_TH_EN.md`: 74/80.
+- Full description populated from `STORE_LISTING_TH_EN.md`: 1068/4000.
+- App icon, feature graphic, and 2 phone screenshots are all present in the default Store Listing.
+- Store Listing 2-step wizard reached **Step 2/2: Review** with no validation error.
+- Publishing overview now shows the default en-US Store Listing change as staged and explicitly states the app name and all required information have been provided.
+- Publishing overview status: **changes not yet submitted for review**.
+- Button `ส่งแอปเข้ารับการตรวจสอบ` is currently disabled. This is expected while no eligible release is ready to submit together.
+- Dashboard still shows 10/11 for the app/store setup checklist even though Store Listing content is staged; treat this as pending final review/release submission, not as missing Store asset/content.
+- No Production release was created or submitted in this work.
