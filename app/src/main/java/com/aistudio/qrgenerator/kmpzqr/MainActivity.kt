@@ -226,11 +226,10 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.QrCode,
-                            contentDescription = "App Logo",
-                            tint = Color.White,
-                            modifier = Modifier.size(if (compactLargeText) 20.dp else 22.dp)
+                        Image(
+                            painter = painterResource(R.drawable.ic_launcher_foreground),
+                            contentDescription = "QuickQR Business logo",
+                            modifier = Modifier.size(if (compactLargeText) 25.dp else 28.dp)
                         )
                     }
 
@@ -245,27 +244,16 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             fontSize = if (compactLargeText) 14.sp else if (compactLayout) 16.sp else 18.sp,
                             lineHeight = if (compactLargeText) 16.sp else 20.sp,
                             color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 2
+                            maxLines = 1
                         )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Surface(
-                            shape = AppPillShape,
-                            color = Color(0xFF0284C7).copy(alpha = 0.12f),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                Color(0xFF0284C7).copy(alpha = 0.3f)
-                            )
-                        ) {
-                            Text(
-                                text = "v${BuildConfig.VERSION_NAME}",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0284C7),
-                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
-                            )
-                        }
+                        Text(
+                            text = "v${BuildConfig.VERSION_NAME}",
+                            fontSize = 9.sp,
+                            lineHeight = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF0284C7),
+                            maxLines = 1
+                        )
                     }
 
                     Surface(
@@ -342,8 +330,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 72.dp)
-                        .padding(horizontal = 4.dp, vertical = 6.dp),
+                        .defaultMinSize(minHeight = 64.dp)
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     navItems.forEachIndexed { index, (label, icon, tag) ->
@@ -351,22 +339,29 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .clip(AppPillShape)
-                                .background(if (isSelected) GlassAccent else Color.Transparent)
+                                .clip(RoundedCornerShape(16.dp))
                                 .clickable { viewModel.setTab(index) }
-                                .defaultMinSize(minHeight = 60.dp)
-                                .padding(horizontal = 4.dp, vertical = 6.dp)
+                                .defaultMinSize(minHeight = 54.dp)
+                                .padding(horizontal = 4.dp, vertical = 5.dp)
                                 .testTag(tag),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
                         ) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = label,
-                                tint = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 38.dp, height = 28.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isSelected) GlassAccent else Color.Transparent),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = label,
+                                    tint = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(if (isSelected) 22.dp else 21.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = label,
                                 fontSize = when {

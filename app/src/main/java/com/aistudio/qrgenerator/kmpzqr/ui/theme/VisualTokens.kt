@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.dp
  * QuickQR Business visual system.
  * Glass is intentionally subtle (~5%) and used only as an accent.
  */
-val AppCardShape = RoundedCornerShape(28.dp)
-val AppSectionShape = RoundedCornerShape(20.dp)
+val AppCardShape = RoundedCornerShape(22.dp)
+val AppSectionShape = RoundedCornerShape(16.dp)
 val AppPillShape = CircleShape
 
 val GlassAccent = PromptPayBlue.copy(alpha = 0.05f)

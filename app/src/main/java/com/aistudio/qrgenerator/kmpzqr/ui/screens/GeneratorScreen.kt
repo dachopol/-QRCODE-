@@ -100,6 +100,7 @@ import com.aistudio.qrgenerator.kmpzqr.ui.components.QrColorCustomizerCard
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppPillShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassAccent
+import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassBorder
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.appTextFieldColors
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
@@ -154,40 +155,50 @@ fun GeneratorScreen(
                 )
             )
     ) {
-        // Scrollable generator categories keep all actions reachable on small screens.
+        // Compact, horizontally scrollable category chips keep the primary content above the fold.
         ScrollableTabRow(
             selectedTabIndex = category,
-            edgePadding = 8.dp,
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary
+            edgePadding = 12.dp,
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.primary,
+            indicator = {},
+            divider = {}
         ) {
             categories.forEachIndexed { index, pair ->
+                val selected = category == index
                 Tab(
-                    selected = category == index,
+                    selected = selected,
                     onClick = { viewModel.setGeneratorCategory(index) },
                     text = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                         ) {
                             Icon(
                                 imageVector = pair.second,
                                 contentDescription = null,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(17.dp),
+                                tint = if (selected) Color.White else MaterialTheme.colorScheme.primary
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = pair.first,
-                                fontWeight = if (category == index) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 11.sp,
-                                maxLines = 2,
-                                textAlign = TextAlign.Center
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     },
                     modifier = Modifier
-                        .clip(AppPillShape)
-                        .background(if (category == index) GlassAccent else Color.Transparent)
+                        .padding(end = 6.dp, top = 6.dp, bottom = 6.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
+                        .border(
+                            1.dp,
+                            if (selected) MaterialTheme.colorScheme.primary else GlassBorder,
+                            RoundedCornerShape(14.dp)
+                        )
                         .testTag("generator_tab_$index")
                 )
             }
@@ -273,7 +284,8 @@ private fun PromptPayForm(viewModel: MainViewModel) {
     Card(
         shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
@@ -282,13 +294,17 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF0B2853))
-                    .padding(12.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color(0xFF0B2853), Color(0xFF075985))
+                        )
+                    )
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF0284C7)),
                     contentAlignment = Alignment.Center
@@ -297,7 +313,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                         imageVector = Icons.Default.Payments,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
@@ -306,7 +322,7 @@ private fun PromptPayForm(viewModel: MainViewModel) {
                         text = localizedText("THAI QR PAYMENT • พร้อมเพย์", "THAI QR PAYMENT • PromptPay"),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 13.sp
                     )
                 }
             }
