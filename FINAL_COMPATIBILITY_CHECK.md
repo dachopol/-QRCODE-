@@ -1,11 +1,11 @@
-# QuickQR Business v17 — Compatibility Check
+# QuickQR Business v18 — Compatibility Check
 
 ## Identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
 - namespace: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `17`
-- versionName: `17.0`
+- versionCode: `18`
+- versionName: `18.0`
 - compileSdk / targetSdk: `36`
 - JDK source/target: `17`
 
@@ -68,6 +68,15 @@ Verified on code commit `d44490917c66ae6e39b8e0cc167569112597fa3e`, Android CI r
 ### Signing boundary
 The CI release bundle is unsigned because no release keystore/signing secrets are injected into the workflow. This proves release-bundle compilation, not Play Console upload readiness. Signing and Play upload remain **TO VERIFY**.
 
+
+## Current v18 source boundary — 2026-09-27
+- GitHub main HEAD used for v18 identity: `811a75c0d35edd3a643c58d22bbc325a60c438a4`.
+- Android CI run `36196245061`: PASS.
+- Debug APK artifact: PASS.
+- Release AAB artifact: PASS as an unsigned CI artifact only.
+- The physical-device and signed-AAB evidence below was produced before the v18 metadata bump and must not be relabeled as v18 evidence.
+- Exact v18 physical-device smoke test: TO VERIFY.
+- Exact v18 owner-signed AAB + Play Console upload/version acceptance: TO VERIFY.
 
 ## Physical Android QA — 2026-09-25
 Verified on a real **realme RMX3241** (Android API 33), physical display 1080×2400, density 480, 3-button system navigation, font scale 1.1.
