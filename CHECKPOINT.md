@@ -274,5 +274,13 @@ Verification:
 - Runtime identity remains v18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr`: PASS.
 - QuickQR process remained alive; no QuickQR process crash/ANR found after the cold-launch smoke.
 - The FATAL entries observed while inspecting UI were from the Android `uiautomator` shell process, not the QuickQR app.
-- End-to-end generate -> scan-back verification using a custom center image: TO VERIFY.
+- Generate/decode verification with a synthetic custom center image on realme RMX3241: PASS (`QrCenterImageScanTest`, 1/1 instrumentation test).
 - Exact release-signed v18 candidate + Play Console acceptance: TO VERIFY.
+
+
+### Center-image scan verification closure
+- Instrumentation target: physical realme RMX3241 / Android API 33.
+- Test: `com.aistudio.qrgenerator.kmpzqr.QrCenterImageScanTest`.
+- Test creates a rectangular synthetic center image, generates a QR with the image overlay, reads the produced pixels through ZXing, and asserts the decoded payload equals the original payload.
+- Gradle `:app:connectedDebugAndroidTest` with `ANDROID_SERIAL=QKLFJ7TOPVWOBQ4T`: PASS, 1 test finished.
+- No personal image or user file was used for this verification.
