@@ -11,6 +11,7 @@
 - Kept the existing QuickQR Business package ID unchanged for Play Console continuity.
 - Preserved the current QR generator/scanner, PromptPay, Wi-Fi, Store Link, Text/URL, Business Card, Location QR/map, local history, TH/EN, and region/currency flows.
 - Preserved Anti-Fake / Anti-Random rules: unavailable real data must not be replaced with fabricated values.
+- Added optional custom center image/logo for generated QR codes. Users can choose PNG/JPEG/WebP with the Android system picker; the app preserves aspect ratio, stores the selected image privately, and keeps an automatic-logo fallback.
 
 ## Verification boundary
 - GitHub `main` source identity: PASS for v18.0 / versionCode 18.

@@ -219,7 +219,7 @@ Release boundary:
 - Debug APK artifact: PASS.
 - CI release AAB: PASS as unsigned build artifact only.
 - Historical physical-device QA and local signing evidence above belong to earlier v17-era source commits; they are retained as regression evidence and are not promoted to v18 evidence.
-- Exact v18 physical-device smoke test: TO VERIFY.
+- Exact v18 physical-device debug smoke test: PASS; release-signed candidate regression remains TO VERIFY.
 - Exact v18 owner-signed AAB: TO VERIFY.
 - Play Console v18 upload/signing/versionCode acceptance: TO VERIFY.
 
@@ -253,3 +253,26 @@ Verified on realme RMX3241 using a clean install of source-aligned v18 debug APK
 - Immediate logcat FATAL EXCEPTION / app ANR scan: no match.
 - This smoke test does not prove Play release signing or Play Console acceptance.
 - Owner-signed v18 AAB + Play Console upload/version acceptance: TO VERIFY.
+
+
+## QR center image/logo — 2026-09-27
+Source feature commits: `6c0ae0488d736b76f0a9fc67728282efc57057fe` through `cc51f7a74f40b68559c85d53db97244192cbbc00`.
+
+Implemented:
+- Optional image/logo overlay at the QR center for PromptPay, Wi-Fi, Store Link, Text, Location and vCard generation.
+- User can choose PNG, JPEG or WebP through Android's system document picker; no broad storage permission is requested.
+- Selected image is decoded with downsampling, stored in app-private storage, and restored on later app launches.
+- Image aspect ratio is preserved; the image is centered on a padded white backing card rather than stretched.
+- QR generation keeps high error correction and the existing automatic center-logo fallback.
+- User can switch back to the automatic logo or disable the center image/logo.
+
+Verification:
+- Local `:app:assembleDebug`: PASS.
+- Local `:app:testDebugUnitTest`: PASS.
+- System document picker opened from the v18 app on realme RMX3241: PASS.
+- Latest v18 debug APK install-over-existing + cold launch on realme RMX3241: PASS.
+- Runtime identity remains v18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr`: PASS.
+- QuickQR process remained alive; no QuickQR process crash/ANR found after the cold-launch smoke.
+- The FATAL entries observed while inspecting UI were from the Android `uiautomator` shell process, not the QuickQR app.
+- End-to-end generate -> scan-back verification using a custom center image: TO VERIFY.
+- Exact release-signed v18 candidate + Play Console acceptance: TO VERIFY.
