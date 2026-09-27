@@ -119,6 +119,13 @@ fun GeneratorScreen(
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
     val includeCenterLogo by viewModel.includeCenterLogo.collectAsState()
+    val customCenterLogo by viewModel.customCenterLogo.collectAsState()
+
+    val centerLogoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) viewModel.setCustomCenterLogo(uri)
+    }
 
     val catPromptpay = localizedString("cat_promptpay")
     val catWifi = localizedString("cat_wifi")
@@ -239,7 +246,10 @@ fun GeneratorScreen(
                         onDarkColorChange = { viewModel.setQrForegroundColor(it) },
                         onLightColorChange = { viewModel.setQrBackgroundColor(it) },
                         includeCenterLogo = includeCenterLogo,
-                        onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) }
+                        onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) },
+                        customCenterLogoSelected = customCenterLogo != null,
+                        onPickCenterLogo = { centerLogoPicker.launch("image/*") },
+                        onClearCenterLogo = { viewModel.clearCustomCenterLogo() }
                     )
                 }
             }
