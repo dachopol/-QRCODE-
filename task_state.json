@@ -49,7 +49,9 @@
     "review_release_notes_and_internal_testing_release",
     "verify_internal_testing_availability",
     "rebuild_signed_v18_aab_from_current_main_after_upload_key_activation",
-    "real_device_smoke_visual_polish_commit"
+    "real_device_smoke_visual_polish_commit",
+    "create_or_supply_1024x500_feature_graphic_for_play_store",
+    "verify_visual_polish_on_realme_after_user_unlocks_device"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
@@ -65,5 +67,25 @@
     "instrumented_tests": "3/3 PASS",
     "emulator_smoke": "PASS",
     "real_device_smoke": "TO VERIFY"
+  },
+  "store_listing": {
+    "play_app": "QuickQR Business",
+    "package": "com.aistudio.qrgenerator.kmpzqr",
+    "app_icon": "PASS - canonical 512x512 asset saved as draft",
+    "phone_screenshots": "PASS - 2 real 1080x1920 screenshots saved as draft",
+    "screenshots": [
+      "Generate QR",
+      "Digital Business Card"
+    ],
+    "feature_graphic": "GAP - 1024x500 still required",
+    "draft_saved": true
+  },
+  "real_device": {
+    "latest_main_debug_install": "PASS",
+    "versionName": "18.0",
+    "versionCode": 18,
+    "launch": "PASS",
+    "immediate_crash_anr": "PASS",
+    "visual_inspection": "TO VERIFY - secure device lock prevented screen inspection"
   }
 }
