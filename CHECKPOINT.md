@@ -403,3 +403,21 @@ Verification:
 - This candidate is current for HEAD `9c48bb7...` and supersedes the older stale AAB.
 - Safe reuse rule: after Play upload-key activation, reuse this exact AAB only if GitHub `main` is still `9c48bb7...`. If HEAD changes, rebuild/sign/verify from the new `main` before upload.
 - Upload remains blocked by Play Console until 2026-09-28 06:32:10 ICT; no early upload attempt was made.
+
+
+## Branded start screen visibility fix — 2026-09-27
+- Build-relevant source commit: `aa907717b74216848e3d0d0d87c8c0dfb1a8b1ef`.
+- Root cause found during real emulator verification: Android's system splash remained visible long enough to consume the old fixed 900 ms Compose splash timer, so the branded QuickQR start page could be skipped visually.
+- Fix: the 900 ms branded start-screen timer now begins after the first app frame is actually drawn, using a first-draw listener rather than an arbitrary startup delay.
+- System splash remains Android-controlled and may show the adaptive icon as a circle. Immediately after it, the app now visibly shows the canonical rounded-square QuickQR mark, `QuickQR Business`, and `by AnakinYoo`.
+- Visual verification on emulator: PASS. The rounded-square branded start screen was observed, then transitioned normally to the main app.
+- Main screen header continues to use the same navy→blue QuickQR mark as launcher/store branding.
+- Local `:app:assembleDebug` + `:app:testDebugUnitTest`: PASS.
+- Emulator `:app:connectedDebugAndroidTest`: **3/3 PASS**.
+- `git diff --check`: PASS before commit.
+- Fresh signed v18 AAB built from `aa907717...`: PASS.
+- Candidate filename: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- Signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
+- `jarsigner -verify`: PASS, exit 0.
+- AAB SHA-256: `E91BD74E0CE5BC487738B4EDC4893D48AA810F3A99F91EBFCD883C922F191D24`.
+- This candidate supersedes all prior v18 AAB candidates.
