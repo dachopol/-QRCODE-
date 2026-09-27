@@ -122,7 +122,7 @@ fun GeneratorScreen(
     val customCenterLogo by viewModel.customCenterLogo.collectAsState()
 
     val centerLogoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri != null) viewModel.setCustomCenterLogo(uri)
     }
@@ -248,7 +248,9 @@ fun GeneratorScreen(
                         includeCenterLogo = includeCenterLogo,
                         onIncludeCenterLogoChange = { viewModel.setIncludeCenterLogo(it) },
                         customCenterLogoSelected = customCenterLogo != null,
-                        onPickCenterLogo = { centerLogoPicker.launch("image/*") },
+                        onPickCenterLogo = {
+                            centerLogoPicker.launch(arrayOf("image/png", "image/jpeg", "image/webp"))
+                        },
                         onClearCenterLogo = { viewModel.clearCustomCenterLogo() }
                     )
                 }
