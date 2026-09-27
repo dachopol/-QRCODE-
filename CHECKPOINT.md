@@ -299,3 +299,22 @@ Verification:
 - `jarsigner -verify -strict` returns exit code 4 because the Android upload certificate is self-signed / has no public PKIX trust chain and no timestamp. This is recorded as a verification warning and is not relabeled as a standard-signature failure.
 - QR center-image generation/decode instrumentation is already recorded above as PASS.
 - Play Console upload / upload-key acceptance / versionCode acceptance for this exact AAB: TO VERIFY.
+
+
+## Play Console identity + upload-key activation gate — 2026-09-27
+- Correct Play Console app for this repository: **QuickQR Business**.
+- Correct Play package: `com.aistudio.qrgenerator.kmpzqr`.
+- A separate Play app named **QR Scanners** uses package `com.anakinyoo.qrscanners`; it is not the target for this repository. Any temporary draft/upload attempt made there was cancelled and no release was published.
+- Current source HEAD at release-candidate verification: `0d7ed389c1a38c62ca117334c2e00656f0058ea4`.
+- Current release identity: versionName `18.0`, versionCode `18`, targetSdk `36`.
+- Current QuickQR release candidate: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- QuickQR AAB signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
+- QuickQR AAB SHA-256: `E5046275A6F23DFEF049BE13B659850D6A9B25694C018AC8A9366F123FBC89DA`.
+- Local `:app:bundleRelease`: PASS.
+- Standard `jarsigner -verify`: PASS / exit code 0.
+- GitHub Android CI run `36290883552` for HEAD `0d7ed389...`: PASS.
+- QuickQR Business Internal Testing currently has active v17 evidence and an existing v18 draft.
+- Play Console accepted the QuickQR package context but temporarily blocks uploading the reset upload certificate until **2026-09-27 23:32:10 UTC** (2026-09-28 06:32:10 ICT / Thailand).
+- Console message states the upload certificate was reset recently and is not usable before that timestamp.
+- The temporarily blocked AAB was removed from the draft; do not change package ID or create/reset another upload key in response to this temporary gate.
+- Next safe action after the activation time: re-upload the exact current v18 candidate (or rebuild from the then-current `main` if HEAD changes), verify package/version/signature acceptance, review release notes, and proceed only to **Internal Testing**. Production publication remains out of scope until the production gate is explicitly completed.
