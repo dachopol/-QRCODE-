@@ -4,7 +4,7 @@
   "branch": "main",
   "source_of_truth": "GitHub main",
   "current_task_id": "play-internal-v18-upload",
-  "status": "blocked_until_upload_key_activation",
+  "status": "ready_except_play_upload_key_activation_and_final_release_validation",
   "release_identity": {
     "applicationId": "com.aistudio.qrgenerator.kmpzqr",
     "versionName": "18.0",
@@ -18,7 +18,8 @@
     "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
     "jarsigner": "PASS",
     "stale_after_visual_polish": true,
-    "rebuild_required_from_current_main": true
+    "rebuild_required_from_current_main": true,
+    "current_main_for_next_release": "77cd50b9a905fe34e0d70658e285be29a776e383"
   },
   "play_console": {
     "target_app": "QuickQR Business",
@@ -49,8 +50,6 @@
     "review_release_notes_and_internal_testing_release",
     "verify_internal_testing_availability",
     "rebuild_signed_v18_aab_from_current_main_after_upload_key_activation",
-    "real_device_smoke_visual_polish_commit",
-    "create_or_supply_1024x500_feature_graphic_for_play_store",
     "verify_visual_polish_on_realme_after_user_unlocks_device",
     "after upload-key activation rebuild and sign from current main",
     "upload v18 to QuickQR Business Internal Testing",
@@ -118,5 +117,20 @@
     "opt_in_url": "https://play.google.com/apps/internaltest/4701595451590105540",
     "tester_config_saved": true,
     "email_timing": "after v18 is available on Internal Testing only"
+  },
+  "latest_readiness_check": {
+    "checked_at": "2026-09-27",
+    "source_head": "77cd50b9a905fe34e0d70658e285be29a776e383",
+    "android_ci": "PASS",
+    "pages_ci": "PASS",
+    "source_of_truth": "PASS",
+    "build_test_evidence": "PASS",
+    "logo_consistency": "PASS",
+    "store_assets": "PASS",
+    "store_listing_en_th": "PASS",
+    "tester_lists": "PASS",
+    "internal_v18_release": "BLOCKED until upload key activation + rebuild from current main",
+    "real_device_visual_inspection": "TO VERIFY after user unlocks device",
+    "production": "NOT TOUCHED"
   }
 }
