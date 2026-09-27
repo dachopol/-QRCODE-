@@ -4,7 +4,7 @@
 - Repository: `dachopol/-QRCODE-`
 - Branch: `main`
 - Version source: `app/build.gradle.kts`
-- Version: `17.0` / versionCode `17`
+- Version: `18.0` / versionCode `18`
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
 - namespace: `com.aistudio.qrgenerator.kmpzqr`
 
@@ -209,3 +209,16 @@ Release boundary:
 - Local signed AAB: PASS
 - Play Console upload-key registration / reset (if an older upload key already exists): TO VERIFY
 - Play Console upload / signing / versionCode acceptance: TO VERIFY
+
+
+## Current v18 source checkpoint — 2026-09-27
+- Source of Truth: `dachopol/-QRCODE-` / `main`.
+- Current source identity: v18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr`.
+- Current main HEAD verified before this documentation cleanup: `811a75c0d35edd3a643c58d22bbc325a60c438a4`.
+- Android CI run `36196245061`: PASS.
+- Debug APK artifact: PASS.
+- CI release AAB: PASS as unsigned build artifact only.
+- Historical physical-device QA and local signing evidence above belong to earlier v17-era source commits; they are retained as regression evidence and are not promoted to v18 evidence.
+- Exact v18 physical-device smoke test: TO VERIFY.
+- Exact v18 owner-signed AAB: TO VERIFY.
+- Play Console v18 upload/signing/versionCode acceptance: TO VERIFY.
