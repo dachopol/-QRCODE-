@@ -2,6 +2,7 @@ package com.aistudio.qrgenerator.kmpzqr
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -140,8 +141,70 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _includeCenterLogo = MutableStateFlow(true)
     val includeCenterLogo: StateFlow<Boolean> = _includeCenterLogo.asStateFlow()
 
+    private val _customCenterLogo = MutableStateFlow<Bitmap?>(null)
+    val customCenterLogo: StateFlow<Bitmap?> = _customCenterLogo.asStateFlow()
+
     fun setIncludeCenterLogo(enabled: Boolean) {
         _includeCenterLogo.value = enabled
+    }
+
+    fun setCustomCenterLogo(uri: Uri?) {
+        if (uri == null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val bitmap = decodeCenterLogo(uri)
+            withContext(Dispatchers.Main) {
+                if (bitmap != null) {
+                    _customCenterLogo.value = bitmap
+                    _includeCenterLogo.value = true
+                    Toast.makeText(
+                        getApplication(),
+                        localizedNow("ใช้ตราร้านตรงกลาง QR แล้ว", "Custom center logo selected"),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        getApplication(),
+                        localizedNow("ไม่สามารถอ่านรูปตราร้านได้", "Unable to read the selected logo"),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    fun clearCustomCenterLogo() {
+        _customCenterLogo.value = null
+    }
+
+    private fun decodeCenterLogo(uri: Uri): Bitmap? {
+        val resolver = getApplication<Application>().contentResolver
+        return try {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            resolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, bounds)
+            }
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+            var sample = 1
+            while (bounds.outWidth / sample > 512 || bounds.outHeight / sample > 512) {
+                sample *= 2
+            }
+
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = sample
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+            resolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, options)
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun centerLogoFor(type: String): Bitmap? {
+        if (!_includeCenterLogo.value) return null
+        return _customCenterLogo.value ?: QrCodeUtil.createDefaultCenterLogo(type)
     }
 
     // History flows from Room - Lazily loaded on demand when user opens History tab
@@ -383,7 +446,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         executeQrAction {
             val amount = _promptPayAmount.value.toDoubleOrNull()
             val payload = PromptPayGenerator.generatePayload(target, amount)
-            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("PROMPTPAY") else null
+            val centerLogo = centerLogoFor("PROMPTPAY")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
                 size = QrCodeUtil.DEFAULT_SIZE,
@@ -467,7 +530,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 security = _wifiSecurity.value.code,
                 isHidden = _wifiHidden.value
             )
-            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("WIFI") else null
+            val centerLogo = centerLogoFor("WIFI")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
                 size = QrCodeUtil.DEFAULT_SIZE,
@@ -525,7 +588,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         executeQrAction {
-            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("STORE") else null
+            val centerLogo = centerLogoFor("STORE")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = fullUrl,
                 size = QrCodeUtil.DEFAULT_SIZE,
@@ -572,11 +635,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         executeQrAction {
             val payload = LocationQrUtil.buildGeoPayload(point)
-            val centerLogo = if (_includeCenterLogo.value) {
-                QrCodeUtil.createDefaultCenterLogo("LOCATION")
-            } else {
-                null
-            }
+            val centerLogo = centerLogoFor("LOCATION")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = payload,
                 size = QrCodeUtil.DEFAULT_SIZE,
@@ -619,7 +678,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         executeQrAction {
-            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("TEXT") else null
+            val centerLogo = centerLogoFor("TEXT")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = text,
                 size = QrCodeUtil.DEFAULT_SIZE,
@@ -681,7 +740,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 note = noteContent
             )
 
-            val centerLogo = if (_includeCenterLogo.value) QrCodeUtil.createDefaultCenterLogo("VCARD") else null
+            val centerLogo = centerLogoFor("VCARD")
             val qrBitmap = QrCodeUtil.generateQrBitmap(
                 content = vcard,
                 size = QrCodeUtil.DEFAULT_SIZE,
