@@ -369,3 +369,24 @@ Verification:
 - Button `ส่งแอปเข้ารับการตรวจสอบ` is currently disabled. This is expected while no eligible release is ready to submit together.
 - Dashboard still shows 10/11 for the app/store setup checklist even though Store Listing content is staged; treat this as pending final review/release submission, not as missing Store asset/content.
 - No Production release was created or submitted in this work.
+
+
+## Thai Store listing + Internal tester activation — 2026-09-27
+- Play Console Store Listing language management updated without using AI translation.
+- Thai locale `th` added to QuickQR Business.
+- Thai app name: `QuickQR Business` (16/30).
+- Thai short description populated from `STORE_LISTING_TH_EN.md`: 69/80.
+- Thai full description populated from `STORE_LISTING_TH_EN.md`: 906/4000.
+- Thai listing save: PASS; Play Console confirmed draft changes saved.
+- Thai listing advanced to **Step 2/2: Review**: PASS.
+- Play Console stated the Thai changes were saved and staged for Publishing overview; no review submission or Production publication was performed.
+- Internal Testing tester configuration rechecked on QuickQR Business.
+- Existing tester email lists and entry counts shown by Play Console:
+  - `AI_Studio-dd19ec8b-1e27-4576-b0a1-db8d8ec6ea38`: 4 entries
+  - `AI_Studio-f612d93e-bc92-4b61-91a9-1613eecac4b1`: 1 entry
+  - `QR Scanners Internal`: 1 entry
+- All 3 tester lists are now enabled for QuickQR Business Internal Testing: PASS.
+- Total configured list entries: 6. This is a list-entry count, not a proven unique-person count because duplicates across lists were not checked.
+- Internal-test opt-in URL verified in Play Console: `https://play.google.com/apps/internaltest/4701595451590105540`.
+- Tester configuration was saved successfully.
+- Do not email testers before v18 becomes available on Internal Testing. After v18 availability, use only the enabled Play tester lists and the verified opt-in URL.
