@@ -3,8 +3,8 @@
 ## ข้อมูลแอป
 - ชื่อแอป: QuickQR Business
 - Application ID / Package: `com.aistudio.qrgenerator.kmpzqr`
-- Version name: `17.0`
-- Version code: `17`
+- Version name: `18.0`
+- Version code: `18`
 - ประเภท: แอปสแกนและสร้าง QR Code สำหรับธุรกิจ
 
 ## คำอธิบายสั้น
@@ -47,12 +47,12 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 - ประเทศ/พื้นที่สำหรับการทดสอบ: [เลือกตามที่ต้องการ]
 
 ## Release notes สำหรับ Internal/Closed testing
-QuickQR Business v17.0 testing build: ปรับชื่อแอปและข้อมูลเวอร์ชันให้ตรงกัน ปิดระบบโฆษณา/กระเป๋าเงิน/การชำระเงินจำลองสำหรับการทดสอบ และเปิดฟังก์ชัน QR หลักให้ผู้ทดสอบใช้งานได้โดยไม่ต้องชำระเงิน
+QuickQR Business v18.0 testing build: ปรับชื่อแอปและข้อมูลเวอร์ชันให้ตรงกัน ปิดระบบโฆษณา/กระเป๋าเงิน/การชำระเงินจำลองสำหรับการทดสอบ และเปิดฟังก์ชัน QR หลักให้ผู้ทดสอบใช้งานได้โดยไม่ต้องชำระเงิน
 
 ## เช็กลิสต์ก่อนอัปโหลด AAB
 1. สร้าง AAB ด้วย release signing ที่ถูกต้อง
 2. ตรวจว่า package ยังเป็น `com.aistudio.qrgenerator.kmpzqr`
-3. ตรวจว่า versionCode เป็น 17 และมากกว่า build ที่เคยอัปโหลด
+3. ตรวจว่า versionCode เป็น 18 และมากกว่า build ที่เคยอัปโหลด
 4. กล้องจริงผ่าน physical-device QA แล้ว; ทดสอบซ้ำบน release-signed build ก่อนอัปโหลด
 5. ทดสอบ Generator: PromptPay / Wi‑Fi / Store Link / Text / Business Card
 6. ทดสอบบันทึกและแชร์ภาพ QR
@@ -61,14 +61,23 @@ QuickQR Business v17.0 testing build: ปรับชื่อแอปและ
 
 
 ## Submission pack
-Use these current v17 documents together:
+Use these current v18 documents together:
 - `PLAY_CONSOLE_SUBMISSION_PACK.md`
 - `STORE_LISTING_TH_EN.md`
-- `DATA_SAFETY_V17.md`
+- `DATA_SAFETY_V18.md`
 - `PRIVACY_POLICY_TH_EN.md`
 - `docs/privacy-policy.html`
 
 Owner-only fields still required before Play review:
 - Real monitored support email: chenkung12@gmail.com
 - Final target-audience/category confirmation
-- Store graphics/screenshots from current v17
+- Store graphics/screenshots from current v18
+
+
+## v18 verification boundary — 2026-09-27
+- Current GitHub source is v18.0 / versionCode 18.
+- Android CI for current v18 source is PASS.
+- Current CI release AAB is unsigned and is not Play-upload-ready.
+- Existing physical-device QA evidence was produced on v17 builds and remains valid only as historical/regression evidence.
+- Install/runtime smoke test of the exact v18 release-signed build: TO VERIFY.
+- Play Console signing/upload/versionCode acceptance for v18: TO VERIFY.
