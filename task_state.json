@@ -16,7 +16,9 @@
     "filename": "QuickQR-Business-v18.0-code18-quickqrkey.aab",
     "sha256": "E5046275A6F23DFEF049BE13B659850D6A9B25694C018AC8A9366F123FBC89DA",
     "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
-    "jarsigner": "PASS"
+    "jarsigner": "PASS",
+    "stale_after_visual_polish": true,
+    "rebuild_required_from_current_main": true
   },
   "play_console": {
     "target_app": "QuickQR Business",
@@ -45,11 +47,23 @@
     "reupload_v18_aab_to_quickqr_internal_testing_after_key_activation",
     "verify_play_package_version_signature_acceptance",
     "review_release_notes_and_internal_testing_release",
-    "verify_internal_testing_availability"
+    "verify_internal_testing_availability",
+    "rebuild_signed_v18_aab_from_current_main_after_upload_key_activation",
+    "real_device_smoke_visual_polish_commit"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
   ],
   "anti_random": true,
-  "pushed": true
+  "pushed": true,
+  "visual_polish": {
+    "code_commit": "7b95de5aa5c506ec54aa44f78917e4f479c030b5",
+    "logo_consistency": "PASS",
+    "play_store_asset": "store-assets/play_store_icon_512.png",
+    "build": "PASS",
+    "unit_tests": "PASS",
+    "instrumented_tests": "3/3 PASS",
+    "emulator_smoke": "PASS",
+    "real_device_smoke": "TO VERIFY"
+  }
 }
