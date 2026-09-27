@@ -27,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -112,6 +113,9 @@ fun QrColorCustomizerCard(
     onLightColorChange: (Color) -> Unit,
     includeCenterLogo: Boolean = true,
     onIncludeCenterLogoChange: ((Boolean) -> Unit)? = null,
+    customCenterLogoSelected: Boolean = false,
+    onPickCenterLogo: (() -> Unit)? = null,
+    onClearCenterLogo: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isBgDark = lightColor == Color(0xFF18181B)
@@ -192,24 +196,64 @@ fun QrColorCustomizerCard(
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        Text(
-                            text = localizedText("ตรากลาง QR", "Center logo"),
-                            modifier = Modifier.weight(1f),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Switch(
-                            checked = includeCenterLogo,
-                            onCheckedChange = { onIncludeCenterLogoChange(it) }
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = localizedText("ตรากลาง QR", "Center logo"),
+                                modifier = Modifier.weight(1f),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Switch(
+                                checked = includeCenterLogo,
+                                onCheckedChange = { onIncludeCenterLogoChange(it) }
+                            )
+                        }
+
+                        if (includeCenterLogo && onPickCenterLogo != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                OutlinedButton(
+                                    onClick = onPickCenterLogo,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        if (customCenterLogoSelected)
+                                            localizedText("เปลี่ยนตราร้าน", "Change logo")
+                                        else
+                                            localizedText("เลือกตราร้าน", "Choose logo"),
+                                        fontSize = 11.sp
+                                    )
+                                }
+                                if (customCenterLogoSelected && onClearCenterLogo != null) {
+                                    OutlinedButton(onClick = onClearCenterLogo) {
+                                        Text(localizedText("ตราอัตโนมัติ", "Auto logo"), fontSize = 11.sp)
+                                    }
+                                }
+                            }
+                            Text(
+                                text = localizedText(
+                                    "ระบบจะย่อรูปให้อยู่กลาง QR และรักษาสัดส่วนภาพ",
+                                    "The image is safely resized and centered without distortion"
+                                ),
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 6.dp)
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
