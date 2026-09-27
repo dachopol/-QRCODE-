@@ -337,3 +337,17 @@ Verification:
 - Final emulator visual inspection: no visible overflow on the tested portrait layout; brand title, version, language/currency control, compact category chips, form card, CTA, and bottom navigation remain readable and reachable.
 - Real-device smoke for this exact visual-polish commit: TO VERIFY. Earlier v18 real-device smoke remains valid for the pre-polish build only.
 - IMPORTANT: the previously generated signed v18 AAB predates visual commit `7b95de5` and is now stale. Rebuild/sign from the then-current `main` after the Play upload-key activation gate before the next Internal Testing upload.
+
+
+## Store listing brand alignment + screenshot readiness — 2026-09-27
+- Play Console target verified again: **QuickQR Business** / package `com.aistudio.qrgenerator.kmpzqr`.
+- Store app icon source: canonical `store-assets/play_store_icon_512.png` from current repository branding.
+- Play Console app icon slot now contains the canonical navy→blue QuickQR QR mark and was saved as a draft: PASS.
+- Store phone screenshots were captured from the real v18 app running on emulator at exact 1080×1920 (9:16), without fabricated result data.
+- Two screenshots were attached to the phone screenshot slot and saved as draft: `Generate QR` and `Digital Business Card`: PASS.
+- A third History screenshot was intentionally removed because it showed an empty state and was less useful for store presentation.
+- Play Console now shows two phone screenshots in the required phone screenshot section: PASS.
+- Feature graphic (required 1024×500) is still empty: GAP / TO CREATE.
+- Store draft save confirmation was observed after both the icon and screenshot changes: PASS.
+- Realme physical device: current `main` debug build installed successfully with versionName `18.0`, versionCode `18`; MainActivity launch succeeded and no immediate FATAL/ANR was observed.
+- Realme screen was protected by secure lock while the app was foregrounded, so visual inspection of the exact polish commit on the physical screen remains TO VERIFY; no attempt was made to bypass the device lock.
