@@ -4,7 +4,7 @@
   "branch": "main",
   "source_of_truth": "GitHub main",
   "current_task_id": "play-internal-v18-upload",
-  "status": "ready_except_play_upload_key_activation_and_final_release_validation",
+  "status": "ready_for_internal_upload_after_upload_key_activation",
   "release_identity": {
     "applicationId": "com.aistudio.qrgenerator.kmpzqr",
     "versionName": "18.0",
@@ -12,14 +12,15 @@
     "targetSdk": 36
   },
   "release_candidate": {
-    "source_commit": "0d7ed389c1a38c62ca117334c2e00656f0058ea4",
+    "source_commit": "9c48bb719d8798468b6ba931e7463488c6ac52a1",
     "filename": "QuickQR-Business-v18.0-code18-quickqrkey.aab",
-    "sha256": "E5046275A6F23DFEF049BE13B659850D6A9B25694C018AC8A9366F123FBC89DA",
+    "sha256": "3E368DDA1CFDD40A6AA0AB420CF87FF5350F4CA01F84BAD7EAC3F0F25D0F5E53",
     "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
     "jarsigner": "PASS",
-    "stale_after_visual_polish": true,
-    "rebuild_required_from_current_main": true,
-    "current_main_for_next_release": "77cd50b9a905fe34e0d70658e285be29a776e383"
+    "build": "PASS",
+    "stale_after_visual_polish": false,
+    "rebuild_required_from_current_main": false,
+    "reuse_only_if_main_unchanged": true
   },
   "play_console": {
     "target_app": "QuickQR Business",
@@ -44,22 +45,20 @@
     "checkpoint_updated"
   ],
   "pending": [
-    "rebuild_from_current_main_if_head_changes_after_activation",
     "reupload_v18_aab_to_quickqr_internal_testing_after_key_activation",
     "verify_play_package_version_signature_acceptance",
     "review_release_notes_and_internal_testing_release",
     "verify_internal_testing_availability",
-    "rebuild_signed_v18_aab_from_current_main_after_upload_key_activation",
     "verify_visual_polish_on_realme_after_user_unlocks_device",
-    "after upload-key activation rebuild and sign from current main",
     "upload v18 to QuickQR Business Internal Testing",
     "verify Play accepts versionCode/signature",
     "recheck publishing overview and app-review submission availability",
     "do not publish Production",
-    "after upload-key activation rebuild/sign from current main",
     "verify Play acceptance of package versionCode and signer",
     "confirm v18 availability to testers",
-    "send tester email only after v18 availability"
+    "send tester email only after v18 availability",
+    "after upload-key activation verify main head",
+    "if main unchanged use verified candidate; otherwise rebuild/sign from current main"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
