@@ -1,6 +1,7 @@
 package com.aistudio.qrgenerator.kmpzqr
 
 import android.os.Bundle
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,7 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +58,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
 import com.aistudio.qrgenerator.kmpzqr.ui.components.LanguageAndCurrencyDialog
 import com.aistudio.qrgenerator.kmpzqr.ui.components.QrPreviewDialog
 import com.aistudio.qrgenerator.kmpzqr.ui.components.RootSecurityWarningDialog
@@ -95,10 +96,35 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 var showSplash by remember { mutableStateOf(true) }
+                val rootView = LocalView.current
 
-                LaunchedEffect(Unit) {
-                    delay(900)
-                    showSplash = false
+                DisposableEffect(rootView) {
+                    var firstDrawHandled = false
+                    val hideSplash = Runnable { showSplash = false }
+                    val firstDrawListener = object : ViewTreeObserver.OnDrawListener {
+                        override fun onDraw() {
+                            if (firstDrawHandled) return
+                            firstDrawHandled = true
+
+                            // Android removes its system splash after this first app draw.
+                            // Start our branded-screen timer now so it is actually visible.
+                            rootView.postDelayed(hideSplash, 900L)
+                            rootView.post {
+                                if (rootView.viewTreeObserver.isAlive) {
+                                    rootView.viewTreeObserver.removeOnDrawListener(this)
+                                }
+                            }
+                        }
+                    }
+
+                    rootView.viewTreeObserver.addOnDrawListener(firstDrawListener)
+
+                    onDispose {
+                        rootView.removeCallbacks(hideSplash)
+                        if (rootView.viewTreeObserver.isAlive) {
+                            rootView.viewTreeObserver.removeOnDrawListener(firstDrawListener)
+                        }
+                    }
                 }
 
                 if (showSplash) {
