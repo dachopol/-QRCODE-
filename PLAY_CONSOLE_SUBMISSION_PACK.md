@@ -1,6 +1,6 @@
 # QuickQR Business — Google Play Console Submission Pack
 
-Last verified against source: v17.0 / versionCode 17
+Last verified against source: v18.0 / versionCode 18
 Package: `com.aistudio.qrgenerator.kmpzqr`
 Target SDK: 36
 Min SDK: 24
@@ -9,8 +9,8 @@ Min SDK: 24
 - App name: QuickQR Business
 - Developer / brand: AnakinYoo
 - Package: `com.aistudio.qrgenerator.kmpzqr`
-- Version name: `17.0`
-- Version code: `17`
+- Version name: `18.0`
+- Version code: `18`
 - Category: **Business** (recommended for current positioning)
 - App type: App
 - Pricing: Free for current testing build
@@ -21,16 +21,16 @@ Use the copy in `STORE_LISTING_TH_EN.md`.
 Required graphics/assets:
 - App icon: 512×512 PNG
 - Feature graphic: 1024×500
-- Phone screenshots: use screenshots from the current v17 build only
+- Phone screenshots: use screenshots from the current v18 build only
 - Do not use screenshots from v13/v14/v16 or AI Studio stale preview
 
 ## 3. App access
-Recommended Play Console answer for current v17:
+Recommended Play Console answer for current v18:
 - Does all or part of the app require login, membership, location restriction, or special credentials? **No**
 - Reviewer instructions: **No login required. All core QR functions are available immediately after install. Camera permission is requested only when scanning; foreground location permission is requested only when the user opens the Location QR/map feature.**
 
 ## 4. Ads
-Current v17:
+Current v18:
 - Contains ads: **No**
 - Google Mobile Ads SDK: **Not present**
 - Simulated ad / VIP / Wallet / TopUp flows: **Disabled / not in runtime**
@@ -38,7 +38,7 @@ Current v17:
 If AdMob is added later, this declaration and Privacy/Data Safety must be updated before release.
 
 ## 5. In-app purchases / subscriptions
-Current v17:
+Current v18:
 - Google Play Billing SDK: **Not present**
 - Purchases / subscriptions: **No**
 - Paid unlock / ad-free entitlement: **No in current runtime**
@@ -53,11 +53,11 @@ The app does not declare `android.permission.ACCESS_BACKGROUND_LOCATION`.
 
 Other source facts:
 - Camera hardware is optional.
-- No `INTERNET` permission in current v17.
+- No `INTERNET` permission in current v18.
 - Android backup is disabled.
 
 ## 7. Data safety
-Use `DATA_SAFETY_V17.md`.
+Use `DATA_SAFETY_V18.md`.
 
 Current source-based assessment:
 - App-controlled off-device collection: **None identified**
@@ -93,7 +93,7 @@ Recommended selection, subject to owner confirmation:
 If you intend to market the app to children or teens, re-answer this section and re-review Families policies.
 
 ## 10. Content rating preparation
-Based on current v17 source, expected questionnaire answers are:
+Based on current v18 source, expected questionnaire answers are:
 - Violence: No
 - Sexual content / nudity: No
 - Strong language: No
@@ -113,7 +113,7 @@ PromptPay is a QR payload generator.
 - The app does not process funds, hold balances, approve payments, or verify bank settlement.
 - Do not describe QuickQR as a bank, wallet, payment processor, or money transfer service.
 
-Crypto QR is roadmap-only and is **not enabled in v17 runtime**.
+Crypto QR is roadmap-only and is **not enabled in v18 runtime**.
 
 ## 12. App category / tags
 Recommended:
@@ -123,9 +123,9 @@ Recommended:
 
 ## 13. Testing / reviewer checklist
 Before production:
-1. Install the exact v17 AAB/APK intended for Play.
+1. Install the exact v18 AAB/APK intended for Play.
 2. Splash shows QuickQR Business / by AnakinYoo.
-3. Header shows v17.0.
+3. Header shows v18.0.
 4. Generate PromptPay with valid 10-digit Thai mobile number.
 5. PromptPay rejects invalid short number with specific error.
 6. Generate Wi-Fi QR.
@@ -144,10 +144,10 @@ Before production:
 
 ## 14. Release notes — Internal / Closed testing
 **Thai**
-QuickQR Business v17.0 ปรับความสอดคล้องของภาษา TH/EN, แก้การตรวจสอบหมายเลข PromptPay, เพิ่มหน้าเริ่มต้น QuickQR Business by AnakinYoo, ปรับ responsive UI และทำความสะอาดไฟล์เก่า โดยยังคงฟังก์ชันสร้าง/สแกน QR, นามบัตร และประวัติในเครื่อง
+QuickQR Business v18.0 ปรับความสอดคล้องของภาษา TH/EN, แก้การตรวจสอบหมายเลข PromptPay, เพิ่มหน้าเริ่มต้น QuickQR Business by AnakinYoo, ปรับ responsive UI และทำความสะอาดไฟล์เก่า โดยยังคงฟังก์ชันสร้าง/สแกน QR, นามบัตร และประวัติในเครื่อง
 
 **English**
-QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, responsive UI, and startup branding. It also removes superseded project files while preserving QR generation, scanning, business cards, and local history.
+QuickQR Business v18.0 improves TH/EN consistency, PromptPay number validation, responsive UI, and startup branding. It also removes superseded project files while preserving QR generation, scanning, business cards, and local history.
 
 ## 15. Submission blockers — must be completed by owner
 - [x] Support email recorded in project documents: chenkung12@gmail.com
@@ -158,7 +158,7 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 - [ ] Final category confirmation
 - [ ] Store icon 512×512
 - [ ] Feature graphic 1024×500
-- [ ] Current v17 phone screenshots
+- [ ] Current v18 phone screenshots
 - [ ] Production countries/regions
 - [ ] Release signing / upload key
 - [x] AAB generated from current main by CI; current CI artifact is intentionally unsigned and not Play-upload-ready
@@ -170,7 +170,7 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 ## 16. ขั้นตอนดำเนินการต่อ — ตรวจเอกสาร 24 September 2026
 
 ### ตรวจแล้วจากไฟล์ main ในรอบนี้
-- `app/build.gradle.kts`: versionName 17.0 / versionCode 17 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
+- `app/build.gradle.kts`: versionName 18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
 - `app/src/main/AndroidManifest.xml`: CAMERA, camera optional, allowBackup=false; ไม่พบ INTERNET ใน manifest ต้นทางนี้
 - Privacy Policy ทั้ง Markdown และ HTML มี `chenkung12@gmail.com` ตรงกัน การมีอีเมลในเอกสารไม่ได้ยืนยันว่ารับเมลได้จริง
 - การตรวจนี้เป็น source/document review ไม่ใช่ผลตรวจ merged manifest, final AAB, CI หรืออุปกรณ์จริง
@@ -194,3 +194,11 @@ QuickQR Business v17.0 improves TH/EN consistency, PromptPay number validation, 
 
 Official reference: https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
 Google Play requires a publicly accessible privacy policy URL and a privacy policy link or text inside the app.
+
+
+## 17. v18 release boundary — 27 September 2026
+- Current GitHub source identity is v18.0 / versionCode 18.
+- Android CI run `36196245061` for the v18 metadata head completed successfully.
+- CI provides a debug APK and an unsigned release AAB artifact.
+- The previously verified local signed AAB belongs to an earlier source commit and is not evidence that the exact v18 bundle is signed.
+- Before Play upload: build/sign the exact v18 AAB with the owner-controlled upload key, verify its package/version/signature, install/smoke-test the corresponding v18 build on a physical device, then verify Play Console acceptance.
