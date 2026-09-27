@@ -390,3 +390,16 @@ Verification:
 - Internal-test opt-in URL verified in Play Console: `https://play.google.com/apps/internaltest/4701595451590105540`.
 - Tester configuration was saved successfully.
 - Do not email testers before v18 becomes available on Internal Testing. After v18 availability, use only the enabled Play tester lists and the verified opt-in URL.
+
+
+## Fresh signed v18 candidate from current main — 2026-09-27
+- Source HEAD used for release build: `9c48bb719d8798468b6ba931e7463488c6ac52a1`.
+- Release build command: `:app:bundleRelease --no-daemon`.
+- Release build result: **PASS** (`BUILD SUCCESSFUL`).
+- Signed candidate: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- Signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
+- `jarsigner -verify`: **PASS**, exit code 0.
+- AAB SHA-256: `3E368DDA1CFDD40A6AA0AB420CF87FF5350F4CA01F84BAD7EAC3F0F25D0F5E53`.
+- This candidate is current for HEAD `9c48bb7...` and supersedes the older stale AAB.
+- Safe reuse rule: after Play upload-key activation, reuse this exact AAB only if GitHub `main` is still `9c48bb7...`. If HEAD changes, rebuild/sign/verify from the new `main` before upload.
+- Upload remains blocked by Play Console until 2026-09-28 06:32:10 ICT; no early upload attempt was made.
