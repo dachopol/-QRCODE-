@@ -2,15 +2,54 @@
   "project": "QuickQR Business",
   "repository": "dachopol/-QRCODE-",
   "branch": "main",
-  "base_commit": "0d158c5493b3aebc490a004a7c38fe8ad20ad470",
-  "current_task_id": "canva-full-app-ui",
-  "status": "awaiting_device_validation",
-  "validated_commit": "e4137da3260fdf65f9d687a384d97afde4789f03",
-  "ci_run": "https://github.com/dachopol/-QRCODE-/actions/runs/36081108095",
-  "ci_result": "assembleDebug and testDebugUnitTest passed; debug APK uploaded",
-  "completed": ["verified_remote_base_ci", "fixed_wifi_escape_parsing", "added_three_regression_tests", "localized_wifi_placeholders_and_store_platform_text", "reviewed_canva_thumbnail", "implemented_form_first_layout_and_collapsible_appearance", "fixed_dark_card_text_contrast_and_control_accessibility", "git_diff_check"],
-  "pending": ["real_device_validation", "competitor_measurements"],
-  "blockers": ["Gradle unavailable (exit 127)", "Gradle download timed out (curl exit 28)", "Android SDK/device not available in checked environment"],
-  "pushed": true,
-  "benchmark_score": null
+  "source_of_truth": "GitHub main",
+  "current_task_id": "play-internal-v18-upload",
+  "status": "blocked_until_upload_key_activation",
+  "release_identity": {
+    "applicationId": "com.aistudio.qrgenerator.kmpzqr",
+    "versionName": "18.0",
+    "versionCode": 18,
+    "targetSdk": 36
+  },
+  "release_candidate": {
+    "source_commit": "0d7ed389c1a38c62ca117334c2e00656f0058ea4",
+    "filename": "QuickQR-Business-v18.0-code18-quickqrkey.aab",
+    "sha256": "E5046275A6F23DFEF049BE13B659850D6A9B25694C018AC8A9366F123FBC89DA",
+    "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
+    "jarsigner": "PASS"
+  },
+  "play_console": {
+    "target_app": "QuickQR Business",
+    "target_package": "com.aistudio.qrgenerator.kmpzqr",
+    "target_track": "Internal Testing",
+    "existing_active_release": "0.0.0.17",
+    "v18_draft_exists": true,
+    "production_publish": false,
+    "upload_key_active_after_utc": "2026-09-27T23:32:10Z",
+    "upload_key_active_after_ict": "2026-09-28T06:32:10+07:00"
+  },
+  "completed": [
+    "v18_docs_aligned",
+    "android_ci_pass",
+    "v18_real_device_smoke_pass",
+    "center_logo_picker_implemented",
+    "center_logo_generate_decode_instrumentation_pass",
+    "release_bundle_build_pass",
+    "release_signature_verify_pass",
+    "correct_play_app_identified",
+    "temporary_invalid_aab_removed_from_v18_draft",
+    "checkpoint_updated"
+  ],
+  "pending": [
+    "rebuild_from_current_main_if_head_changes_after_activation",
+    "reupload_v18_aab_to_quickqr_internal_testing_after_key_activation",
+    "verify_play_package_version_signature_acceptance",
+    "review_release_notes_and_internal_testing_release",
+    "verify_internal_testing_availability"
+  ],
+  "blockers": [
+    "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
+  ],
+  "anti_random": true,
+  "pushed": true
 }
