@@ -75,7 +75,7 @@ The CI release bundle is unsigned because no release keystore/signing secrets ar
 - Debug APK artifact: PASS.
 - Release AAB artifact: PASS as an unsigned CI artifact only.
 - The physical-device and signed-AAB evidence below was produced before the v18 metadata bump and must not be relabeled as v18 evidence.
-- Exact v18 physical-device smoke test: TO VERIFY.
+- Exact v18 physical-device smoke test: PASS for the locally built debug APK on realme RMX3241.
 - Exact v18 owner-signed AAB + Play Console upload/version acceptance: TO VERIFY.
 
 ## Physical Android QA — 2026-09-25
@@ -220,3 +220,15 @@ Release boundary:
 - Local signed AAB: PASS
 - Play Console upload-key registration / reset (if an older upload key already exists): TO VERIFY
 - Play Console upload / signing / versionCode acceptance: TO VERIFY
+
+
+## v18 physical debug smoke — 2026-09-27
+- Clean source clone from current `main`: PASS.
+- `:app:assembleDebug`: PASS.
+- Realme RMX3241 clean install: PASS.
+- Runtime identity: v18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr`: PASS.
+- MainActivity cold launch: PASS.
+- Post-launch process check: PASS.
+- No FATAL EXCEPTION or app ANR found in the post-launch log scan.
+- Historical v17 app data/APK were backed up before removal because the installed v17 signing certificate did not match the current local debug certificate.
+- This closes the v18 debug physical smoke gate only; release-signed v18 regression and Play Console acceptance remain TO VERIFY.

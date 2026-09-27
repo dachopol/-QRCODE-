@@ -47,7 +47,7 @@ These items still require physical-device/runtime evidence before calling the ap
 - Real-data / anti-random review: PASS for the reviewed flows
 - Package / namespace cleanup: PASS
 - Location source flow: PASS
-- Physical-device runtime: TO VERIFY
+- Physical-device runtime: PASS for v18 debug cold-launch smoke; full release-signed v18 regression: TO VERIFY
 - Play Console production readiness: TO VERIFY
 
 
@@ -222,3 +222,20 @@ Release boundary:
 - Exact v18 physical-device smoke test: TO VERIFY.
 - Exact v18 owner-signed AAB: TO VERIFY.
 - Play Console v18 upload/signing/versionCode acceptance: TO VERIFY.
+
+
+## Physical v18 debug smoke closure — 2026-09-27
+Verified on realme RMX3241 using a clean install of source-aligned v18 debug APK:
+- Local clean clone of `dachopol/-QRCODE-` / `main`: PASS.
+- Local `:app:assembleDebug` with Gradle 9.3.1 + JDK 17: PASS.
+- Installed package: `com.aistudio.qrgenerator.kmpzqr`.
+- Installed version: v18.0 / versionCode 18 / targetSdk 36: PASS.
+- Cold launch to `.MainActivity`: PASS.
+- App process remained running after launch: PASS.
+- FATAL EXCEPTION / app ANR scan after launch: none found.
+- Camera/Fine/Coarse Location are denied after clean install, as expected before user grants runtime permissions.
+- Previous v17 private app data was backed up before uninstall to the owner's local machine; rollback artifact SHA-256: `8d4901987f5c5cf036cdc9215a870993c7a3dd9905b501b0e5573aa81d829bcb`.
+- Previous installed v17 APK was also backed up; SHA-256: `6234FDBE28BA1DD7C16291754C30AC58C2C7D4ADD08D819E6A1017F190409300`.
+- v17 installed signature differed from the current local debug key, so in-place update was not possible; backup + clean install was used instead.
+- Current v18 debug signing certificate is test-only and is not Play release evidence.
+- Exact v18 owner-signed AAB + Play Console acceptance: TO VERIFY.

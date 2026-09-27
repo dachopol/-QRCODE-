@@ -78,6 +78,9 @@ Owner-only fields still required before Play review:
 - Current GitHub source is v18.0 / versionCode 18.
 - Android CI for current v18 source is PASS.
 - Current CI release AAB is unsigned and is not Play-upload-ready.
-- Existing physical-device QA evidence was produced on v17 builds and remains valid only as historical/regression evidence.
+- Existing full-flow physical-device QA evidence was produced on v17 builds and remains historical/regression evidence.
+- v18 debug APK clean-install + cold-launch smoke on realme RMX3241: PASS.
 - Install/runtime smoke test of the exact v18 release-signed build: TO VERIFY.
 - Play Console signing/upload/versionCode acceptance for v18: TO VERIFY.
+
+- The v18 debug smoke does not replace the required smoke test of the exact release-signed AAB/APK candidate.

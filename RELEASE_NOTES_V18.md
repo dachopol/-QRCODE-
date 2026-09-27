@@ -18,8 +18,8 @@
 - Debug APK artifact from that run: PASS.
 - Release AAB artifact from that run: generated as an unsigned CI artifact only.
 - Physical-device QA records for v17 remain historical evidence and must not be relabeled as v18.
-- v18 physical-device install/runtime smoke test: TO VERIFY.
-- v18 owner-signed AAB and Play Console upload/version acceptance: TO VERIFY.
+- v18 physical-device debug install/cold-launch smoke on realme RMX3241: PASS.
+- v18 owner-signed AAB, release-signed regression smoke, and Play Console upload/version acceptance: TO VERIFY.
 
 ## Security
 - Do not commit keystores or signing passwords.
