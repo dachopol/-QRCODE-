@@ -284,3 +284,18 @@ Verification:
 - Test creates a rectangular synthetic center image, generates a QR with the image overlay, reads the produced pixels through ZXing, and asserts the decoded payload equals the original payload.
 - Gradle `:app:connectedDebugAndroidTest` with `ANDROID_SERIAL=QKLFJ7TOPVWOBQ4T`: PASS, 1 test finished.
 - No personal image or user file was used for this verification.
+
+
+## v18 signed release candidate — 2026-09-27
+- Source of Truth / exact source HEAD: `2a1b8c3de3b6ed92a791b3c8a439cd46f4fb2796`.
+- Version identity: `18.0` / versionCode `18` / package `com.aistudio.qrgenerator.kmpzqr`.
+- Owner-controlled QuickQR upload keystore selected from the existing local signing setup; no new key was created and no credentials were committed.
+- Upload certificate SHA-256: `79:99:F5:7E:36:1E:F1:3C:2A:B5:F8:87:63:B5:8C:A7:B6:7F:58:DE:18:26:33:66:E6:3F:C5:77:9A:73:83:01`; matches the previously recorded QuickQR upload certificate: PASS.
+- Local Gradle 9.3.1 / JDK 17 `:app:bundleRelease`: PASS with release signing configuration active.
+- Signed AAB: `QuickQR-Business-v18.0-code18-signed.aab` stored on the owner-controlled PC.
+- Signed AAB SHA-256: `0EFFCED440D93C8EF6DD3ABB6A162FA530B0F940AA57717444D3D9DF67C41929`.
+- Standard `jarsigner -verify`: PASS / exit code 0.
+- `keytool -printcert -jarfile` confirms the AAB signer certificate is the expected QuickQR upload certificate: PASS.
+- `jarsigner -verify -strict` returns exit code 4 because the Android upload certificate is self-signed / has no public PKIX trust chain and no timestamp. This is recorded as a verification warning and is not relabeled as a standard-signature failure.
+- QR center-image generation/decode instrumentation is already recorded above as PASS.
+- Play Console upload / upload-key acceptance / versionCode acceptance for this exact AAB: TO VERIFY.
