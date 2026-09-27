@@ -207,7 +207,7 @@ fun QrColorCustomizerCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = localizedText("ตรากลาง QR", "Center logo"),
+                                text = localizedText("รูป/ตรากลาง QR", "Center image/logo"),
                                 modifier = Modifier.weight(1f),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
@@ -232,15 +232,15 @@ fun QrColorCustomizerCard(
                                 ) {
                                     Text(
                                         if (customCenterLogoSelected)
-                                            localizedText("เปลี่ยนตราร้าน", "Change logo")
+                                            localizedText("เปลี่ยนรูป/ตรา", "Change image/logo")
                                         else
-                                            localizedText("เลือกตราร้าน", "Choose logo"),
+                                            localizedText("เลือกรูป/ตรา", "Choose image/logo"),
                                         fontSize = 11.sp
                                     )
                                 }
                                 if (customCenterLogoSelected && onClearCenterLogo != null) {
                                     OutlinedButton(onClick = onClearCenterLogo) {
-                                        Text(localizedText("ตราอัตโนมัติ", "Auto logo"), fontSize = 11.sp)
+                                        Text(localizedText("ใช้ตราอัตโนมัติ", "Use auto logo"), fontSize = 11.sp)
                                     }
                                 }
                             }
