@@ -48,7 +48,7 @@ QuickQR Business สร้าง QR พร้อมเพย์จากข้�
 แอปนี้ไม่ได้ออกแบบเป็นผลิตภัณฑ์สำหรับเด็กโดยเฉพาะ การตั้งค่ากลุ่มเป้าหมายใน Google Play ต้องตรงกับกลุ่มผู้ใช้ที่เจ้าของแอปเลือกจริง
 
 ### 8. การติดต่อ
-Play support / privacy contact email: **chenkung12@gmail.com**
+สำหรับคำขอด้านความเป็นส่วนตัวหรือการสนับสนุน โปรดใช้ช่องทางติดต่อผู้พัฒนาที่แสดงในหน้าร้าน Google Play ของแอป
 
 ---
 
@@ -98,4 +98,4 @@ QuickQR Business creates PromptPay QR payloads from information entered by the u
 The app is not specifically designed as a children's product. The Google Play target-audience declaration must match the audience actually selected by the app owner.
 
 ### 8. Contact
-Play support / privacy contact email: **chenkung12@gmail.com**
+For privacy or support requests, use the developer contact channel shown on the app's Google Play store listing.
