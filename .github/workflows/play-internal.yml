@@ -1,0 +1,149 @@
+name: Play Internal Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_internal_only:
+        description: "Type INTERNAL_ONLY to confirm upload to the Internal Testing track only"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quickqr-play-internal
+  cancel-in-progress: false
+
+jobs:
+  upload-internal:
+    if: ${{ inputs.confirm_internal_only == 'INTERNAL_ONLY' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      EXPECTED_PACKAGE: com.aistudio.qrgenerator.kmpzqr
+      EXPECTED_VERSION_NAME: "18.0"
+      EXPECTED_VERSION_CODE: "18"
+      EXPECTED_UPLOAD_SHA1: A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB
+      KEYSTORE_PATH: ${{ github.workspace }}/.secure/quickqr-upload.jks
+      STORE_PASSWORD: ${{ secrets.QUICKQR_STORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.QUICKQR_KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.QUICKQR_KEY_ALIAS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android 36 SDK
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "9.3.1"
+
+      - name: Verify required secrets
+        shell: bash
+        env:
+          KEYSTORE_B64: ${{ secrets.QUICKQR_KEYSTORE_BASE64 }}
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_B64" || { echo "Missing QUICKQR_KEYSTORE_BASE64"; exit 1; }
+          test -n "$STORE_PASSWORD" || { echo "Missing QUICKQR_STORE_PASSWORD"; exit 1; }
+          test -n "$KEY_PASSWORD" || { echo "Missing QUICKQR_KEY_PASSWORD"; exit 1; }
+          test -n "$KEY_ALIAS" || { echo "Missing QUICKQR_KEY_ALIAS"; exit 1; }
+          test -n "$PLAY_JSON" || { echo "Missing PLAY_SERVICE_ACCOUNT_JSON"; exit 1; }
+
+      - name: Restore signing material
+        shell: bash
+        env:
+          KEYSTORE_B64: ${{ secrets.QUICKQR_KEYSTORE_BASE64 }}
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          mkdir -p .secure
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
+          printf '%s' "$PLAY_JSON" > .secure/play-service-account.json
+          chmod 600 "$KEYSTORE_PATH" .secure/play-service-account.json
+
+      - name: Verify release identity and upload certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_ID="$(sed -n 's/.*applicationId = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts)"
+          test "$APP_ID" = "$EXPECTED_PACKAGE"
+          test "$VERSION_NAME" = "$EXPECTED_VERSION_NAME"
+          test "$VERSION_CODE" = "$EXPECTED_VERSION_CODE"
+
+          CERT_SHA1="$(keytool -list -v -keystore "$KEYSTORE_PATH" -alias "$KEY_ALIAS" -storepass "$STORE_PASSWORD" 2>/dev/null | sed -n 's/^[[:space:]]*SHA1: //p' | head -1)"
+          test "$CERT_SHA1" = "$EXPECTED_UPLOAD_SHA1" || {
+            echo "Upload certificate mismatch"
+            echo "Expected: $EXPECTED_UPLOAD_SHA1"
+            echo "Actual:   $CERT_SHA1"
+            exit 1
+          }
+
+      - name: Build signed v18 AAB
+        run: gradle --no-daemon :app:bundleRelease --stacktrace
+
+      - name: Verify signed AAB
+        shell: bash
+        run: |
+          set -euo pipefail
+          AAB="app/build/outputs/bundle/release/app-release.aab"
+          test -f "$AAB"
+          jarsigner -verify -verbose -certs "$AAB" >/tmp/jarsigner.txt
+          grep -q "jar verified" /tmp/jarsigner.txt
+          sha256sum "$AAB" | tee /tmp/quickqr-aab-sha256.txt
+
+      - name: Upload verified AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickqr-v18-signed-internal-candidate
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: false
+
+      - name: Install Fastlane
+        run: gem install fastlane -v 2.228.0 --no-document
+
+      - name: Upload to Google Play Internal Testing only
+        shell: bash
+        run: |
+          set -euo pipefail
+          fastlane supply \
+            --json_key .secure/play-service-account.json \
+            --package_name "$EXPECTED_PACKAGE" \
+            --aab app/build/outputs/bundle/release/app-release.aab \
+            --track internal \
+            --release_status completed \
+            --skip_upload_metadata true \
+            --skip_upload_images true \
+            --skip_upload_screenshots true \
+            --skip_upload_changelogs true
+
+      - name: Security cleanup
+        if: always()
+        shell: bash
+        run: rm -rf .secure
