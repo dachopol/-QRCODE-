@@ -38,7 +38,7 @@ QuickQR Business ช่วยสร้างและสแกน QR Code ที
 
 ## สิ่งที่ต้องกรอกเองก่อนส่ง
 - Project developer identity email: 215334638+AnakinYoo@users.noreply.github.com
-- Play Console support email: chenkung12@gmail.com
+- Play Console support email: [private configuration — do not publish a personal address in this repository]
 - Privacy policy URL: https://dachopol.github.io/-QRCODE-/privacy-policy.html (verified HTTPS 200)
 - App category: แนะนำเลือก Tools หรือ Business ตามตำแหน่งตลาดที่ต้องการ
 - Store icon 512×512: [ต้องอัปโหลด]
@@ -59,7 +59,6 @@ QuickQR Business v18.0 testing build: ปรับชื่อแอปและ
 7. ทดสอบ History
 8. ยืนยัน Privacy Policy และ Data safety ให้ตรงกับ AAB ที่อัปโหลดจริง
 
-
 ## Submission pack
 Use these current v18 documents together:
 - `PLAY_CONSOLE_SUBMISSION_PACK.md`
@@ -69,10 +68,9 @@ Use these current v18 documents together:
 - `docs/privacy-policy.html`
 
 Owner-only fields still required before Play review:
-- Real monitored support email: chenkung12@gmail.com
+- Real monitored support email: [configure privately in Play Console; use a dedicated public support address rather than a personal mailbox]
 - Final target-audience/category confirmation
 - Store graphics/screenshots from current v18
-
 
 ## v18 verification boundary — 2026-09-27
 - Current GitHub source is v18.0 / versionCode 18.
