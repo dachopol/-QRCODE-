@@ -421,3 +421,15 @@ Verification:
 - `jarsigner -verify`: PASS, exit 0.
 - AAB SHA-256: `E91BD74E0CE5BC487738B4EDC4893D48AA810F3A99F91EBFCD883C922F191D24`.
 - This candidate supersedes all prior v18 AAB candidates.
+
+
+## Cloud fallback for Play Internal Testing — 2026-09-30
+- Added manual-only workflow: `.github/workflows/play-internal.yml`.
+- Workflow is hard-locked to the Google Play `internal` track and requires the explicit dispatch input `INTERNAL_ONLY`.
+- Workflow verifies package `com.aistudio.qrgenerator.kmpzqr`, versionName `18.0`, versionCode `18`, and expected upload certificate SHA-1 before building/uploading.
+- Workflow builds a signed release AAB from GitHub `main`, verifies the AAB with `jarsigner`, stores the verified signed AAB as a short-lived GitHub artifact, then uploads only to Internal Testing.
+- Production is not referenced by the workflow.
+- Required GitHub Secrets are referenced but their presence cannot be read through the connected GitHub API: `QUICKQR_KEYSTORE_BASE64`, `QUICKQR_STORE_PASSWORD`, `QUICKQR_KEY_PASSWORD`, `QUICKQR_KEY_ALIAS`, `PLAY_SERVICE_ACCOUNT_JSON`.
+- Cloud deploy workflow has NOT been dispatched yet. Secret/service-account availability remains TO VERIFY.
+- Existing signed local candidate remains valid evidence but is not stored in GitHub.
+- Latest ordinary Android CI triggered by the workflow commit and is currently in progress.
