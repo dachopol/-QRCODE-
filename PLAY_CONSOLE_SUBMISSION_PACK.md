@@ -77,7 +77,7 @@ Use:
 Public HTTPS privacy policy is verified at `https://dachopol.github.io/-QRCODE-/privacy-policy.html`; enter this exact URL in Play Console before review.
 
 Required owner input:
-- Support/contact email that can actually receive mail: **chenkung12@gmail.com**
+- Support/contact email that can actually receive mail: **configure privately in Play Console; use a dedicated public support address rather than a personal mailbox**
 - Public Privacy Policy URL: **https://dachopol.github.io/-QRCODE-/privacy-policy.html** — verified HTTPS 200 on 26 September 2026
 
 Do not use the GitHub noreply address as the Play support mailbox.
@@ -150,7 +150,7 @@ QuickQR Business v18.0 ปรับความสอดคล้องของ
 QuickQR Business v18.0 improves TH/EN consistency, PromptPay number validation, responsive UI, and startup branding. It also removes superseded project files while preserving QR generation, scanning, business cards, and local history.
 
 ## 15. Submission blockers — must be completed by owner
-- [x] Support email recorded in project documents: chenkung12@gmail.com
+- [x] Support email: configure privately in Play Console; do not publish a personal mailbox in this repository
 - [ ] Owner verifies this mailbox receives support requests
 - [x] Public HTTPS Privacy Policy URL — verified `https://dachopol.github.io/-QRCODE-/privacy-policy.html`
 - [x] Privacy policy access implemented in the Support sheet; Android ACTION_VIEW handler verified. Final post-fix foreground tap remains part of release smoke test.
@@ -172,7 +172,7 @@ QuickQR Business v18.0 improves TH/EN consistency, PromptPay number validation, 
 ### ตรวจแล้วจากไฟล์ main ในรอบนี้
 - `app/build.gradle.kts`: versionName 18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
 - `app/src/main/AndroidManifest.xml`: CAMERA, camera optional, allowBackup=false; ไม่พบ INTERNET ใน manifest ต้นทางนี้
-- Privacy Policy ทั้ง Markdown และ HTML มี `chenkung12@gmail.com` ตรงกัน การมีอีเมลในเอกสารไม่ได้ยืนยันว่ารับเมลได้จริง
+- Privacy Policy ทั้ง Markdown และ HTML ไม่เผยแพร่อีเมลส่วนตัว; ให้ตั้งค่าช่องทาง support แยกต่างหากใน Play Console
 - การตรวจนี้เป็น source/document review ไม่ใช่ผลตรวจ merged manifest, final AAB, CI หรืออุปกรณ์จริง
 
 ### งานถัดไปตามลำดับ
