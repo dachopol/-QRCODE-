@@ -4,7 +4,7 @@
   "branch": "main",
   "source_of_truth": "GitHub main",
   "current_task_id": "play-internal-v18-upload",
-  "status": "ready_for_internal_upload_after_upload_key_activation",
+  "status": "play_internal_upload_pending_with_cloud_fallback_ready",
   "release_identity": {
     "applicationId": "com.aistudio.qrgenerator.kmpzqr",
     "versionName": "18.0",
@@ -58,7 +58,10 @@
     "send tester email only after v18 availability",
     "after upload-key activation verify main head",
     "after upload-key activation verify main build-relevant diff",
-    "upload verified v18 AAB to QuickQR Business Internal Testing"
+    "upload verified v18 AAB to QuickQR Business Internal Testing",
+    "verify GitHub Actions release secrets/service-account availability",
+    "if secrets are available dispatch Play Internal Testing workflow with INTERNAL_ONLY",
+    "verify Play acceptance and tester availability"
   ],
   "blockers": [
     "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
@@ -135,5 +138,26 @@
     "internal_v18_release": "BLOCKED until upload key activation + rebuild from current main",
     "real_device_visual_inspection": "TO VERIFY after user unlocks device",
     "production": "NOT TOUCHED"
+  },
+  "cloud_play_internal": {
+    "workflow": ".github/workflows/play-internal.yml",
+    "commit": "a724b0a6b2000c25aceee3231a26a25ba9be9ad6",
+    "dispatch_guard": "INTERNAL_ONLY",
+    "target_track": "internal",
+    "production": false,
+    "package": "com.aistudio.qrgenerator.kmpzqr",
+    "versionName": "18.0",
+    "versionCode": 18,
+    "expected_signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
+    "required_secrets": [
+      "QUICKQR_KEYSTORE_BASE64",
+      "QUICKQR_STORE_PASSWORD",
+      "QUICKQR_KEY_PASSWORD",
+      "QUICKQR_KEY_ALIAS",
+      "PLAY_SERVICE_ACCOUNT_JSON"
+    ],
+    "secrets_presence": "TO VERIFY",
+    "service_account_access": "TO VERIFY",
+    "workflow_dispatched": false
   }
 }
