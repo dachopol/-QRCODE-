@@ -3,34 +3,37 @@
   "repository": "dachopol/-QRCODE-",
   "branch": "main",
   "source_of_truth": "GitHub main",
-  "current_task_id": "play-internal-v18-upload",
-  "status": "play_internal_upload_pending_with_cloud_fallback_ready",
+  "current_task_id": "internal-v18-code19-live",
+  "status": "internal_testing_active_code19",
   "release_identity": {
     "applicationId": "com.aistudio.qrgenerator.kmpzqr",
     "versionName": "18.0",
-    "versionCode": 18,
+    "versionCode": 19,
     "targetSdk": 36
   },
   "release_candidate": {
-    "source_commit": "aa907717b74216848e3d0d0d87c8c0dfb1a8b1ef",
-    "filename": "QuickQR-Business-v18.0-code18-quickqrkey.aab",
-    "sha256": "E91BD74E0CE5BC487738B4EDC4893D48AA810F3A99F91EBFCD883C922F191D24",
+    "source_commit": "c7304af1dc3040c13aff69b7e2ee6574a1192276",
+    "filename": "QuickQR-Business-v18.0-code19-quickqrkey.aab",
+    "sha256": "2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02",
     "signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
     "jarsigner": "PASS",
     "build": "PASS",
-    "stale_after_visual_polish": false,
-    "rebuild_required_from_current_main": false,
-    "reuse_if_only_non_build_files_change": true
+    "unit_tests": "PASS",
+    "android_ci": "PASS",
+    "merged_manifest_optional_hardware": "PASS"
   },
   "play_console": {
     "target_app": "QuickQR Business",
     "target_package": "com.aistudio.qrgenerator.kmpzqr",
     "target_track": "Internal Testing",
-    "existing_active_release": "0.0.0.17",
-    "v18_draft_exists": true,
-    "production_publish": false,
-    "upload_key_active_after_utc": "2026-09-27T23:32:10Z",
-    "upload_key_active_after_ict": "2026-09-28T06:32:10+07:00"
+    "active_release": "QuickQR Business v18.0",
+    "active_versionCode": 19,
+    "active_versionName": "18.0",
+    "internal_testing_status": "ACTIVE - available to internal testers",
+    "release_notes_languages": 2,
+    "release_notes": "PASS - en-US + th",
+    "old_code18_removed_from_release": true,
+    "production_publish": false
   },
   "completed": [
     "v18_docs_aligned",
@@ -45,27 +48,12 @@
     "checkpoint_updated"
   ],
   "pending": [
-    "reupload_v18_aab_to_quickqr_internal_testing_after_key_activation",
-    "verify_play_package_version_signature_acceptance",
-    "review_release_notes_and_internal_testing_release",
-    "verify_internal_testing_availability",
-    "upload v18 to QuickQR Business Internal Testing",
-    "verify Play accepts versionCode/signature",
-    "recheck publishing overview and app-review submission availability",
-    "do not publish Production",
-    "verify Play acceptance of package versionCode and signer",
-    "confirm v18 availability to testers",
-    "send tester email only after v18 availability",
-    "after upload-key activation verify main head",
-    "after upload-key activation verify main build-relevant diff",
-    "upload verified v18 AAB to QuickQR Business Internal Testing",
-    "verify GitHub Actions release secrets/service-account availability",
-    "if secrets are available dispatch Play Internal Testing workflow with INTERNAL_ONLY",
-    "verify Play acceptance and tester availability"
+    "dedupe enabled tester-list recipients without exposing addresses",
+    "notify eligible unique testers with the internal-test opt-in link",
+    "real-device visual inspection after device unlock if still required",
+    "do not publish Production"
   ],
-  "blockers": [
-    "Play Console upload certificate reset propagation: upload unavailable before 2026-09-27T23:32:10Z"
-  ],
+  "blockers": [],
   "anti_random": true,
   "pushed": true,
   "visual_polish": {
@@ -119,10 +107,11 @@
   "internal_testing": {
     "tester_lists_enabled": 3,
     "tester_list_entries_total": 6,
-    "unique_testers": "TO VERIFY - possible duplicates across lists",
+    "unique_testers": "TO VERIFY - dedupe not completed",
     "opt_in_url": "https://play.google.com/apps/internaltest/4701595451590105540",
     "tester_config_saved": true,
-    "email_timing": "after v18 is available on Internal Testing only"
+    "availability": "PASS - v18 code19 available to internal testers",
+    "email_notification": "PENDING"
   },
   "latest_readiness_check": {
     "checked_at": "2026-09-27",
@@ -159,5 +148,23 @@
     "secrets_presence": "TO VERIFY",
     "service_account_access": "TO VERIFY",
     "workflow_dispatched": false
+  },
+  "device_compatibility": {
+    "merged_manifest": [
+      "android.hardware.camera required=false",
+      "android.hardware.camera.autofocus required=false",
+      "android.hardware.location required=false",
+      "android.hardware.location.gps required=false",
+      "android.hardware.location.network required=false"
+    ],
+    "play_supported_devices": {
+      "phones": 12320,
+      "tablets": 6749,
+      "tv": 8,
+      "automotive": 27,
+      "chromebook": 77,
+      "android_xr": 1
+    },
+    "unsupported_delta": 0
   }
 }
