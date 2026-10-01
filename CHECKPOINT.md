@@ -433,3 +433,22 @@ Verification:
 - Cloud deploy workflow has NOT been dispatched yet. Secret/service-account availability remains TO VERIFY.
 - Existing signed local candidate remains valid evidence but is not stored in GitHub.
 - Latest ordinary Android CI triggered by the workflow commit and is currently in progress.
+
+
+## Internal Testing v18 code 19 live — 2026-10-01
+- Source of truth build commit: `c7304af1dc3040c13aff69b7e2ee6574a1192276`.
+- Release identity: package `com.aistudio.qrgenerator.kmpzqr`, versionName `18.0`, versionCode `19`, targetSdk `36`.
+- Local clean build + unit tests + signed release bundle: PASS.
+- GitHub Android CI + Pages for code 19 commit: PASS.
+- Signed AAB: `QuickQR-Business-v18.0-code19-quickqrkey.aab`.
+- Signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
+- AAB SHA-256: `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Effective merged release manifest marks camera, camera autofocus, location, GPS, and network location as `android:required="false"`.
+- Play Console accepted code 19. Old code 18 was removed from this Internal Testing release draft.
+- Release notes: PASS, 2 languages (`en-US` + `th`).
+- Play review step 2/2: PASS. Two warnings were non-blocking: no obfuscation mapping file (release minification is disabled) and no native debug symbols.
+- Internal Testing publish: PASS. Play Console shows `ใช้งานอยู่` / `พร้อมให้บริการแก่ผู้ทดสอบภายใน`.
+- Supported-device comparison in Play showed zero newly unsupported devices across listed form factors.
+- Tester configuration rechecked after publish: all 3 configured tester lists remain enabled; verified internal opt-in link is still present.
+- Production was not touched.
+- Remaining: deduplicate eligible tester recipients and notify them with the verified internal-test link; do not expose recipient addresses in project reports.
