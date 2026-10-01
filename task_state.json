@@ -50,10 +50,13 @@
   "pending": [
     "dedupe enabled tester-list recipients without exposing addresses",
     "notify eligible unique testers with the internal-test opt-in link",
-    "real-device visual inspection after device unlock if still required",
+    "after realme reconnect/unlock run final code19 install/runtime/visual QA",
+    "closed testing requirement: at least 12 opted-in testers for at least 14 days before Production access",
     "do not publish Production"
   ],
-  "blockers": [],
+  "blockers": [
+    "HUMAN ACTION: reconnect/unlock realme RMX3241 for final real-device install/runtime/visual QA"
+  ],
   "anti_random": true,
   "pushed": true,
   "visual_polish": {
@@ -166,5 +169,36 @@
       "android_xr": 1
     },
     "unsupported_delta": 0
+  },
+  "non_tester_closeout": {
+    "status": "COMPLETE_EXCEPT_REAL_DEVICE_HUMAN_BLOCKER",
+    "checked_at": "2026-10-01",
+    "source_of_truth": "PASS",
+    "github_ci": "PASS",
+    "internal_release_code19": "PASS",
+    "store_listing_content": "PASS - EN/TH content and assets complete",
+    "store_setup_counter": "10/11 - final submission is gated by required closed-testing steps, not by missing Store fields",
+    "publishing_overview": "Store listing changes staged; submit-for-review disabled until required dashboard/closed-testing steps are satisfied",
+    "final_aab": {
+      "filename": "QuickQR-Business-v18.0-code19-quickqrkey.aab",
+      "sha256": "2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "com.aistudio.qrgenerator.kmpzqr.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+      ],
+      "internet_permission": false,
+      "ads_billing_analytics_dependency_match": false
+    },
+    "privacy_policy_http": 200,
+    "cleanup": "PASS - only code19 active AAB remains in release root; older AABs moved to _obsolete_do_not_upload_2026-10-01",
+    "release_helper": "PASS - build-quickqrkey.ps1 now derives versionName/versionCode dynamically and PowerShell syntax parse passes",
+    "real_device": {
+      "device": "realme RMX3241",
+      "build_artifacts_current_main": "PASS",
+      "install_code19": "BLOCKED - device disconnected from ADB before install",
+      "final_visual": "BLOCKED - secure lock/disconnected; no bypass attempted"
+    }
   }
 }
