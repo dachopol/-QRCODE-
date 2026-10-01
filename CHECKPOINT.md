@@ -452,3 +452,21 @@ Verification:
 - Tester configuration rechecked after publish: all 3 configured tester lists remain enabled; verified internal opt-in link is still present.
 - Production was not touched.
 - Remaining: deduplicate eligible tester recipients and notify them with the verified internal-test link; do not expose recipient addresses in project reports.
+
+
+## Non-tester closeout — 2026-10-01
+- Source of truth and GitHub CI: PASS.
+- Internal Testing v18.0 / code 19: ACTIVE.
+- Default Store Listing review: PASS; required EN content/assets are present. Thai listing was previously completed and staged.
+- Dashboard remains 10/11 because Store listing changes cannot be submitted for review until required dashboard steps are completed; the visible remaining gate is Closed Testing (12 opted-in testers for at least 14 days), not a missing Store field.
+- Publishing Overview confirms the Store listing change is staged and the submit-for-review button is disabled until the required dashboard steps are satisfied.
+- Final signed AAB rechecked: `QuickQR-Business-v18.0-code19-quickqrkey.aab`, SHA-256 `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Effective release permissions: CAMERA, ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION, and the app's internal dynamic-receiver permission. No INTERNET permission is present.
+- Release dependency scan found no AdMob/Google Mobile Ads, Play Billing, or analytics dependency match.
+- Privacy policy URL returned HTTP 200.
+- Release-folder cleanup: older/diagnostic AABs were moved under `_obsolete_do_not_upload_2026-10-01`; only the code 19 candidate remains active in the release root.
+- Local release helper `build-quickqrkey.ps1` was hardened to derive `versionName` and `versionCode` from `app/build.gradle.kts` instead of hardcoding code 18; PowerShell syntax parse PASS.
+- Current-main debug/unit/instrumentation artifacts build successfully.
+- Real-device final QA is the only non-tester blocker: realme RMX3241 disconnected from ADB before code 19 could be installed; before disconnect the device was under secure lock. No lock bypass or data-destructive reinstall was attempted.
+- Do not use the other connected Android device as a substitute without explicit device authorization.
+- Production remains untouched.
