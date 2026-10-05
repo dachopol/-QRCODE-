@@ -200,5 +200,13 @@
       "install_code19": "BLOCKED - device disconnected from ADB before install",
       "final_visual": "BLOCKED - secure lock/disconnected; no bypass attempted"
     }
+  },
+  "release_automation": {
+    "play_internal_workflow": "PASS",
+    "version_source": "app/build.gradle.kts",
+    "hardcoded_version_removed": true,
+    "workflow_commit": "340b9a8b7acd6286ef8041c9ebd5988622fa3583",
+    "android_ci": "PASS",
+    "pages_ci": "PASS"
   }
 }
