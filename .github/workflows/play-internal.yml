@@ -24,7 +24,7 @@ jobs:
     env:
       EXPECTED_PACKAGE: com.aistudio.qrgenerator.kmpzqr
       EXPECTED_VERSION_NAME: "18.0"
-      EXPECTED_VERSION_CODE: "18"
+      EXPECTED_VERSION_CODE: "19"
       EXPECTED_UPLOAD_SHA1: A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB
       KEYSTORE_PATH: ${{ github.workspace }}/.secure/quickqr-upload.jks
       STORE_PASSWORD: ${{ secrets.QUICKQR_STORE_PASSWORD }}
