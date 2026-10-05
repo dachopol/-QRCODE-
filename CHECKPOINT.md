@@ -292,7 +292,7 @@ Verification:
 - Owner-controlled QuickQR upload keystore selected from the existing local signing setup; no new key was created and no credentials were committed.
 - Upload certificate SHA-256: `79:99:F5:7E:36:1E:F1:3C:2A:B5:F8:87:63:B5:8C:A7:B6:7F:58:DE:18:26:33:66:E6:3F:C5:77:9A:73:83:01`; matches the previously recorded QuickQR upload certificate: PASS.
 - Local Gradle 9.3.1 / JDK 17 `:app:bundleRelease`: PASS with release signing configuration active.
-- Signed AAB: `QuickQR-Business-v18.0-code18-signed.aab` stored on the owner-controlled PC.
+- Historical signed AAB (superseded; do not upload): `QuickQR-Business-v18.0-code18-signed.aab`.
 - Signed AAB SHA-256: `0EFFCED440D93C8EF6DD3ABB6A162FA530B0F940AA57717444D3D9DF67C41929`.
 - Standard `jarsigner -verify`: PASS / exit code 0.
 - `keytool -printcert -jarfile` confirms the AAB signer certificate is the expected QuickQR upload certificate: PASS.
@@ -307,7 +307,7 @@ Verification:
 - A separate Play app named **QR Scanners** uses package `com.anakinyoo.qrscanners`; it is not the target for this repository. Any temporary draft/upload attempt made there was cancelled and no release was published.
 - Current source HEAD at release-candidate verification: `0d7ed389c1a38c62ca117334c2e00656f0058ea4`.
 - Current release identity: versionName `18.0`, versionCode `18`, targetSdk `36`.
-- Current QuickQR release candidate: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- Historical QuickQR candidate (superseded by code19; do not upload): `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
 - QuickQR AAB signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
 - QuickQR AAB SHA-256: `E5046275A6F23DFEF049BE13B659850D6A9B25694C018AC8A9366F123FBC89DA`.
 - Local `:app:bundleRelease`: PASS.
@@ -396,7 +396,7 @@ Verification:
 - Source HEAD used for release build: `9c48bb719d8798468b6ba931e7463488c6ac52a1`.
 - Release build command: `:app:bundleRelease --no-daemon`.
 - Release build result: **PASS** (`BUILD SUCCESSFUL`).
-- Signed candidate: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- Historical signed candidate (superseded by code19; do not upload): `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
 - Signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
 - `jarsigner -verify`: **PASS**, exit code 0.
 - AAB SHA-256: `3E368DDA1CFDD40A6AA0AB420CF87FF5350F4CA01F84BAD7EAC3F0F25D0F5E53`.
@@ -416,7 +416,7 @@ Verification:
 - Emulator `:app:connectedDebugAndroidTest`: **3/3 PASS**.
 - `git diff --check`: PASS before commit.
 - Fresh signed v18 AAB built from `aa907717...`: PASS.
-- Candidate filename: `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
+- Historical candidate filename (superseded by code19; do not upload): `QuickQR-Business-v18.0-code18-quickqrkey.aab`.
 - Signer SHA-1: `A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB`.
 - `jarsigner -verify`: PASS, exit 0.
 - AAB SHA-256: `E91BD74E0CE5BC487738B4EDC4893D48AA810F3A99F91EBFCD883C922F191D24`.
@@ -470,3 +470,13 @@ Verification:
 - Real-device final QA is the only non-tester blocker: realme RMX3241 disconnected from ADB before code 19 could be installed; before disconnect the device was under secure lock. No lock bypass or data-destructive reinstall was attempted.
 - Do not use the other connected Android device as a substitute without explicit device authorization.
 - Production remains untouched.
+
+
+## Play Internal workflow version-source hardening — 2026-10-05
+- Fixed `.github/workflows/play-internal.yml` so release version identity comes from `app/build.gradle.kts` instead of hardcoded versionName/versionCode values.
+- The workflow still fail-closes on the canonical package id and expected upload certificate.
+- Build step/artifact naming is release-generic rather than tied to v18.
+- Commit `340b9a8b7acd6286ef8041c9ebd5988622fa3583`.
+- Android CI: PASS.
+- Pages CI: PASS.
+- Active release remains QuickQR Business `18.0 / code 19`; this change does not publish a new Play release.
