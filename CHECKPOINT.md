@@ -536,10 +536,18 @@ Official references:
 - State review basis before the following metadata/checkpoint commits: `aed996122c97930b7612d6765feec2b11044f99c`. Do not treat this as a cached current HEAD; read `main` live for each decision.
 - Active Play release remains QuickQR Business v18.0 / versionCode 19. No new Play release was created by the documentation or probe hardening commits.
 - Canonical Play Console Auto Test engine was read back as v1.2.0 with `GET_ONLY_RELEASE_LIST` as the release-evidence contract.
-- QuickQR's canonical probe is GET-only. Universal-RD-OS PR #32 is still a legacy temporary-edit implementation and must remain `NEEDS_GET_ONLY_REFACTOR` until its source is changed and exact-head tests pass.
+- QuickQR's canonical probe is GET-only. Universal-RD-OS PR #32 is also GET-only at head `403edd488ad23fc1f22ee07ce0444a3d20bf309b`; independent Linux `py_compile` and 16/16 unit tests PASS. Hosted Ubuntu/Windows/macOS CI remains blocked before steps execute, while live Play API access and deployed MCP remain TO VERIFY.
 - Desktop Commander receiver `DESKTOP-IL7PNGM` is online and pingable.
 - Remote execution is currently blocked because the Desktop Commander account has exhausted the monthly remote-call allowance. The service explicitly said the paired device remains connected and not to retry/reconnect while paused.
 - The attempted read-only `adb devices -l` command did not execute; ADB transport and realme RMX3241 identity therefore remain TO VERIFY.
 - No device install, launch, permission change, screenshot, secure-lock bypass, or Production action occurred in this checkpoint.
 - Resume the existing code19 real-device QA task from Issue #5 only after execution capacity is verified available again; do not create a duplicate device task.
+
+## RDOS PR #32 correction — 2026-10-08
+- Fresh GitHub evidence supersedes the earlier temporary-edit description.
+- PR #32 now implements the GET-only release-list bridge at head `403edd488ad23fc1f22ee07ce0444a3d20bf309b`.
+- Independent exact-head Linux QA: Python compile PASS; unit tests 16/16 PASS.
+- Hosted cross-platform Actions still fail before job steps execute; keep this classified as the existing pre-run infrastructure blocker, not a source-test FAIL.
+- Live Play API response, deployed MCP reachability, Windows/macOS execution, and tester continuity remain TO VERIFY.
+- PR #32 remains Draft and requires base reconciliation before merge.
 
