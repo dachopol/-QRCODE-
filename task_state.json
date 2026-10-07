@@ -51,7 +51,8 @@
     "dedupe enabled tester-list recipients without exposing addresses",
     "collect real opted-in / continuity / meaningful-testing evidence separately from tester-list configuration",
     "after authorized realme RMX3241 reconnect/unlock run final code19 install/launch/core QR-camera-location/crash-log/visual/accessibility QA",
-    "after approved Play API credential/connector exists run existing exact-package read-only probe for Internal Testing versionCode 19",
+    "after approved Play API credential/connector exists run existing exact-package GET-only read probe for published Internal Testing versionCode 19",
+    "refactor Universal-RD-OS PR #32 from temporary-edit to GET-only releases.list through an authorized source-edit path, then rerun exact-head tests",
     "verify developer/package registration state in Play Console",
     "do not publish Production automatically"
   ],
@@ -228,19 +229,21 @@
     "android_ci": "PASS",
     "pages_ci": "PASS"
   },
-  "current_source_head": "6e4b529f7678d94c9b8937e0258b4554e552370d",
+  "current_source_head": "957146b55739721415d3f1a94552905d54971310",
   "play_api_bridge": {
     "quickqr_issue_3": "OPEN - credential/admin blocker",
-    "quickqr_pr_4": "MERGED - sanitized read-only exact-package probe",
-    "quickqr_probe": "PROBE_IMPLEMENTED / AUTH_NOT_CONNECTED",
+    "quickqr_pr_4": "MERGED - predecessor probe; main is now hardened to GET-only",
+    "quickqr_probe": "GET_ONLY_RELEASE_LIST_IMPLEMENTED / AUTH_NOT_CONNECTED",
     "exact_package": "com.aistudio.qrgenerator.kmpzqr",
     "expected_internal_versionCode": 19,
     "production_write_path": false,
     "tester_release_write_path": false,
-    "universal_rdos_issue_26": "OPEN",
-    "universal_rdos_pr_32": "OPEN - MCP source implemented",
+    "universal_rdos_issue_26": "OPEN - design corrected to GET-only",
+    "universal_rdos_pr_32": "OPEN/DRAFT - current source still temporary-edit; NEEDS_GET_ONLY_REFACTOR; host source write was security-blocked",
     "universal_rdos_issue_15": "OPEN - hosted Actions pre-runner infrastructure blocker",
-    "mcp_runtime": "MCP_SOURCE_IMPLEMENTED / ENDPOINT_NOT_DEPLOYED / MCP_NOT_EXPOSED"
+    "mcp_runtime": "MCP_SOURCE_IMPLEMENTED / ENDPOINT_NOT_DEPLOYED / MCP_NOT_EXPOSED",
+    "quickqr_probe_endpoint": "GET applications/{packageName}/tracks/internal/releases",
+    "quickqr_probe_side_effects": "NONE"
   },
   "policy_snapshot": {
     "checked_at": "2026-10-07",
@@ -255,5 +258,14 @@
       "https://support.google.com/googleplay/android-developer/answer/10144311",
       "https://developers.google.com/android-publisher/api-ref/rest/v3/edits.testers"
     ]
+  },
+  "research_updates": {
+    "play_release_read_2026_10_07": {
+      "endpoint": "applications.tracks.releases.list",
+      "method": "GET",
+      "proves": "release lifecycle + active artifact versionCodes for a track",
+      "does_not_prove": "tester opt-in, continuity, meaningful testing, Production access, Console-only state",
+      "source": "https://developers.google.com/android-publisher/api-ref/rest/v3/applications.tracks.releases/list"
+    }
   }
 }
