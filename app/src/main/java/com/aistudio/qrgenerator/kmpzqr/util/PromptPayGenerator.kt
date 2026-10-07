@@ -13,6 +13,13 @@ object PromptPayGenerator {
      */
     fun generatePayload(target: String, amount: Double?): String {
         val cleanTarget = QrValidationUtil.normalizePromptPayTarget(target)
+        if (amount != null) {
+            require(amount.isFinite()) { "PromptPay amount must be finite" }
+            require(amount >= 0.0) { "PromptPay amount must not be negative" }
+        }
+        // Legacy v18 history may contain 0.0 even though its saved QR encoded no Tag 54.
+        // Preserve that history behavior while new user input rejects zero.
+        val encodedAmount = amount?.takeIf { it > 0.0 }
 
         val subtag = if (cleanTarget.length == 13) {
             tlv("02", cleanTarget)
@@ -30,12 +37,12 @@ object PromptPayGenerator {
 
         val body = buildString {
             append(tlv("00", "01"))
-            append(tlv("01", if (amount != null && amount > 0.0) "12" else "11"))
+            append(tlv("01", if (encodedAmount != null) "12" else "11"))
             append(tlv("29", merchantAccountInfo))
             append(tlv("53", THB_CURRENCY_CODE))
 
-            if (amount != null && amount > 0.0) {
-                append(tlv("54", String.format(Locale.US, "%.2f", amount)))
+            if (encodedAmount != null) {
+                append(tlv("54", String.format(Locale.US, "%.2f", encodedAmount)))
             }
 
             append(tlv("58", "TH"))
@@ -45,8 +52,10 @@ object PromptPayGenerator {
         return beforeCrc + crc16Ccitt(beforeCrc)
     }
 
-    private fun tlv(tag: String, value: String): String =
-        tag + String.format(Locale.US, "%02d", value.length) + value
+    private fun tlv(tag: String, value: String): String {
+        require(value.length <= 99) { "EMV TLV value exceeds two-digit length field" }
+        return tag + String.format(Locale.US, "%02d", value.length) + value
+    }
 
     /**
      * CRC-16/CCITT-FALSE, polynomial 0x1021 and initial value 0xFFFF.
