@@ -205,8 +205,11 @@ object QrValidationUtil {
             if (result != null && result.text == expectedContent) {
                 QrVerificationResult(isValid = true, decodedContent = result.text, errorMessage = null)
             } else if (result != null && result.text.isNotBlank()) {
-                // Read something but slightly mismatched
-                QrVerificationResult(isValid = true, decodedContent = result.text, errorMessage = null)
+                QrVerificationResult(
+                    isValid = false,
+                    decodedContent = result.text,
+                    errorMessage = "การทดสอบความถูกต้องของ QR ล้มเหลว: ข้อมูลที่อ่านได้ไม่ตรงกับข้อมูลต้นฉบับ"
+                )
             } else {
                 QrVerificationResult(
                     isValid = false,
