@@ -1,6 +1,7 @@
 name: Play API Read Probe
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - probe/play-api-readonly
