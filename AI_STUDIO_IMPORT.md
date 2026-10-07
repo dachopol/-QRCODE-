@@ -14,7 +14,7 @@ ZIP upload behavior can change between AI Studio releases. If using ZIP upload:
 ## Project identity
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `18`
+- versionCode: `19`
 - versionName: `18.0`
 
 ## Compatibility cleanup in this package
