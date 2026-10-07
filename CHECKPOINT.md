@@ -4,7 +4,7 @@
 - Repository: `dachopol/-QRCODE-`
 - Branch: `main`
 - Version source: `app/build.gradle.kts`
-- Version: `18.0` / versionCode `18`
+- Version: `18.0` / versionCode `19`
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
 - namespace: `com.aistudio.qrgenerator.kmpzqr`
 
@@ -480,3 +480,19 @@ Verification:
 - Android CI: PASS.
 - Pages CI: PASS.
 - Active release remains QuickQR Business `18.0 / code 19`; this change does not publish a new Play release.
+
+
+## Play API read-only QA bridge — 2026-10-07
+- Source of Truth after merge: `dachopol/-QRCODE-` / `main` commit `5ada92be1151930d9f1035d27bd506a686b48c22`.
+- Current Gradle identity re-verified from `app/build.gradle.kts`: package `com.aistudio.qrgenerator.kmpzqr`, versionName `18.0`, versionCode `19`, targetSdk `36`.
+- QuickQR PR #4 (`chore: add sanitized Play API read-only probe`) was merged after exact-head Android CI #166 PASS.
+- Post-merge Android CI #167 on commit `5ada92be...`: PASS, including project policy, compile, unit tests, lint, release bundle, artifact verification, debug APK upload and unsigned AAB upload.
+- Post-merge Pages #110: PASS.
+- Read-only Play API probe static safety gate: PASS. It is locked to the exact QuickQR package and expected Internal Testing versionCode 19.
+- Probe uses a temporary Android Publisher edit and contains no edit commit, release update, tester update, APK/AAB upload, or Production publishing path.
+- Manual `workflow_dispatch` is available on `main` for the existing probe.
+- Current API authentication state: BLOCKED / NOT CONNECTED because repository secret `PLAY_SERVICE_ACCOUNT_JSON` is not provisioned in the tested workflow context.
+- Because the credential is absent, no Google Play API request was made; security cleanup still PASS.
+- Credential provisioning / exact-package API read remains tracked in QuickQR Issue #3. Do not create or rotate credentials automatically and do not place secrets in source, chat, issues, logs or reports.
+- Play Console Auto Test canonical engine remains fail-closed: tester list/Google Group configuration is not proof of individual opt-in or continuity.
+- Production remains untouched.
