@@ -4,7 +4,7 @@
   "branch": "main",
   "source_of_truth": "GitHub main",
   "current_task_id": "internal-v18-code19-live",
-  "status": "internal_testing_active_code19",
+  "status": "internal_testing_active_code19_with_fail_closed_remaining_gates",
   "release_identity": {
     "applicationId": "com.aistudio.qrgenerator.kmpzqr",
     "versionName": "18.0",
@@ -49,13 +49,16 @@
   ],
   "pending": [
     "dedupe enabled tester-list recipients without exposing addresses",
-    "notify eligible unique testers with the internal-test opt-in link",
-    "after realme reconnect/unlock run final code19 install/runtime/visual QA",
-    "closed testing requirement: at least 12 opted-in testers for at least 14 days before Production access",
-    "do not publish Production"
+    "collect real opted-in / continuity / meaningful-testing evidence separately from tester-list configuration",
+    "after authorized realme RMX3241 reconnect/unlock run final code19 install/launch/core QR-camera-location/crash-log/visual/accessibility QA",
+    "after approved Play API credential/connector exists run existing exact-package read-only probe for Internal Testing versionCode 19",
+    "verify developer/package registration state in Play Console",
+    "do not publish Production automatically"
   ],
   "blockers": [
-    "HUMAN ACTION: reconnect/unlock realme RMX3241 for final real-device install/runtime/visual QA"
+    "HUMAN ACTION: reconnect/unlock authorized realme RMX3241 for exact code19 real-device install/runtime/visual/accessibility QA",
+    "ADMIN ACTION: provision least-privilege PLAY_SERVICE_ACCOUNT_JSON or equivalent authorized Android Publisher connection for exact-package read-only verification",
+    "EVIDENCE GAP: opted-in tester count and 14-day continuity are TO VERIFY; configured tester lists are not proof"
   ],
   "anti_random": true,
   "pushed": true,
@@ -105,7 +108,14 @@
     "versionCode": 18,
     "launch": "PASS",
     "immediate_crash_anr": "PASS",
-    "visual_inspection": "TO VERIFY - secure device lock prevented screen inspection"
+    "visual_inspection": "TO VERIFY - secure device lock prevented screen inspection",
+    "historical_installed_versionCode": 18,
+    "code19_final_gate": {
+      "required_device": "realme RMX3241",
+      "install_launch_core_camera_location_visual_accessibility": "BLOCKED - device disconnected/secure lock",
+      "substitute_device_allowed": false,
+      "lock_bypass_allowed": false
+    }
   },
   "internal_testing": {
     "tester_lists_enabled": 3,
@@ -114,22 +124,31 @@
     "opt_in_url": "https://play.google.com/apps/internaltest/4701595451590105540",
     "tester_config_saved": true,
     "availability": "PASS - v18 code19 available to internal testers",
-    "email_notification": "PENDING"
+    "email_notification": "PENDING",
+    "tester_evidence": {
+      "invited_configured_entries": 6,
+      "eligible_unique_testers": "TO VERIFY - dedupe/eligibility evidence incomplete",
+      "opted_in": "TO VERIFY - tester list membership is not opt-in proof",
+      "continuity_14_days": "TO VERIFY - no individual opt-in continuity evidence available",
+      "meaningful_testing_feedback": "TO VERIFY",
+      "device_coverage": "TO VERIFY"
+    }
   },
   "latest_readiness_check": {
-    "checked_at": "2026-09-27",
-    "source_head": "77cd50b9a905fe34e0d70658e285be29a776e383",
-    "android_ci": "PASS",
-    "pages_ci": "PASS",
+    "checked_at": "2026-10-07",
+    "source_head": "6e4b529f7678d94c9b8937e0258b4554e552370d",
+    "android_ci": "PASS - #168 on current main",
+    "pages_ci": "PASS - #111 on current main",
     "source_of_truth": "PASS",
     "build_test_evidence": "PASS",
     "logo_consistency": "PASS",
     "store_assets": "PASS",
     "store_listing_en_th": "PASS",
     "tester_lists": "PASS",
-    "internal_v18_release": "BLOCKED until upload key activation + rebuild from current main",
-    "real_device_visual_inspection": "TO VERIFY after user unlocks device",
-    "production": "NOT TOUCHED"
+    "internal_v18_release": "PASS - v18.0 code19 active on Internal Testing",
+    "real_device_visual_inspection": "BLOCKED - exact code19 gate requires authorized realme RMX3241 reconnect/unlock",
+    "production": "NOT TOUCHED",
+    "play_api_read": "BLOCKED - PLAY_SERVICE_ACCOUNT_JSON or equivalent authorized Android Publisher connection not provisioned"
   },
   "cloud_play_internal": {
     "workflow": ".github/workflows/play-internal.yml",
@@ -208,5 +227,33 @@
     "workflow_commit": "340b9a8b7acd6286ef8041c9ebd5988622fa3583",
     "android_ci": "PASS",
     "pages_ci": "PASS"
+  },
+  "current_source_head": "6e4b529f7678d94c9b8937e0258b4554e552370d",
+  "play_api_bridge": {
+    "quickqr_issue_3": "OPEN - credential/admin blocker",
+    "quickqr_pr_4": "MERGED - sanitized read-only exact-package probe",
+    "quickqr_probe": "PROBE_IMPLEMENTED / AUTH_NOT_CONNECTED",
+    "exact_package": "com.aistudio.qrgenerator.kmpzqr",
+    "expected_internal_versionCode": 19,
+    "production_write_path": false,
+    "tester_release_write_path": false,
+    "universal_rdos_issue_26": "OPEN",
+    "universal_rdos_pr_32": "OPEN - MCP source implemented",
+    "universal_rdos_issue_15": "OPEN - hosted Actions pre-runner infrastructure blocker",
+    "mcp_runtime": "MCP_SOURCE_IMPLEMENTED / ENDPOINT_NOT_DEPLOYED / MCP_NOT_EXPOSED"
+  },
+  "policy_snapshot": {
+    "checked_at": "2026-10-07",
+    "target_api": "PASS - targetSdk 36 meets current mobile submission requirement",
+    "closed_testing_if_applicable": "12 opted-in testers continuously for at least 14 days before applying for production access",
+    "developer_verification_package_registration": "TO VERIFY in Play Console; protections effective in Thailand from 2026-09-30",
+    "data_safety_privacy": "SOURCE CONSISTENT - no INTERNET permission, no account system, no ads/billing SDK; Console answers remain TO VERIFY unless directly evidenced",
+    "official_sources": [
+      "https://support.google.com/googleplay/android-developer/answer/11926878",
+      "https://support.google.com/googleplay/android-developer/answer/14151465",
+      "https://developer.android.com/developer-verification/guides/google-play-console",
+      "https://support.google.com/googleplay/android-developer/answer/10144311",
+      "https://developers.google.com/android-publisher/api-ref/rest/v3/edits.testers"
+    ]
   }
 }
