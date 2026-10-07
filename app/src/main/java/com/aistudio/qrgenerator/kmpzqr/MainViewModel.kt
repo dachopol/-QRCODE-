@@ -23,6 +23,7 @@ import com.aistudio.qrgenerator.kmpzqr.util.CurrentLocationProvider
 import com.aistudio.qrgenerator.kmpzqr.util.ImageExporter
 import com.aistudio.qrgenerator.kmpzqr.util.LocationError
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
+import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
 import com.aistudio.qrgenerator.kmpzqr.util.QrCodeUtil
 import com.aistudio.qrgenerator.kmpzqr.util.HistoryPrivacyUtil
