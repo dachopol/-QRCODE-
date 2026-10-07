@@ -142,9 +142,8 @@
   },
   "latest_readiness_check": {
     "checked_at": "2026-10-08",
-    "source_head": "aed996122c97930b7612d6765feec2b11044f99c",
-    "android_ci": "PASS - #168 on current main",
-    "pages_ci": "PASS - #111 on current main",
+    "android_ci": "PASS - app-source/release-boundary CI evidence retained; read live main/PR CI for new source changes",
+    "pages_ci": "PASS - historical/current listing-site evidence; refresh live when Pages content changes",
     "source_of_truth": "PASS",
     "build_test_evidence": "PASS",
     "logo_consistency": "PASS",
@@ -277,5 +276,11 @@
     }
   },
   "state_basis_head": "aed996122c97930b7612d6765feec2b11044f99c",
-  "repository_head_rule": "Do not cache a field as current HEAD; read GitHub main live for each decision run."
+  "repository_head_rule": "Do not cache a field as current HEAD; read GitHub main live for each decision run.",
+  "static_review_2026_10_08": {
+    "scanner_frame_cleanup": "PASS - ImageProxy closes on throttle and finally path",
+    "camera_lifecycle_cleanup": "PASS - CameraX unbindAll and camera executor shutdown present",
+    "file_provider": "PASS - provider exported=false; read URI grant used for shares; paths limited to app cache images and app external Pictures",
+    "scope": "source review only; not a substitute for exact code19 real-device runtime QA"
+  }
 }
