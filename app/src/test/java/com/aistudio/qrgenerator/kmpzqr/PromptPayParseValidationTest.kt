@@ -9,7 +9,7 @@ class PromptPayParseValidationTest {
     @Test
     fun parsePromptPay_acceptsValidPhoneAndId() {
         val phonePayload = PromptPayGenerator.generatePayload("0812345678", 10.0)
-        val idPayload = PromptPayGenerator.generatePayload("1101700203451", 20.0)
+        val idPayload = PromptPayGenerator.generatePayload("1101700203450", 20.0)
 
         assertNotNull(PromptPayGenerator.parsePromptPay(phonePayload))
         assertNotNull(PromptPayGenerator.parsePromptPay(idPayload))
