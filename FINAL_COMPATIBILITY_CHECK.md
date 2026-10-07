@@ -4,10 +4,21 @@
 - App: QuickQR Business
 - applicationId: `com.aistudio.qrgenerator.kmpzqr`
 - namespace: `com.aistudio.qrgenerator.kmpzqr`
-- versionCode: `18`
+- versionCode: `19`
 - versionName: `18.0`
 - compileSdk / targetSdk: `36`
 - JDK source/target: `17`
+
+## Current code19 release boundary — 2026-10-07
+- Active Play Internal Testing release: v18.0 / versionCode 19.
+- Signed AAB SHA-256: `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Build source commit: `c7304af1dc3040c13aff69b7e2ee6574a1192276`.
+- No app-source files changed between the code19 build commit and the reviewed current main; intervening changes are workflow/probe/checkpoint/task-state only.
+- Historical v17/code18 physical QA below is regression evidence only and is not promoted to exact code19 runtime evidence.
+- Exact code19 real-device final gate on authorized realme RMX3241: BLOCKED pending reconnect/unlock.
+- Play API exact-package read: BLOCKED pending approved credential/connector.
+- Closed-testing opted-in count/continuity: TO VERIFY; tester configuration alone is insufficient.
+- Production: NOT TOUCHED.
 
 ## Build system
 - Single Android `:app` module.
@@ -69,7 +80,7 @@ Verified on code commit `d44490917c66ae6e39b8e0cc167569112597fa3e`, Android CI r
 The CI release bundle is unsigned because no release keystore/signing secrets are injected into the workflow. This proves release-bundle compilation, not Play Console upload readiness. Signing and Play upload remain **TO VERIFY**.
 
 
-## Current v18 source boundary — 2026-09-27
+## Historical code18 source boundary — 2026-09-27
 - GitHub main HEAD used for v18 identity: `811a75c0d35edd3a643c58d22bbc325a60c438a4`.
 - Android CI run `36196245061`: PASS.
 - Debug APK artifact: PASS.
