@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Sanitized, fail-closed Google Play API read probe for QuickQR.
+"""Sanitized, fail-closed Google Play API GET-only release probe for QuickQR.
 
 Expected use: GitHub Actions with an ephemeral service-account JSON file.
-Outputs only PASS/FAIL-safe status. It never commits a Play edit and never
-prints credentials, tester identities, release notes, or full API payloads.
+Outputs only PASS/FAIL-safe status. It performs no Play edit lifecycle,
+release/tester mutation, Production publishing, or credential logging.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from google.oauth2 import service_account
 
 API_ROOT = "https://androidpublisher.googleapis.com/androidpublisher/v3"
 SCOPE = "https://www.googleapis.com/auth/androidpublisher"
+PUBLISHED = "RELEASE_LIFECYCLE_STATE_PUBLISHED"
 
 
 class ProbeError(RuntimeError):
@@ -30,12 +31,9 @@ def api_url(*parts: str) -> str:
     return API_ROOT + "/" + "/".join(urllib.parse.quote(p, safe="") for p in parts)
 
 
-def request_json(method: str, url: str, token: str, payload=None):
-    data = None if payload is None else json.dumps(payload).encode("utf-8")
+def request_json(url: str, token: str):
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    if data is not None:
-        headers["Content-Type"] = "application/json"
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    req = urllib.request.Request(url, headers=headers, method="GET")
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             raw = response.read()
@@ -60,41 +58,22 @@ def access_token(service_account_file: str) -> str:
 
 def run_probe(package_name: str, expected_version_code: str, service_account_file: str) -> None:
     token = access_token(service_account_file)
-    edit_id = None
-    cleanup_ok = False
-    try:
-        edit = request_json("POST", api_url("applications", package_name, "edits"), token, {}) or {}
-        edit_id = str(edit.get("id") or "")
-        if not edit_id:
-            raise ProbeError("temporary edit id missing")
+    releases_doc = request_json(
+        api_url("applications", package_name, "tracks", "internal", "releases"),
+        token,
+    ) or {}
 
-        internal = request_json(
-            "GET",
-            api_url("applications", package_name, "edits", edit_id, "tracks", "internal"),
-            token,
-        ) or {}
-
-        releases = internal.get("releases", []) or []
-        present = any(
-            expected_version_code in [str(v) for v in (release.get("versionCodes", []) or [])]
-            for release in releases
+    releases = releases_doc.get("releases", []) or []
+    published_match = any(
+        release.get("releaseLifecycleState") == PUBLISHED
+        and any(
+            str(artifact.get("versionCode")) == expected_version_code
+            for artifact in (release.get("activeArtifacts", []) or [])
         )
-        if not present:
-            raise ProbeError("expected versionCode not present on internal track")
-    finally:
-        if edit_id:
-            try:
-                request_json(
-                    "DELETE",
-                    api_url("applications", package_name, "edits", edit_id),
-                    token,
-                )
-                cleanup_ok = True
-            except Exception as exc:
-                raise ProbeError("temporary edit cleanup failed") from exc
-
-    if not cleanup_ok:
-        raise ProbeError("temporary edit cleanup not confirmed")
+        for release in releases
+    )
+    if not published_match:
+        raise ProbeError("expected versionCode not published on internal track")
 
 
 def main() -> int:
@@ -111,8 +90,8 @@ def main() -> int:
         return 2
 
     print(
-        "PASS: Google Play API authenticated exact-package read; "
-        "Internal Testing contains expected versionCode; temporary edit deleted."
+        "PASS: Google Play API authenticated exact-package GET-only read; "
+        "Internal Testing has published expected versionCode."
     )
     return 0
 
