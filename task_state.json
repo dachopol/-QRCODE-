@@ -253,17 +253,18 @@
     "canonical_contract": "GET_ONLY_RELEASE_LIST"
   },
   "policy_snapshot": {
-    "checked_at": "2026-10-07",
-    "target_api": "PASS - targetSdk 36 meets current mobile submission requirement",
-    "closed_testing_if_applicable": "12 opted-in testers continuously for at least 14 days before applying for production access",
-    "developer_verification_package_registration": "TO VERIFY in Play Console; protections effective in Thailand from 2026-09-30",
-    "data_safety_privacy": "SOURCE CONSISTENT - no INTERNET permission, no account system, no ads/billing SDK; Console answers remain TO VERIFY unless directly evidenced",
+    "checked_at": "2026-10-08",
+    "target_api": "PASS - targetSdk 36 meets current mobile new/update submission requirement effective 2026-08-31",
+    "closed_testing_if_applicable": "For personal accounts created after 2023-11-13: at least 12 testers opted in continuously for at least 14 days before applying for Production access",
+    "developer_verification_package_registration": "TO VERIFY in Play Console. Current official rule: Play developers must verify identity and register app package names; Play package registration requirement is effective from 2026-09-30.",
+    "thailand_rollout": "Current Android developer verification protections are in effect from 2026-09-30 for participating stores in Thailand on certified devices; broader global rollout continues in 2027.",
+    "data_safety_privacy": "SOURCE CONSISTENT - no INTERNET permission, no account system, no ads/billing SDK in current release source; Console answers remain TO VERIFY unless directly evidenced",
     "official_sources": [
       "https://support.google.com/googleplay/android-developer/answer/11926878",
       "https://support.google.com/googleplay/android-developer/answer/14151465",
-      "https://developer.android.com/developer-verification/guides/google-play-console",
-      "https://support.google.com/googleplay/android-developer/answer/10144311",
-      "https://developers.google.com/android-publisher/api-ref/rest/v3/edits.testers"
+      "https://support.google.com/googleplay/android-developer/answer/16984799",
+      "https://developer.android.com/developer-verification",
+      "https://support.google.com/googleplay/android-developer/answer/10144311"
     ]
   },
   "research_updates": {
