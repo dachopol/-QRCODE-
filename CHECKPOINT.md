@@ -496,3 +496,38 @@ Verification:
 - Credential provisioning / exact-package API read remains tracked in QuickQR Issue #3. Do not create or rotate credentials automatically and do not place secrets in source, chat, issues, logs or reports.
 - Play Console Auto Test canonical engine remains fail-closed: tester list/Google Group configuration is not proof of individual opt-in or continuity.
 - Production remains untouched.
+
+## Canonical Auto Test diagnosis — 2026-10-07
+
+Source of Truth remains `dachopol/-QRCODE-` / `main`. Current pre-update head reviewed: `6e4b529f7678d94c9b8937e0258b4554e552370d`.
+
+### Verified current facts
+- Gradle identity: package `com.aistudio.qrgenerator.kmpzqr`, versionName `18.0`, versionCode `19`, targetSdk `36`.
+- Internal Testing code19 evidence remains bound to signed AAB SHA-256 `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Current main Android CI #168: PASS; Pages #111: PASS.
+- QuickQR PR #4 is merged and the exact-package Play read probe is source-complete/static-safe.
+- QuickQR Issue #3 remains OPEN because no approved `PLAY_SERVICE_ACCOUNT_JSON` or equivalent authorized Android Publisher connection is provisioned.
+- Universal-RD-OS Issue #26 and PR #32 remain the canonical MCP bridge work. PR #32 has source implementation/local regression evidence, while runtime endpoint/auth remains unverified. Issue #15 remains the hosted Actions pre-runner infrastructure blocker.
+- Production remains untouched.
+
+### Fail-closed evidence gaps
+- Exact code19 real-device closure remains BLOCKED until the authorized realme RMX3241 is connected/unlocked. Do not use a substitute device and do not bypass the device lock.
+- Tester configuration is not tester opt-in evidence. Keep invited/configured, eligible, opted-in, continuity, feedback and device coverage as separate facts.
+- Current opted-in count and 14-day continuity are TO VERIFY.
+- Direct Play Console developer verification/package-registration state is TO VERIFY until read from an authorized Console/API source.
+- Do not rerun the Play probe until an authorized credential/connector exists.
+
+### Current official-policy check
+Checked official Google/Android sources on 2026-10-07:
+- Mobile submissions/updates require target API 36 from 2026-08-31; current QuickQR targetSdk 36 satisfies this gate.
+- Applicable new personal developer accounts require at least 12 closed-test testers opted in continuously for at least 14 days before applying for Production access.
+- Android developer verification protections are effective in Thailand from 2026-09-30; Play package registration status must be verified rather than assumed.
+- Android Publisher `edits.testers` exposes Google Groups configuration, not individual Play Console email lists; configuration must not be promoted to opt-in/continuity proof.
+
+Official references:
+- https://support.google.com/googleplay/android-developer/answer/11926878
+- https://support.google.com/googleplay/android-developer/answer/14151465
+- https://developer.android.com/developer-verification/guides/google-play-console
+- https://support.google.com/googleplay/android-developer/answer/10144311
+- https://developers.google.com/android-publisher/api-ref/rest/v3/edits.testers
+
