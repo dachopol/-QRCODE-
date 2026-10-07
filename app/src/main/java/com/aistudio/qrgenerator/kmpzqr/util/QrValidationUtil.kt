@@ -95,11 +95,11 @@ object QrValidationUtil {
         if (amountStr.isBlank()) return ValidationResult.Valid // Optional amount
         val amount = amountStr.toDoubleOrNull()
             ?: return ValidationResult.Invalid("จำนวนเงินต้องเป็นตัวเลขที่ถูกต้อง")
-        if (amount < 0) {
-            return ValidationResult.Invalid("จำนวนเงินต้องไม่ติดลบ")
-        }
         if (!amount.isFinite()) {
             return ValidationResult.Invalid("จำนวนเงินไม่ถูกต้อง")
+        }
+        if (amount <= 0.0) {
+            return ValidationResult.Invalid("จำนวนเงินที่กรอกต้องมากกว่า 0")
         }
         return ValidationResult.Valid
     }
