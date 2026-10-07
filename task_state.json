@@ -48,18 +48,18 @@
     "checkpoint_updated"
   ],
   "pending": [
-    "dedupe enabled tester-list recipients without exposing addresses",
-    "collect real opted-in / continuity / meaningful-testing evidence separately from tester-list configuration",
-    "after authorized realme RMX3241 reconnect/unlock run final code19 install/launch/core QR-camera-location/crash-log/visual/accessibility QA",
-    "after approved Play API credential/connector exists run existing exact-package GET-only read probe for published Internal Testing versionCode 19",
-    "refactor Universal-RD-OS PR #32 from temporary-edit to GET-only releases.list through an authorized source-edit path, then rerun exact-head tests",
-    "verify developer/package registration state in Play Console",
+    "resume existing exact code19 real-device QA only when authorized remote execution capacity returns; do not retry/reconnect while service says paused",
+    "verify ADB transport and exact authorized realme RMX3241 before any install or runtime QA",
+    "run exact-package GET-only Play release probe after an authorized connection exists",
+    "collect person-level opted-in / continuity / meaningful-testing evidence separately from tester-list configuration",
+    "refactor Universal-RD-OS PR #32 from legacy temporary-edit behavior to canonical GET-only release-list behavior through an authorized source-edit path",
+    "verify developer/package registration state from an authoritative Play source",
     "do not publish Production automatically"
   ],
   "blockers": [
-    "HUMAN ACTION: reconnect/unlock authorized realme RMX3241 for exact code19 real-device install/runtime/visual/accessibility QA",
-    "ADMIN ACTION: provision least-privilege PLAY_SERVICE_ACCOUNT_JSON or equivalent authorized Android Publisher connection for exact-package read-only verification",
-    "EVIDENCE GAP: opted-in tester count and 14-day continuity are TO VERIFY; configured tester lists are not proof"
+    "DEVICE QA: exact code19 real-device QA blocked because Desktop Commander remote execution capacity is paused; receiver itself is online",
+    "PLAY API: authorized exact-package GET-only connection is not provisioned",
+    "TESTER EVIDENCE: opted-in tester count and continuous 14-day evidence remain TO VERIFY"
   ],
   "anti_random": true,
   "pushed": true,
@@ -104,16 +104,21 @@
     "production_publish": false
   },
   "real_device": {
-    "latest_main_debug_install": "PASS",
-    "versionName": "18.0",
-    "versionCode": 18,
-    "launch": "PASS",
-    "immediate_crash_anr": "PASS",
-    "visual_inspection": "TO VERIFY - secure device lock prevented screen inspection",
-    "historical_installed_versionCode": 18,
+    "historical_verified_install": {
+      "scope": "historical pre-code19 real-device smoke only",
+      "versionName": "18.0",
+      "versionCode": 18,
+      "launch": "PASS",
+      "immediate_crash_anr": "PASS"
+    },
     "code19_final_gate": {
       "required_device": "realme RMX3241",
-      "install_launch_core_camera_location_visual_accessibility": "BLOCKED - device disconnected/secure lock",
+      "target_versionName": "18.0",
+      "target_versionCode": 19,
+      "receiver_connectivity": "PASS - DESKTOP-IL7PNGM online and pingable on 2026-10-08",
+      "remote_execution_capacity": "BLOCKED - Desktop Commander monthly usage exhausted; service says do not retry/reconnect",
+      "adb_transport": "TO VERIFY - adb command was rejected before execution",
+      "install_launch_core_camera_location_visual_accessibility": "BLOCKED - remote execution capacity unavailable; secure-lock/device gate not bypassed",
       "substitute_device_allowed": false,
       "lock_bypass_allowed": false
     }
@@ -136,8 +141,8 @@
     }
   },
   "latest_readiness_check": {
-    "checked_at": "2026-10-07",
-    "source_head": "6e4b529f7678d94c9b8937e0258b4554e552370d",
+    "checked_at": "2026-10-08",
+    "source_head": "aed996122c97930b7612d6765feec2b11044f99c",
     "android_ci": "PASS - #168 on current main",
     "pages_ci": "PASS - #111 on current main",
     "source_of_truth": "PASS",
@@ -147,9 +152,9 @@
     "store_listing_en_th": "PASS",
     "tester_lists": "PASS",
     "internal_v18_release": "PASS - v18.0 code19 active on Internal Testing",
-    "real_device_visual_inspection": "BLOCKED - exact code19 gate requires authorized realme RMX3241 reconnect/unlock",
+    "real_device_visual_inspection": "BLOCKED - exact code19 gate; receiver online but remote execution capacity is paused by Desktop Commander usage limit",
     "production": "NOT TOUCHED",
-    "play_api_read": "BLOCKED - PLAY_SERVICE_ACCOUNT_JSON or equivalent authorized Android Publisher connection not provisioned"
+    "play_api_read": "BLOCKED - authorized Play API connection not provisioned"
   },
   "cloud_play_internal": {
     "workflow": ".github/workflows/play-internal.yml",
@@ -158,8 +163,6 @@
     "target_track": "internal",
     "production": false,
     "package": "com.aistudio.qrgenerator.kmpzqr",
-    "versionName": "18.0",
-    "versionCode": 18,
     "expected_signer_sha1": "A5:91:42:D0:AD:15:D0:A0:6D:7B:5C:57:A5:34:1F:5A:46:BA:9E:EB",
     "required_secrets": [
       "QUICKQR_KEYSTORE_BASE64",
@@ -170,7 +173,11 @@
     ],
     "secrets_presence": "TO VERIFY",
     "service_account_access": "TO VERIFY",
-    "workflow_dispatched": false
+    "workflow_dispatched": false,
+    "version_source": "app/build.gradle.kts",
+    "active_versionName": "18.0",
+    "active_versionCode": 19,
+    "hardcoded_release_identity": false
   },
   "device_compatibility": {
     "merged_manifest": [
@@ -229,7 +236,7 @@
     "android_ci": "PASS",
     "pages_ci": "PASS"
   },
-  "current_source_head": "957146b55739721415d3f1a94552905d54971310",
+  "current_source_head": "aed996122c97930b7612d6765feec2b11044f99c",
   "play_api_bridge": {
     "quickqr_issue_3": "OPEN - credential/admin blocker",
     "quickqr_pr_4": "MERGED - predecessor probe; main is now hardened to GET-only",
@@ -239,11 +246,13 @@
     "production_write_path": false,
     "tester_release_write_path": false,
     "universal_rdos_issue_26": "OPEN - design corrected to GET-only",
-    "universal_rdos_pr_32": "OPEN/DRAFT - current source still temporary-edit; NEEDS_GET_ONLY_REFACTOR; host source write was security-blocked",
+    "universal_rdos_pr_32": "OPEN/DRAFT - legacy temporary-edit implementation; NEEDS_GET_ONLY_REFACTOR",
     "universal_rdos_issue_15": "OPEN - hosted Actions pre-runner infrastructure blocker",
-    "mcp_runtime": "MCP_SOURCE_IMPLEMENTED / ENDPOINT_NOT_DEPLOYED / MCP_NOT_EXPOSED",
+    "mcp_runtime": "NOT CONNECTED / NOT EXPOSED",
     "quickqr_probe_endpoint": "GET applications/{packageName}/tracks/internal/releases",
-    "quickqr_probe_side_effects": "NONE"
+    "quickqr_probe_side_effects": "NONE",
+    "canonical_engine": "Play Console Auto Test v1.2.0",
+    "canonical_contract": "GET_ONLY_RELEASE_LIST"
   },
   "policy_snapshot": {
     "checked_at": "2026-10-07",
