@@ -52,9 +52,9 @@
     "verify ADB transport and exact authorized realme RMX3241 before any install or runtime QA",
     "run exact-package GET-only Play release probe after an authorized connection exists",
     "collect person-level opted-in / continuity / meaningful-testing evidence separately from tester-list configuration",
-    "refactor Universal-RD-OS PR #32 from legacy temporary-edit behavior to canonical GET-only release-list behavior through an authorized source-edit path",
     "verify developer/package registration state from an authoritative Play source",
-    "do not publish Production automatically"
+    "do not publish Production automatically",
+    "reconcile Universal-RD-OS PR #32 with its canonical base before merge; hosted cross-platform CI remains pre-run blocked"
   ],
   "blockers": [
     "DEVICE QA: exact code19 real-device QA blocked because Desktop Commander remote execution capacity is paused; receiver itself is online",
@@ -244,10 +244,10 @@
     "expected_internal_versionCode": 19,
     "production_write_path": false,
     "tester_release_write_path": false,
-    "universal_rdos_issue_26": "OPEN - design corrected to GET-only",
-    "universal_rdos_pr_32": "OPEN/DRAFT - legacy temporary-edit implementation; NEEDS_GET_ONLY_REFACTOR",
+    "universal_rdos_issue_26": "OPEN - canonical GET-only MCP bridge work",
+    "universal_rdos_pr_32": "OPEN/DRAFT - GET-only source implemented at 403edd488ad23fc1f22ee07ce0444a3d20bf309b; independent Linux py_compile PASS and 16/16 unit tests PASS; hosted CI pre-run blocked; live API and deployed MCP remain TO VERIFY",
     "universal_rdos_issue_15": "OPEN - hosted Actions pre-runner infrastructure blocker",
-    "mcp_runtime": "NOT CONNECTED / NOT EXPOSED",
+    "mcp_runtime": "SOURCE_IMPLEMENTED / LIVE_API_TO_VERIFY / ENDPOINT_TO_VERIFY / MCP_NOT_EXPOSED",
     "quickqr_probe_endpoint": "GET applications/{packageName}/tracks/internal/releases",
     "quickqr_probe_side_effects": "NONE",
     "canonical_engine": "Play Console Auto Test v1.2.0",
