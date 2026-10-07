@@ -1,0 +1,88 @@
+name: Play API Read Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - probe/play-api-readonly
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quickqr-play-api-read-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_PACKAGE: com.aistudio.qrgenerator.kmpzqr
+      EXPECTED_VERSION_CODE: "19"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Static safety gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile .github/scripts/play_api_read_probe.py
+          python - <<'PY'
+          from pathlib import Path
+          text = Path(".github/scripts/play_api_read_probe.py").read_text(encoding="utf-8")
+          forbidden = [
+              '"PUT"',
+              '"PATCH"',
+              "/commit",
+              "edits.commit",
+              "tracks.update",
+              "testers.update",
+              "bundles.upload",
+              "apks.upload",
+          ]
+          found = [item for item in forbidden if item in text]
+          if found:
+              raise SystemExit(f"Forbidden Play write path detected: {found}")
+          print("PASS: syntax valid; no known Play write/commit path detected.")
+          PY
+
+      - name: Install Google auth only
+        run: python -m pip install --disable-pip-version-check google-auth==2.41.1
+
+      - name: Verify secret presence
+        shell: bash
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "$PLAY_JSON" || { echo "FAIL: PLAY_SERVICE_ACCOUNT_JSON missing"; exit 2; }
+
+      - name: Create ephemeral credential file
+        shell: bash
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          mkdir -p .secure
+          printf '%s' "$PLAY_JSON" > .secure/play-service-account.json
+          chmod 600 .secure/play-service-account.json
+
+      - name: Probe exact package and Internal Testing
+        run: |
+          python .github/scripts/play_api_read_probe.py \
+            --package "$EXPECTED_PACKAGE" \
+            --expected-version-code "$EXPECTED_VERSION_CODE" \
+            --service-account-file .secure/play-service-account.json
+
+      - name: Security cleanup
+        if: always()
+        shell: bash
+        run: rm -rf .secure
