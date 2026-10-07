@@ -4,7 +4,7 @@
 - ชื่อแอป: QuickQR Business
 - Application ID / Package: `com.aistudio.qrgenerator.kmpzqr`
 - Version name: `18.0`
-- Version code: `18`
+- Version code: `19`
 - ประเภท: แอปสแกนและสร้าง QR Code สำหรับธุรกิจ
 
 ## คำอธิบายสั้น
@@ -52,7 +52,7 @@ QuickQR Business v18.0 testing build: ปรับชื่อแอปและ
 ## เช็กลิสต์ก่อนอัปโหลด AAB
 1. สร้าง AAB ด้วย release signing ที่ถูกต้อง
 2. ตรวจว่า package ยังเป็น `com.aistudio.qrgenerator.kmpzqr`
-3. ตรวจว่า versionCode เป็น 18 และมากกว่า build ที่เคยอัปโหลด
+3. ตรวจว่า versionCode เป็น 19 สำหรับ active candidate และห้ามใช้ code18 ที่ถูก supersede
 4. กล้องจริงผ่าน physical-device QA แล้ว; ทดสอบซ้ำบน release-signed build ก่อนอัปโหลด
 5. ทดสอบ Generator: PromptPay / Wi‑Fi / Store Link / Text / Business Card
 6. ทดสอบบันทึกและแชร์ภาพ QR
@@ -72,7 +72,7 @@ Owner-only fields still required before Play review:
 - Final target-audience/category confirmation
 - Store graphics/screenshots from current v18
 
-## v18 verification boundary — 2026-09-27
+## Historical v18/code18 verification boundary — 2026-09-27
 - Current GitHub source is v18.0 / versionCode 18.
 - Android CI for current v18 source is PASS.
 - Current CI release AAB is unsigned and is not Play-upload-ready.
@@ -82,3 +82,21 @@ Owner-only fields still required before Play review:
 - Play Console signing/upload/versionCode acceptance for v18: TO VERIFY.
 
 - The v18 debug smoke does not replace the required smoke test of the exact release-signed AAB/APK candidate.
+
+
+## Current code19 testing boundary — 2026-10-07
+- Gradle identity: v18.0 / versionCode 19 / targetSdk 36.
+- Active Internal Testing code19: PASS.
+- Signed code19 AAB SHA-256: `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Exact code19 real-device gate: BLOCKED until authorized realme RMX3241 reconnect/unlock.
+- Android Publisher read-only probe: source/static safety PASS; runtime auth BLOCKED because no approved credential/connector is connected.
+- Closed Testing evidence model must keep these fields separate:
+  - invited/configured
+  - eligible unique testers
+  - opted-in testers
+  - continuous opt-in duration
+  - meaningful feedback/feature coverage
+  - device coverage
+- Email-list or Google Group configuration is not proof of opt-in or continuity.
+- For an applicable new personal developer account, current official requirement is at least 12 testers opted in continuously for at least 14 days before applying for Production access.
+- Production remains untouched.
