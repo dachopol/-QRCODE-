@@ -21,6 +21,7 @@ import com.aistudio.qrgenerator.kmpzqr.model.StorePlatform
 import com.aistudio.qrgenerator.kmpzqr.model.WifiSecurity
 import com.aistudio.qrgenerator.kmpzqr.util.CurrentLocationProvider
 import com.aistudio.qrgenerator.kmpzqr.util.ImageExporter
+import com.aistudio.qrgenerator.kmpzqr.util.HistoryPromptPayResolver
 import com.aistudio.qrgenerator.kmpzqr.util.LocationError
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
@@ -401,6 +402,81 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
             withContext(Dispatchers.Main) {
                 Toast.makeText(getApplication(), localizedNow("บันทึกโปรไฟล์นามบัตรแล้ว", "Business card profile saved"), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun openPromptPayHistoryItem(item: QrItemEntity) {
+        val resolved = HistoryPromptPayResolver.resolve(item)
+        if (resolved == null) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow(
+                    "ข้อมูลพร้อมเพย์ในประวัติไม่ถูกต้อง",
+                    "Saved PromptPay data is invalid"
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val centerLogo = centerLogoFor("PROMPTPAY")
+        val amountStr = if (resolved.amount != null && resolved.amount > 0) {
+            "฿${String.format("%,.2f", resolved.amount)}"
+        } else {
+            localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
+        }
+        val title = localizedNow("พร้อมเพย์จากประวัติ", "PromptPay history")
+        val subtitle = localizedNow(
+            "เบอร์/เลขบัตร: ${resolved.target} ($amountStr)",
+            "PromptPay ID: ${resolved.target} ($amountStr)"
+        )
+
+        viewModelScope.launch(Dispatchers.Default) {
+            val qrBitmap = QrCodeUtil.generateQrBitmap(
+                content = resolved.payload,
+                size = QrCodeUtil.DEFAULT_SIZE,
+                darkColor = darkColor,
+                lightColor = lightColor,
+                centerLogo = centerLogo
+            )
+
+            if (qrBitmap == null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        getApplication(),
+                        localizedNow(
+                            "ไม่สามารถสร้างภาพจากข้อมูลประวัติได้",
+                            "Could not render saved QR data"
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
+
+            val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
+                qrBitmap = qrBitmap,
+                title = "THAI QR PAYMENT",
+                targetId = resolved.target,
+                amount = resolved.amount,
+                merchantName = "",
+                backgroundColor = lightColor
+            )
+
+            withContext(Dispatchers.Main) {
+                _activePreview.value = ActiveQrPreview(
+                    title = title,
+                    subtitle = subtitle,
+                    rawContent = resolved.payload,
+                    qrBitmap = qrBitmap,
+                    standeeBitmap = standeeBitmap,
+                    targetId = resolved.target,
+                    amount = resolved.amount,
+                    type = "PROMPTPAY"
+                )
             }
         }
     }
