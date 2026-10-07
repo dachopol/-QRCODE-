@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "qr_promptpay_db"
-                ).fallbackToDestructiveMigration(dropAllTables = true).build()
+                ).build()
                 INSTANCE = instance
                 instance
             }
