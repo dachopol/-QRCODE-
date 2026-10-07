@@ -586,11 +586,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             viewModelScope.launch(Dispatchers.IO) {
+                val historySecurity = when (_wifiSecurity.value) {
+                    WifiSecurity.OPEN -> localizedNow("ไม่มีรหัสผ่าน", "Open")
+                    else -> _wifiSecurity.value.name
+                }
                 dao.insertQrItem(
                     QrItemEntity(
                         type = "WIFI",
                         title = "Wi-Fi: $ssid",
-                        subtitle = localizedNow("รหัสผ่าน: ${_wifiPassword.value}", "Password: ${_wifiPassword.value}"),
+                        subtitle = localizedNow(
+                            "ความปลอดภัย: $historySecurity",
+                            "Security: $historySecurity"
+                        ),
                         rawContent = payload,
                         isScan = false
                     )
