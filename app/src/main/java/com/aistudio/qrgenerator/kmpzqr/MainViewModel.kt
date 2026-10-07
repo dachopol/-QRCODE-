@@ -25,6 +25,7 @@ import com.aistudio.qrgenerator.kmpzqr.util.LocationError
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
 import com.aistudio.qrgenerator.kmpzqr.util.QrCodeUtil
+import com.aistudio.qrgenerator.kmpzqr.util.HistoryPrivacyUtil
 import com.aistudio.qrgenerator.kmpzqr.util.QrScannerUtil
 import com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil
 import com.aistudio.qrgenerator.kmpzqr.util.ValidationResult
@@ -590,7 +591,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     QrItemEntity(
                         type = "WIFI",
                         title = "Wi-Fi: $ssid",
-                        subtitle = localizedNow("รหัสผ่าน: ${_wifiPassword.value}", "Password: ${_wifiPassword.value}"),
+                        subtitle = HistoryPrivacyUtil.wifiHistorySubtitle(_wifiPassword.value.isNotBlank(), LocalizationManager.effectiveLanguageCode()),
                         rawContent = payload,
                         isScan = false
                     )
