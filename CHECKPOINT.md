@@ -533,7 +533,7 @@ Official references:
 
 ## 2026-10-08 continuity checkpoint
 
-- Current GitHub main HEAD: `aed996122c97930b7612d6765feec2b11044f99c`.
+- State review basis before the following metadata/checkpoint commits: `aed996122c97930b7612d6765feec2b11044f99c`. Do not treat this as a cached current HEAD; read `main` live for each decision.
 - Active Play release remains QuickQR Business v18.0 / versionCode 19. No new Play release was created by the documentation or probe hardening commits.
 - Canonical Play Console Auto Test engine was read back as v1.2.0 with `GET_ONLY_RELEASE_LIST` as the release-evidence contract.
 - QuickQR's canonical probe is GET-only. Universal-RD-OS PR #32 is still a legacy temporary-edit implementation and must remain `NEEDS_GET_ONLY_REFACTOR` until its source is changed and exact-head tests pass.
