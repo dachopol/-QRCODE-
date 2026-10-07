@@ -201,27 +201,33 @@ object QrValidationUtil {
                 put(DecodeHintType.TRY_HARDER, true)
             }
             val result = MultiFormatReader().apply { setHints(hints) }.decodeWithState(binaryBitmap)
-
-            if (result != null && result.text == expectedContent) {
-                QrVerificationResult(isValid = true, decodedContent = result.text, errorMessage = null)
-            } else if (result != null && result.text.isNotBlank()) {
-                QrVerificationResult(
-                    isValid = false,
-                    decodedContent = result.text,
-                    errorMessage = "การทดสอบความถูกต้องของ QR ล้มเหลว: ข้อมูลที่อ่านได้ไม่ตรงกับข้อมูลต้นฉบับ"
-                )
-            } else {
-                QrVerificationResult(
-                    isValid = false,
-                    decodedContent = null,
-                    errorMessage = "การทดสอบอ่าน QR ล้มเหลว: กล้องไม่สามารถถอดรหัสภาพได้"
-                )
-            }
+            verifyDecodedContent(result?.text, expectedContent)
         } catch (e: Exception) {
             QrVerificationResult(
                 isValid = false,
                 decodedContent = null,
                 errorMessage = "การทดสอบอ่าน QR หลังสร้างล้มเหลว (อาจเกิดจากสีที่กลืนกัน หรือความละเอียดไม่พอ)"
+            )
+        }
+    }
+
+
+    internal fun verifyDecodedContent(decodedContent: String?, expectedContent: String): QrVerificationResult {
+        return when {
+            decodedContent == expectedContent -> QrVerificationResult(
+                isValid = true,
+                decodedContent = decodedContent,
+                errorMessage = null
+            )
+            !decodedContent.isNullOrBlank() -> QrVerificationResult(
+                isValid = false,
+                decodedContent = decodedContent,
+                errorMessage = "การทดสอบความถูกต้องของ QR ล้มเหลว: ข้อมูลที่อ่านได้ไม่ตรงกับข้อมูลต้นฉบับ"
+            )
+            else -> QrVerificationResult(
+                isValid = false,
+                decodedContent = null,
+                errorMessage = "การทดสอบอ่าน QR ล้มเหลว: กล้องไม่สามารถถอดรหัสภาพได้"
             )
         }
     }
