@@ -1,6 +1,6 @@
 # QuickQR Business — Google Play Console Submission Pack
 
-Last verified against source: v18.0 / versionCode 18
+Last verified against active Internal Testing release: v18.0 / versionCode 19
 Package: `com.aistudio.qrgenerator.kmpzqr`
 Target SDK: 36
 Min SDK: 24
@@ -10,7 +10,7 @@ Min SDK: 24
 - Developer / brand: AnakinYoo
 - Package: `com.aistudio.qrgenerator.kmpzqr`
 - Version name: `18.0`
-- Version code: `18`
+- Version code: `19`
 - Category: **Business** (recommended for current positioning)
 - App type: App
 - Pricing: Free for current testing build
@@ -156,21 +156,21 @@ QuickQR Business v18.0 improves TH/EN consistency, PromptPay number validation, 
 - [x] Privacy policy access implemented in the Support sheet; Android ACTION_VIEW handler verified. Final post-fix foreground tap remains part of release smoke test.
 - [ ] Final target audience confirmation
 - [ ] Final category confirmation
-- [ ] Store icon 512×512
-- [ ] Feature graphic 1024×500
-- [ ] Current v18 phone screenshots
+- [x] Store icon 512×512
+- [x] Feature graphic 1024×500
+- [x] Current v18 phone screenshots — 2 real screenshots recorded
 - [ ] Production countries/regions
-- [ ] Release signing / upload key
-- [x] AAB generated from current main by CI; current CI artifact is intentionally unsigned and not Play-upload-ready
+- [x] Release signing / upload key — code19 signed AAB accepted on Internal Testing
+- [x] Active Internal Testing code19 AAB is owner-signed and Play-accepted; later main changes since build commit are workflow/checkpoint-only, not app source
 - [x] Physical-device scanner test — CameraX live preview + gallery scan-back verified on real Android device
-- [ ] Data Safety rechecked against final AAB / active tracks
+- [ ] Data Safety Console answers rechecked against final AAB / active tracks — source review PASS, Console-only state TO VERIFY
 - [ ] IARC questionnaire submitted
 
 
 ## 16. ขั้นตอนดำเนินการต่อ — ตรวจเอกสาร 24 September 2026
 
 ### ตรวจแล้วจากไฟล์ main ในรอบนี้
-- `app/build.gradle.kts`: versionName 18.0 / versionCode 18 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
+- `app/build.gradle.kts`: current versionName 18.0 / versionCode 19 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36
 - `app/src/main/AndroidManifest.xml`: CAMERA, camera optional, allowBackup=false; ไม่พบ INTERNET ใน manifest ต้นทางนี้
 - Privacy Policy ทั้ง Markdown และ HTML ไม่เผยแพร่อีเมลส่วนตัว; ให้ตั้งค่าช่องทาง support แยกต่างหากใน Play Console
 - การตรวจนี้เป็น source/document review ไม่ใช่ผลตรวจ merged manifest, final AAB, CI หรืออุปกรณ์จริง
@@ -196,9 +196,23 @@ Official reference: https://support.google.com/googleplay/android-developer/answ
 Google Play requires a publicly accessible privacy policy URL and a privacy policy link or text inside the app.
 
 
-## 17. v18 release boundary — 27 September 2026
+## 17. Historical code18 release boundary — 27 September 2026
 - Current GitHub source identity is v18.0 / versionCode 18.
 - Android CI run `36196245061` for the v18 metadata head completed successfully.
 - CI provides a debug APK and an unsigned release AAB artifact.
 - The previously verified local signed AAB belongs to an earlier source commit and is not evidence that the exact v18 bundle is signed.
 - Before Play upload: build/sign the exact v18 AAB with the owner-controlled upload key, verify its package/version/signature, install/smoke-test the corresponding v18 build on a physical device, then verify Play Console acceptance.
+
+
+## 18. Current code19 release boundary — 7 October 2026
+- Active Internal Testing identity: v18.0 / versionCode 19 / package `com.aistudio.qrgenerator.kmpzqr` / targetSdk 36.
+- Active signed AAB: `QuickQR-Business-v18.0-code19-quickqrkey.aab`.
+- AAB SHA-256: `2B38514B4E24D151BC2AA4E15CD4C21C296918C445E3227CC1C4ACDD1F292D02`.
+- Build source commit: `c7304af1dc3040c13aff69b7e2ee6574a1192276`.
+- Compare from that build commit to current main shows only GitHub workflows, Play read-probe source, checkpoint and task-state changes; no `app/` source file changed.
+- Internal Testing / Play acceptance for code19: PASS from recorded Play Console evidence.
+- Exact code19 real-device install/runtime/visual/accessibility closure on authorized realme RMX3241: BLOCKED pending reconnect/unlock.
+- Direct Android Publisher exact-package read: BLOCKED pending approved credential/connector; use existing probe only.
+- Tester lists/groups are configuration only; opted-in count and 14-day continuity remain TO VERIFY until direct evidence exists.
+- Developer verification/package registration status: TO VERIFY from authorized Play Console/API evidence.
+- Production publishing: NOT AUTHORIZED / NOT TOUCHED.
