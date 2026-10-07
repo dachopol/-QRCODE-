@@ -488,8 +488,8 @@ Verification:
 - QuickQR PR #4 (`chore: add sanitized Play API read-only probe`) was merged after exact-head Android CI #166 PASS.
 - Post-merge Android CI #167 on commit `5ada92be...`: PASS, including project policy, compile, unit tests, lint, release bundle, artifact verification, debug APK upload and unsigned AAB upload.
 - Post-merge Pages #110: PASS.
-- Read-only Play API probe static safety gate: PASS. It is locked to the exact QuickQR package and expected Internal Testing versionCode 19.
-- Probe uses a temporary Android Publisher edit and contains no edit commit, release update, tester update, APK/AAB upload, or Production publishing path.
+- GET-only Play API probe static safety gate: PASS. It is locked to the exact QuickQR package and expected Internal Testing versionCode 19.
+- The canonical QuickQR Play probe now uses the direct GET-only track release-list endpoint; it creates no Play edit and contains no release/tester mutation, upload, commit, or Production publishing path.
 - Manual `workflow_dispatch` is available on `main` for the existing probe.
 - Current API authentication state: BLOCKED / NOT CONNECTED because repository secret `PLAY_SERVICE_ACCOUNT_JSON` is not provisioned in the tested workflow context.
 - Because the credential is absent, no Google Play API request was made; security cleanup still PASS.
@@ -530,4 +530,16 @@ Official references:
 - https://developer.android.com/developer-verification/guides/google-play-console
 - https://support.google.com/googleplay/android-developer/answer/10144311
 - https://developers.google.com/android-publisher/api-ref/rest/v3/edits.testers
+
+## 2026-10-08 continuity checkpoint
+
+- Current GitHub main HEAD: `aed996122c97930b7612d6765feec2b11044f99c`.
+- Active Play release remains QuickQR Business v18.0 / versionCode 19. No new Play release was created by the documentation or probe hardening commits.
+- Canonical Play Console Auto Test engine was read back as v1.2.0 with `GET_ONLY_RELEASE_LIST` as the release-evidence contract.
+- QuickQR's canonical probe is GET-only. Universal-RD-OS PR #32 is still a legacy temporary-edit implementation and must remain `NEEDS_GET_ONLY_REFACTOR` until its source is changed and exact-head tests pass.
+- Desktop Commander receiver `DESKTOP-IL7PNGM` is online and pingable.
+- Remote execution is currently blocked because the Desktop Commander account has exhausted the monthly remote-call allowance. The service explicitly said the paired device remains connected and not to retry/reconnect while paused.
+- The attempted read-only `adb devices -l` command did not execute; ADB transport and realme RMX3241 identity therefore remain TO VERIFY.
+- No device install, launch, permission change, screenshot, secure-lock bypass, or Production action occurred in this checkpoint.
+- Resume the existing code19 real-device QA task from Issue #5 only after execution capacity is verified available again; do not create a duplicate device task.
 
