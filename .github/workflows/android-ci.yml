@@ -62,6 +62,10 @@ jobs:
             echo "Forbidden permission found in manifest"
             exit 1
           fi
+          if grep -RFn "fallbackToDestructiveMigration" app/src/main/java; then
+            echo "Destructive Room migration fallback is forbidden; add an explicit migration instead"
+            exit 1
+          fi
           grep -Fq "QuickQR Business v${VERSION_NAME}" metadata.json
 
       - name: Compile, test, lint and release bundle
