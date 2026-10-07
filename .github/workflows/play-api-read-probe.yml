@@ -39,8 +39,11 @@ jobs:
           from pathlib import Path
           text = Path(".github/scripts/play_api_read_probe.py").read_text(encoding="utf-8")
           forbidden = [
+              '"POST"',
               '"PUT"',
               '"PATCH"',
+              '"DELETE"',
+              "/edits",
               "/commit",
               "edits.commit",
               "tracks.update",
@@ -51,7 +54,7 @@ jobs:
           found = [item for item in forbidden if item in text]
           if found:
               raise SystemExit(f"Forbidden Play write path detected: {found}")
-          print("PASS: syntax valid; no known Play write/commit path detected.")
+          print("PASS: syntax valid; GET-only probe has no known Play write/edit/commit path.")
           PY
 
       - name: Install Google auth only
@@ -75,7 +78,7 @@ jobs:
           printf '%s' "$PLAY_JSON" > .secure/play-service-account.json
           chmod 600 .secure/play-service-account.json
 
-      - name: Probe exact package and Internal Testing
+      - name: Probe exact package and published Internal Testing release
         run: |
           python .github/scripts/play_api_read_probe.py \
             --package "$EXPECTED_PACKAGE" \
