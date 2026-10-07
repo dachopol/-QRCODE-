@@ -236,7 +236,6 @@
     "android_ci": "PASS",
     "pages_ci": "PASS"
   },
-  "current_source_head": "aed996122c97930b7612d6765feec2b11044f99c",
   "play_api_bridge": {
     "quickqr_issue_3": "OPEN - credential/admin blocker",
     "quickqr_pr_4": "MERGED - predecessor probe; main is now hardened to GET-only",
@@ -276,5 +275,7 @@
       "does_not_prove": "tester opt-in, continuity, meaningful testing, Production access, Console-only state",
       "source": "https://developers.google.com/android-publisher/api-ref/rest/v3/applications.tracks.releases/list"
     }
-  }
+  },
+  "state_basis_head": "aed996122c97930b7612d6765feec2b11044f99c",
+  "repository_head_rule": "Do not cache a field as current HEAD; read GitHub main live for each decision run."
 }
