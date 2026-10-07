@@ -25,7 +25,7 @@ class QuickQrCoreTest {
 
     @Test
     fun promptPayId_roundTripWithoutAmount() {
-        val target = "1101700203451"
+        val target = "1101700203450"
         val payload = PromptPayGenerator.generatePayload(target, null)
 
         assertTrue(PromptPayGenerator.verifyCrc(payload))
