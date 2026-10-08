@@ -283,5 +283,23 @@
     "camera_lifecycle_cleanup": "PASS - CameraX unbindAll and camera executor shutdown present",
     "file_provider": "PASS - provider exported=false; read URI grant used for shares; paths limited to app cache images and app external Pictures",
     "scope": "source review only; not a substitute for exact code19 real-device runtime QA"
+  },
+  "hosted_android_ci": {
+    "status": "PASS",
+    "main_commit": "07daf33ada6291abfbabc4058867bd88800b866f",
+    "run_id": 37708369058,
+    "run_number": 206,
+    "build": "PASS",
+    "emulator_boot": "PASS",
+    "connected_instrumentation": "PASS",
+    "report_upload": "PASS",
+    "root_cause_closed": "AVD path mismatch fixed; canonical main workflow now boots emulator and executes connectedDebugAndroidTest"
+  },
+  "release_boundary": {
+    "active_play_versionName": "18.0",
+    "active_play_versionCode": 19,
+    "app_source_commit": "c7304af1dc3040c13aff69b7e2ee6574a1192276",
+    "current_main_app_source_delta": "NONE VERIFIED THROUGH 07daf33ada6291abfbabc4058867bd88800b866f",
+    "production": "NOT TOUCHED"
   }
 }
