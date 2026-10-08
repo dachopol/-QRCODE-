@@ -164,9 +164,6 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & adb shell pm grant $env:APP_ID android.permission.CAMERA
-          & adb shell pm grant $env:APP_ID android.permission.ACCESS_COARSE_LOCATION
-          & adb shell pm grant $env:APP_ID android.permission.ACCESS_FINE_LOCATION
           & adb logcat -c
           & adb shell am force-stop $env:APP_ID
           $launch = (& adb shell am start -W -n "$env:APP_ID/.MainActivity" 2>&1) -join "`n"
@@ -175,8 +172,8 @@ jobs:
             throw "MainActivity launch failed"
           }
           Start-Sleep -Seconds 5
-          $pid = (& adb shell pidof $env:APP_ID).Trim()
-          if (-not $pid) { throw "QuickQR process is not alive after launch" }
+          $appPid = (& adb shell pidof $env:APP_ID).Trim()
+          if (-not $appPid) { throw "QuickQR process is not alive after launch" }
           Write-Host "QuickQR live process verified."
 
       - name: Run RMX3241 CameraX bind and rebind smoke
@@ -213,8 +210,8 @@ jobs:
           & adb shell am start -W -n "$env:APP_ID/.MainActivity" | Out-Host
           if ($LASTEXITCODE -ne 0) { throw "Final launch failed" }
           Start-Sleep -Seconds 5
-          $pid = (& adb shell pidof $env:APP_ID).Trim()
-          if (-not $pid) { throw "QuickQR final process is not alive" }
+          $appPid = (& adb shell pidof $env:APP_ID).Trim()
+          if (-not $appPid) { throw "QuickQR final process is not alive" }
 
           & adb shell screencap -p /sdcard/quickqr_physical_final.png
           & adb pull /sdcard/quickqr_physical_final.png "physical-evidence\quickqr_physical_final.png" | Out-Host
