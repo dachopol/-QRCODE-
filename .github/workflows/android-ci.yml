@@ -42,6 +42,19 @@ jobs:
         with:
           gradle-version: "9.3.1"
 
+      - name: Self-test next-release version guard
+        run: python .github/scripts/verify_next_release_version.py --self-test
+
+      - name: Enforce versionCode bump when next-release is Ready
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'integration/next-release' && github.event.pull_request.draft == false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          python .github/scripts/verify_next_release_version.py \
+            --base-ref FETCH_HEAD \
+            --head-file app/build.gradle.kts
+
       - name: Verify project policy
         shell: bash
         run: |
