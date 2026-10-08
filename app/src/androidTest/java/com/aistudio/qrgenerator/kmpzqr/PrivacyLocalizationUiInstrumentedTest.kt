@@ -15,6 +15,7 @@ import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrResult
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrType
 import com.aistudio.qrgenerator.kmpzqr.ui.components.ScanResultBottomSheet
+import com.aistudio.qrgenerator.kmpzqr.ui.screens.HistoryScreen
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.MyApplicationTheme
 import com.aistudio.qrgenerator.kmpzqr.util.HistoryPrivacyUtil
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
@@ -78,7 +79,13 @@ class PrivacyLocalizationUiInstrumentedTest {
             )
         }
 
-        composeRule.onNodeWithTag("nav_history").performClick()
+        composeRule.runOnUiThread {
+            composeRule.activity.setContent {
+                MyApplicationTheme(darkTheme = false) {
+                    HistoryScreen(viewModel = MainViewModel(application))
+                }
+            }
+        }
         composeRule.waitUntil(timeoutMillis = 5_000) {
             composeRule.onAllNodesWithText("QA Wi-Fi")
                 .fetchSemanticsNodes()
