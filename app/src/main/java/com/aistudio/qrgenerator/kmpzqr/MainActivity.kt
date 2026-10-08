@@ -391,12 +391,12 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             Text(
                                 text = label,
                                 fontSize = when {
-                                    compactLargeText -> 9.sp
+                                    compactLargeText -> 10.sp
                                     compactLayout -> if (isSelected) 11.sp else 10.sp
                                     isSelected -> 12.sp
                                     else -> 11.sp
                                 },
-                                lineHeight = if (compactLargeText) 11.sp else 14.sp,
+                                lineHeight = if (compactLargeText) 12.sp else 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                                 color = if (isSelected) Color(0xFF0369A1) else MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
