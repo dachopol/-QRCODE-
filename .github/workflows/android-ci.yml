@@ -37,8 +37,8 @@ jobs:
         with:
           packages: platform-tools
 
-      - name: Install Android 36 SDK
-        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Install Android 37 SDK
+        run: sdkmanager "platform-tools" "platforms;android-37" "build-tools;36.0.0"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v6
@@ -187,6 +187,7 @@ jobs:
           sdkmanager \
             "platform-tools" \
             "emulator" \
+            "platforms;android-37" \
             "platforms;android-35" \
             "system-images;android-35;google_apis;x86_64"
           if [ -e /dev/kvm ]; then
@@ -315,7 +316,7 @@ jobs:
           echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
           mkdir -p "$ANDROID_USER_HOME" "$ANDROID_AVD_HOME"
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager             "platform-tools"             "emulator"             "platforms;android-36"             "system-images;android-36;google_apis;x86_64"
+          sdkmanager             "platform-tools"             "emulator"             "platforms;android-37"             "platforms;android-36"             "system-images;android-36;google_apis;x86_64"
           if [ -e /dev/kvm ]; then
             sudo chmod 666 /dev/kvm
           fi
