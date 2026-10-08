@@ -226,6 +226,8 @@ fun GeneratorScreen(
                 onClick = { showAppearance = !showAppearance },
                 shape = AppCardShape,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(0.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                 modifier = Modifier.fillMaxWidth().testTag("qr_appearance_toggle")
             ) {
                 Row(
