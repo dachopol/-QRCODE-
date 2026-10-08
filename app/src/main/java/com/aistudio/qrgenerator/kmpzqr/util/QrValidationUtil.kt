@@ -13,7 +13,7 @@ import java.util.EnumMap
 
 sealed class ValidationResult {
     object Valid : ValidationResult()
-    data class Invalid(val reason: String) : ValidationResult()
+    data class Invalid(val reasonTh: String, val reasonEn: String) : ValidationResult()
 }
 
 data class QrVerificationResult(
@@ -45,27 +45,27 @@ object QrValidationUtil {
     fun validatePromptPayTarget(target: String): ValidationResult {
         val clean = normalizePromptPayTarget(target)
         if (clean.isEmpty()) {
-            return ValidationResult.Invalid("กรุณากรอกเบอร์โทรศัพท์ หรือเลขประจำตัวประชาชน")
+            return ValidationResult.Invalid("กรุณากรอกเบอร์โทรศัพท์ หรือเลขประจำตัวประชาชน", "Enter a phone number or citizen ID")
         }
 
         if (clean.length == 10) {
             if (!clean.matches(Regex("^0[689]\\d{8}$"))) {
-                return ValidationResult.Invalid("เบอร์พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก เช่น 0812345678")
+                return ValidationResult.Invalid("เบอร์พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก เช่น 0812345678", "PromptPay phone number must be a 10-digit Thai mobile number, e.g. 0812345678")
             }
             return ValidationResult.Valid
         }
 
         if (clean.length == 13) {
             if (!clean.matches(Regex("^\\d{13}$"))) {
-                return ValidationResult.Invalid("เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก")
+                return ValidationResult.Invalid("เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก", "Citizen ID must contain exactly 13 digits")
             }
             if (!verifyThaiIdChecksum(clean)) {
-                return ValidationResult.Invalid("เลขบัตรประชาชน 13 หลักไม่ผ่านการตรวจสอบ")
+                return ValidationResult.Invalid("เลขบัตรประชาชน 13 หลักไม่ผ่านการตรวจสอบ", "The 13-digit citizen ID failed checksum validation")
             }
             return ValidationResult.Valid
         }
 
-        return ValidationResult.Invalid("พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก หรือเลขบัตรประชาชน 13 หลัก")
+        return ValidationResult.Invalid("พร้อมเพย์ต้องเป็นเบอร์มือถือไทย 10 หลัก หรือเลขบัตรประชาชน 13 หลัก", "PromptPay must be a 10-digit Thai mobile number or a 13-digit citizen ID")
     }
 
     /**
@@ -94,12 +94,12 @@ object QrValidationUtil {
     fun validateAmount(amountStr: String): ValidationResult {
         if (amountStr.isBlank()) return ValidationResult.Valid // Optional amount
         val amount = amountStr.toDoubleOrNull()
-            ?: return ValidationResult.Invalid("จำนวนเงินต้องเป็นตัวเลขที่ถูกต้อง")
+            ?: return ValidationResult.Invalid("จำนวนเงินต้องเป็นตัวเลขที่ถูกต้อง", "Amount must be a valid number")
         if (!amount.isFinite()) {
-            return ValidationResult.Invalid("จำนวนเงินไม่ถูกต้อง")
+            return ValidationResult.Invalid("จำนวนเงินไม่ถูกต้อง", "Amount is invalid")
         }
         if (amount <= 0.0) {
-            return ValidationResult.Invalid("จำนวนเงินที่กรอกต้องมากกว่า 0")
+            return ValidationResult.Invalid("จำนวนเงินที่กรอกต้องมากกว่า 0", "Entered amount must be greater than 0")
         }
         return ValidationResult.Valid
     }
@@ -110,18 +110,18 @@ object QrValidationUtil {
     fun validateWifi(ssid: String, pass: String, security: String): ValidationResult {
         val cleanSsid = ssid.trim()
         if (cleanSsid.isEmpty()) {
-            return ValidationResult.Invalid("กรุณาระบุชื่อสัญญาณ Wi-Fi (SSID)")
+            return ValidationResult.Invalid("กรุณาระบุชื่อสัญญาณ Wi-Fi (SSID)", "Enter a Wi-Fi network name (SSID)")
         }
         if (cleanSsid.toByteArray(Charsets.UTF_8).size > 32) {
-            return ValidationResult.Invalid("ชื่อ Wi-Fi (SSID) ต้องมีความยาวไม่เกิน 32 ไบต์")
+            return ValidationResult.Invalid("ชื่อ Wi-Fi (SSID) ต้องมีความยาวไม่เกิน 32 ไบต์", "Wi-Fi SSID must be no more than 32 bytes")
         }
 
         if (security.equals("WPA", ignoreCase = true) || security.equals("WPA2", ignoreCase = true)) {
             if (pass.length < 8) {
-                return ValidationResult.Invalid("รหัสผ่าน Wi-Fi (WPA/WPA2) ต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
+                return ValidationResult.Invalid("รหัสผ่าน Wi-Fi (WPA/WPA2) ต้องมีความยาวอย่างน้อย 8 ตัวอักษร", "Wi-Fi WPA/WPA2 password must be at least 8 characters")
             }
             if (pass.length > 63) {
-                return ValidationResult.Invalid("รหัสผ่าน Wi-Fi ต้องมีความยาวไม่เกิน 63 ตัวอักษร")
+                return ValidationResult.Invalid("รหัสผ่าน Wi-Fi ต้องมีความยาวไม่เกิน 63 ตัวอักษร", "Wi-Fi password must be no more than 63 characters")
             }
         }
         return ValidationResult.Valid
@@ -133,7 +133,7 @@ object QrValidationUtil {
     fun validateUrl(url: String): ValidationResult {
         val trimmed = url.trim()
         if (trimmed.isEmpty()) {
-            return ValidationResult.Invalid("กรุณากรอก URL หรือลิงก์เว็บไซต์")
+            return ValidationResult.Invalid("กรุณากรอก URL หรือลิงก์เว็บไซต์", "Enter a URL or website link")
         }
         val target = if (!trimmed.startsWith("http://", ignoreCase = true) &&
             !trimmed.startsWith("https://", ignoreCase = true)
@@ -146,12 +146,12 @@ object QrValidationUtil {
         return try {
             val uri = URI(target)
             if (uri.host.isNullOrBlank()) {
-                ValidationResult.Invalid("รูปแบบ URL ไม่ถูกต้อง (ไม่พบชื่อโดเมน)")
+                ValidationResult.Invalid("รูปแบบ URL ไม่ถูกต้อง (ไม่พบชื่อโดเมน)", "Invalid URL format (domain name is missing)")
             } else {
                 ValidationResult.Valid
             }
         } catch (_: Exception) {
-            ValidationResult.Invalid("รูปแบบ URL ไม่ถูกต้อง")
+            ValidationResult.Invalid("รูปแบบ URL ไม่ถูกต้อง", "Invalid URL format")
         }
     }
 
@@ -160,10 +160,10 @@ object QrValidationUtil {
      */
     fun validateBusinessCard(fullName: String, phone: String): ValidationResult {
         if (fullName.trim().isEmpty()) {
-            return ValidationResult.Invalid("กรุณาระบุชื่อ-นามสกุล หรือชื่อธุรกิจ")
+            return ValidationResult.Invalid("กรุณาระบุชื่อ-นามสกุล หรือชื่อธุรกิจ", "Enter a full name or business name")
         }
         if (phone.trim().isEmpty()) {
-            return ValidationResult.Invalid("กรุณาระบุหมายเลขโทรศัพท์สำหรับติดต่อ")
+            return ValidationResult.Invalid("กรุณาระบุหมายเลขโทรศัพท์สำหรับติดต่อ", "Enter a contact phone number")
         }
         return ValidationResult.Valid
     }
@@ -176,7 +176,8 @@ object QrValidationUtil {
         val contrast = ColorUtils.calculateContrast(darkColor, lightColor)
         return if (contrast < 3.0) {
             ValidationResult.Invalid(
-                "ความคมชัดของสี (Contrast: ${String.format("%.1f", contrast)}:1) ต่ำกว่ามาตรฐาน 3.0:1 กล้องอาจสแกนไม่ติด กรุณาเลือกสีพื้นหลังและสีลวดลายที่ตัดกันชัดเจน"
+                "ความคมชัดของสี (Contrast: ${String.format("%.1f", contrast)}:1) ต่ำกว่ามาตรฐาน 3.0:1 กล้องอาจสแกนไม่ติด กรุณาเลือกสีพื้นหลังและสีลวดลายที่ตัดกันชัดเจน",
+                "Color contrast (${String.format("%.1f", contrast)}:1) is below the 3.0:1 QR readability threshold. Choose clearly contrasting foreground and background colors."
             )
         } else {
             ValidationResult.Valid

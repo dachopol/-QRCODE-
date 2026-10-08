@@ -160,10 +160,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val customCenterLogo: StateFlow<Bitmap?> = _customCenterLogo.asStateFlow()
 
     fun setIncludeCenterLogo(enabled: Boolean) {
+        cancelPendingQrGeneration()
         _includeCenterLogo.value = enabled
     }
 
     fun setCustomCenterLogo(uri: Uri?) {
+        cancelPendingQrGeneration()
         if (uri == null) return
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap = decodeCenterLogo(uri)
@@ -314,50 +316,62 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setTab(index: Int) {
+        cancelPendingQrGeneration()
         _currentTab.value = index
     }
 
     fun setGeneratorCategory(index: Int) {
+        cancelPendingQrGeneration()
         _generatorCategory.value = index
     }
 
     fun setPromptPayTarget(target: String) {
+        cancelPendingQrGeneration()
         _promptPayTarget.value = target
     }
 
     fun setPromptPayAmount(amount: String) {
+        cancelPendingQrGeneration()
         _promptPayAmount.value = amount
     }
 
     fun setPromptPayShopName(name: String) {
+        cancelPendingQrGeneration()
         _promptPayShopName.value = name
     }
 
     fun setWifiSsid(ssid: String) {
+        cancelPendingQrGeneration()
         _wifiSsid.value = ssid
     }
 
     fun setWifiPassword(pass: String) {
+        cancelPendingQrGeneration()
         _wifiPassword.value = pass
     }
 
     fun setWifiSecurity(security: WifiSecurity) {
+        cancelPendingQrGeneration()
         _wifiSecurity.value = security
     }
 
     fun setWifiHidden(hidden: Boolean) {
+        cancelPendingQrGeneration()
         _wifiHidden.value = hidden
     }
 
     fun setStorePlatform(platform: StorePlatform) {
+        cancelPendingQrGeneration()
         _storePlatform.value = platform
     }
 
     fun setStoreValue(value: String) {
+        cancelPendingQrGeneration()
         _storeValue.value = value
     }
 
     fun setRawText(text: String) {
+        cancelPendingQrGeneration()
         _rawText.value = text
     }
 
@@ -405,6 +419,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateBusinessCard(card: DigitalBusinessCard) {
+        cancelPendingQrGeneration()
         _businessCard.value = card
     }
 
@@ -433,6 +448,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openPromptPayHistoryItem(item: QrItemEntity) {
+        cancelPendingQrGeneration()
         val resolved = HistoryPromptPayResolver.resolve(item)
         if (resolved == null) {
             Toast.makeText(
@@ -485,9 +501,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun closePreview() {
-        qrGenerationRequestGuard.invalidate()
-        qrGenerationJob?.cancel()
-        qrGenerationJob = null
+        cancelPendingQrGeneration()
         _activePreview.value = null
     }
 
@@ -512,10 +526,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setQrForegroundColor(color: Color) {
+        cancelPendingQrGeneration()
         _qrForegroundColor.value = color
     }
 
     fun setQrBackgroundColor(color: Color) {
+        cancelPendingQrGeneration()
         _qrBackgroundColor.value = color
     }
 
@@ -618,6 +634,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun cancelPendingQrGeneration() {
+        qrGenerationRequestGuard.invalidate()
+        qrGenerationJob?.cancel()
+        qrGenerationJob = null
+    }
+
     private suspend fun showQrGenerationError(
         requestToken: Long,
         thMessage: String,
@@ -639,6 +661,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate PromptPay QR
      */
     fun generatePromptPay() {
+        cancelPendingQrGeneration()
         val target = _promptPayTarget.value.trim()
         if (target.isBlank()) {
             Toast.makeText(
@@ -650,20 +673,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         when (val validation = QrValidationUtil.validatePromptPayTarget(target)) {
             is ValidationResult.Invalid -> {
-                Toast.makeText(getApplication(), validation.reason, Toast.LENGTH_SHORT).show()
+                Toast.makeText(getApplication(), localizedNow(validation.reasonTh, validation.reasonEn), Toast.LENGTH_SHORT).show()
                 return
             }
             ValidationResult.Valid -> Unit
         }
 
         val amountInput = _promptPayAmount.value
-        if (QrValidationUtil.validateAmount(amountInput) is ValidationResult.Invalid) {
-            Toast.makeText(
-                getApplication(),
-                localizedNow("จำนวนเงินไม่ถูกต้อง", "Invalid amount"),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
+        when (val amountValidation = QrValidationUtil.validateAmount(amountInput)) {
+            is ValidationResult.Invalid -> {
+                Toast.makeText(
+                    getApplication(),
+                    localizedNow(amountValidation.reasonTh, amountValidation.reasonEn),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+            ValidationResult.Valid -> Unit
         }
 
         val amount = amountInput.toDoubleOrNull()
@@ -726,6 +752,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate Wi-Fi QR
      */
     fun generateWifi() {
+        cancelPendingQrGeneration()
         val ssid = _wifiSsid.value.trim()
         val password = _wifiPassword.value
         val security = _wifiSecurity.value.code
@@ -795,6 +822,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate Store Link QR
      */
     fun generateStoreLink() {
+        cancelPendingQrGeneration()
         val platform = _storePlatform.value
         val storeValue = _storeValue.value
         val model = StoreLinkModel(platform, storeValue)
@@ -854,6 +882,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate a location QR from the real foreground device location.
      */
     fun generateLocation() {
+        cancelPendingQrGeneration()
         val point = _currentLocation.value
         if (point == null || !point.isValid()) {
             Toast.makeText(
@@ -900,6 +929,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate Text QR
      */
     fun generateText() {
+        cancelPendingQrGeneration()
         val text = _rawText.value.trim()
         if (text.isBlank()) {
             Toast.makeText(
@@ -946,6 +976,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Generate Digital Business Card vCard & PromptPay QR
      */
     fun generateBusinessCardPreview() {
+        cancelPendingQrGeneration()
         val card = _businessCard.value
         if (QrValidationUtil.validateBusinessCard(
                 card.fullName.ifBlank { card.businessName },

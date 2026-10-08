@@ -142,8 +142,9 @@ class QuickQrCoreTest {
     fun promptPayShortPhone_isRejectedWithSpecificReason() {
         val result = com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil.validatePromptPayTarget("0895469")
         assertTrue(result is com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid)
-        val reason = (result as com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid).reason
-        assertTrue(reason.contains("10 หลัก"))
+        val invalid = result as com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid
+        assertTrue(invalid.reasonTh.contains("10 หลัก"))
+        assertTrue(invalid.reasonEn.contains("10-digit"))
     }
 
     @Test
