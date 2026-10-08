@@ -1,8 +1,5 @@
 package com.aistudio.qrgenerator.kmpzqr.ui.components
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -59,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.aistudio.qrgenerator.kmpzqr.model.GeoPoint
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrResult
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
+import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrType
@@ -73,9 +71,12 @@ fun ScanResultBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val copyToClipboard = { text: String, label: String ->
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
-        Toast.makeText(context, localizedNow("คัดลอก $label แล้ว", "$label copied"), Toast.LENGTH_SHORT).show()
+        SecureClipboardUtil.copyQrContent(
+            context = context,
+            label = label,
+            text = text,
+            confirmation = localizedNow("คัดลอก $label แล้ว", "$label copied")
+        )
     }
 
     ModalBottomSheet(

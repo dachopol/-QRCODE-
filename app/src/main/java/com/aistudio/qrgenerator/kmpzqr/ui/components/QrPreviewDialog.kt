@@ -1,8 +1,5 @@
 package com.aistudio.qrgenerator.kmpzqr.ui.components
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -67,6 +64,7 @@ import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppPillShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppSectionShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassBorder
+import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 
@@ -271,9 +269,12 @@ fun QrPreviewDialog(
 
                 OutlinedButton(
                     onClick = {
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText("QR Code", preview.rawContent))
-                        Toast.makeText(context, localizedNow("คัดลอกข้อมูลแล้ว", "QR text copied"), Toast.LENGTH_SHORT).show()
+                        SecureClipboardUtil.copyQrContent(
+                            context = context,
+                            label = "QR Code",
+                            text = preview.rawContent,
+                            confirmation = localizedNow("คัดลอกข้อมูลแล้ว", "QR text copied")
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()

@@ -1,9 +1,5 @@
 package com.aistudio.qrgenerator.kmpzqr.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
@@ -68,6 +64,7 @@ import com.aistudio.qrgenerator.kmpzqr.MainViewModel
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassAccent
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
+import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
@@ -95,9 +92,12 @@ fun HistoryScreen(
     }
 
     val copyToClipboard = { text: String ->
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("QR Code", text))
-        Toast.makeText(context, localizedNow("คัดลอกแล้ว", "Copied"), Toast.LENGTH_SHORT).show()
+        SecureClipboardUtil.copyQrContent(
+            context = context,
+            label = "QR Code",
+            text = text,
+            confirmation = localizedNow("คัดลอกแล้ว", "Copied")
+        )
     }
 
     Column(
