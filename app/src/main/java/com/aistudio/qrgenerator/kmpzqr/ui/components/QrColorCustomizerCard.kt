@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -249,7 +250,8 @@ fun QrColorCustomizerCard(
                                     "ระบบจะย่อรูปให้อยู่กลาง QR และรักษาสัดส่วนภาพ",
                                     "The image is safely resized and centered without distortion"
                                 ),
-                                fontSize = 10.sp,
+                                fontSize = 11.sp,
+                                lineHeight = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 6.dp)
                             )
@@ -306,7 +308,7 @@ fun QrColorCustomizerCard(
                     ) {
                         Text(
                             text = localizedText("พร้อมใช้งาน", "Ready"),
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isBgDark) Color.White else Color(0xFF0F172A),
                             maxLines = 1,
@@ -350,6 +352,7 @@ fun QrColorCustomizerCard(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .defaultMinSize(minWidth = 52.dp, minHeight = 60.dp)
                             .clickable {
                                 onLightColorChange(color)
                                 // If user picked dark background and current darkColor is black, automatically switch darkColor to white for contrast
@@ -386,7 +389,7 @@ fun QrColorCustomizerCard(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = displayName,
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2
@@ -426,6 +429,7 @@ fun QrColorCustomizerCard(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .defaultMinSize(minWidth = 52.dp, minHeight = 60.dp)
                             .clickable { onDarkColorChange(color) }
                             .testTag("color_dark_${color.toArgb()}")
                     ) {
@@ -454,7 +458,7 @@ fun QrColorCustomizerCard(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = displayName,
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) Color(0xFF0284C7) else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2
