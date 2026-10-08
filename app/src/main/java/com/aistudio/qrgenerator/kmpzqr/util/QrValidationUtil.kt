@@ -95,11 +95,11 @@ object QrValidationUtil {
         if (amountStr.isBlank()) return ValidationResult.Valid // Optional amount
         val amount = amountStr.toDoubleOrNull()
             ?: return ValidationResult.Invalid("จำนวนเงินต้องเป็นตัวเลขที่ถูกต้อง")
-        if (amount < 0) {
-            return ValidationResult.Invalid("จำนวนเงินต้องไม่ติดลบ")
-        }
         if (!amount.isFinite()) {
             return ValidationResult.Invalid("จำนวนเงินไม่ถูกต้อง")
+        }
+        if (amount <= 0.0) {
+            return ValidationResult.Invalid("จำนวนเงินที่กรอกต้องมากกว่า 0")
         }
         return ValidationResult.Valid
     }
@@ -202,23 +202,32 @@ object QrValidationUtil {
             }
             val result = MultiFormatReader().apply { setHints(hints) }.decodeWithState(binaryBitmap)
 
-            if (result != null && result.text == expectedContent) {
-                QrVerificationResult(isValid = true, decodedContent = result.text, errorMessage = null)
-            } else if (result != null && result.text.isNotBlank()) {
-                // Read something but slightly mismatched
-                QrVerificationResult(isValid = true, decodedContent = result.text, errorMessage = null)
-            } else {
-                QrVerificationResult(
-                    isValid = false,
-                    decodedContent = null,
-                    errorMessage = "การทดสอบอ่าน QR ล้มเหลว: กล้องไม่สามารถถอดรหัสภาพได้"
-                )
-            }
+            verifyDecodedContent(result?.text, expectedContent)
         } catch (e: Exception) {
             QrVerificationResult(
                 isValid = false,
                 decodedContent = null,
                 errorMessage = "การทดสอบอ่าน QR หลังสร้างล้มเหลว (อาจเกิดจากสีที่กลืนกัน หรือความละเอียดไม่พอ)"
+            )
+        }
+    }
+
+    internal fun verifyDecodedContent(decodedContent: String?, expectedContent: String): QrVerificationResult {
+        return when {
+            decodedContent == expectedContent -> QrVerificationResult(
+                isValid = true,
+                decodedContent = decodedContent,
+                errorMessage = null
+            )
+            !decodedContent.isNullOrBlank() -> QrVerificationResult(
+                isValid = false,
+                decodedContent = decodedContent,
+                errorMessage = "การทดสอบความถูกต้องของ QR ล้มเหลว: ข้อมูลที่อ่านได้ไม่ตรงกับข้อมูลต้นฉบับ"
+            )
+            else -> QrVerificationResult(
+                isValid = false,
+                decodedContent = null,
+                errorMessage = "การทดสอบอ่าน QR ล้มเหลว: กล้องไม่สามารถถอดรหัสภาพได้"
             )
         }
     }

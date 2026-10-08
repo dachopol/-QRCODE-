@@ -3,6 +3,7 @@ package com.aistudio.qrgenerator.kmpzqr
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrType
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
 import com.aistudio.qrgenerator.kmpzqr.util.QrScannerUtil
+import com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -25,7 +26,7 @@ class QuickQrCoreTest {
 
     @Test
     fun promptPayId_roundTripWithoutAmount() {
-        val target = "1101700203451"
+        val target = "1101700203450"
         val payload = PromptPayGenerator.generatePayload(target, null)
 
         assertTrue(PromptPayGenerator.verifyCrc(payload))
@@ -164,4 +165,19 @@ class QuickQrCoreTest {
         assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull("geo:13,181"))
     }
 
+    @Test
+    fun qrPayloadVerification_requiresExactDecodedContent() {
+        val exact = QrValidationUtil.verifyDecodedContent("expected", "expected")
+        assertTrue(exact.isValid)
+        assertEquals("expected", exact.decodedContent)
+
+        val mismatch = QrValidationUtil.verifyDecodedContent("different", "expected")
+        assertFalse(mismatch.isValid)
+        assertEquals("different", mismatch.decodedContent)
+        assertTrue(mismatch.errorMessage?.contains("ไม่ตรง") == true)
+
+        val unreadable = QrValidationUtil.verifyDecodedContent(null, "expected")
+        assertFalse(unreadable.isValid)
+        assertEquals(null, unreadable.decodedContent)
+    }
 }
