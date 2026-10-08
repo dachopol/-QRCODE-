@@ -55,6 +55,7 @@ class VisualMatrixInstrumentedTest {
             dismissRootWarningIfPresent()
 
             open("nav_generate")
+            open("generator_tab_0")
             capture(outputDir, locale + "_01_generate_promptpay")
 
             (1..4).forEach { index ->
