@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
@@ -54,12 +55,12 @@ class VisualMatrixInstrumentedTest {
             dismissRootWarningIfPresent()
 
             open("nav_generate")
-            open("generator_tab_0")
+            openGeneratorTab(0)
             capture(outputDir, locale + "_01_generate_promptpay")
 
             (1..4).forEach { index ->
                 dismissRootWarningIfPresent()
-                open("generator_tab_" + index)
+                openGeneratorTab(index)
                 val name = when (index) {
                     1 -> "wifi"
                     2 -> "store"
@@ -118,6 +119,28 @@ class VisualMatrixInstrumentedTest {
 
     private fun open(tag: String) {
         composeRule.onNodeWithTag(tag).performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun openGeneratorTab(index: Int) {
+        val expectedContentTag = when (index) {
+            0 -> "promptpay_target_input"
+            1 -> "wifi_ssid_input"
+            2 -> "store_link_input"
+            3 -> "generic_text_input"
+            4 -> "location_permission_or_refresh_button"
+            else -> error("Unsupported generator tab index: " + index)
+        }
+
+        composeRule.onNodeWithTag("generator_tab_" + index)
+            .performScrollTo()
+            .performClick()
+
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithTag(expectedContentTag)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
         composeRule.waitForIdle()
     }
 
