@@ -254,6 +254,18 @@ jobs:
       - name: Run Android instrumentation tests
         run: gradle --no-daemon :app:connectedDebugAndroidTest --stacktrace
 
+      - name: Collect visual screenshot evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/quickqr-visual
+          mkdir -p /tmp/quickqr-visual
+          adb pull /sdcard/Android/data/com.aistudio.qrgenerator.kmpzqr/files/visual /tmp/quickqr-visual
+          COUNT="$(find /tmp/quickqr-visual -type f -name '*.png' | wc -l | tr -d ' ')"
+          echo "Visual screenshot count: $COUNT"
+          test "$COUNT" -ge 18 || { echo "Expected at least 18 visual evidence PNG files"; exit 1; }
+
       - name: Upload instrumentation reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -262,6 +274,7 @@ jobs:
           path: |
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
+            /tmp/quickqr-visual/
             /tmp/quickqr-emulator.log
           if-no-files-found: warn
           retention-days: 7
