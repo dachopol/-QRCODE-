@@ -25,11 +25,10 @@ class PhysicalDeviceSmokeInstrumentedTest {
         assertEquals("RMX3241", Build.MODEL)
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.uiAutomation
-            .executeShellCommand(
-                "pm grant ${BuildConfig.APPLICATION_ID} ${Manifest.permission.CAMERA}"
-            )
-            .close()
+        instrumentation.uiAutomation.grantRuntimePermission(
+            BuildConfig.APPLICATION_ID,
+            Manifest.permission.CAMERA
+        )
 
         composeRule.runOnIdle {
             LocalizationManager.setLanguageByCode("en")
