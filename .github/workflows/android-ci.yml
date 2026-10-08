@@ -65,7 +65,7 @@ jobs:
           grep -Fq "QuickQR Business v${VERSION_NAME}" metadata.json
 
       - name: Compile, test, lint and release bundle
-        run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
+        run: gradle --no-daemon --max-workers=1 :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
 
       - name: Verify built artifacts
         shell: bash
