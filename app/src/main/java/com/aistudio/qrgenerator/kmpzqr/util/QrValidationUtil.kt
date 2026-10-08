@@ -169,15 +169,16 @@ object QrValidationUtil {
     }
 
     /**
-     * Calculates WCAG contrast ratio between foreground and background colors.
-     * Must be >= 3.0:1 for camera optical readability.
+     * Uses a relative-luminance contrast ratio as a conservative QuickQR preflight guard.
+     * The 3.0:1 threshold is an app heuristic, not a claimed QR-standard requirement.
+     * Final generated-bitmap self-decode remains the authoritative readability gate.
      */
     fun checkColorContrast(darkColor: Int, lightColor: Int): ValidationResult {
         val contrast = ColorUtils.calculateContrast(darkColor, lightColor)
         return if (contrast < 3.0) {
             ValidationResult.Invalid(
-                "ความคมชัดของสี (Contrast: ${String.format("%.1f", contrast)}:1) ต่ำกว่ามาตรฐาน 3.0:1 กล้องอาจสแกนไม่ติด กรุณาเลือกสีพื้นหลังและสีลวดลายที่ตัดกันชัดเจน",
-                "Color contrast (${String.format("%.1f", contrast)}:1) is below the 3.0:1 QR readability threshold. Choose clearly contrasting foreground and background colors."
+                "ความคมชัดของสี (Contrast: ${String.format("%.1f", contrast)}:1) ต่ำกว่าเกณฑ์ป้องกันเบื้องต้นของ QuickQR กรุณาเลือกสีพื้นหลังและสีลวดลายที่ตัดกันชัดเจน",
+                "Color contrast (${String.format("%.1f", contrast)}:1) is below QuickQR's conservative generation guard. Choose clearly contrasting foreground and background colors."
             )
         } else {
             ValidationResult.Valid
