@@ -84,6 +84,7 @@ fun HistoryScreen(
 ) {
     val context = LocalContext.current
     val allItems by viewModel.historyItems.collectAsState()
+    val totalHistoryCount by viewModel.historyTotalCount.collectAsState()
     var selectedFilter by remember { mutableIntStateOf(0) } // 0=All, 1=Created, 2=Scanned
     var itemToDelete by remember { mutableStateOf<QrItemEntity?>(null) }
 
@@ -126,7 +127,10 @@ fun HistoryScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = localizedText("รายการทั้งหมด ${filteredItems.size} รายการ", "${filteredItems.size} saved items"),
+                    text = localizedText(
+                        "โหลดแล้ว ${allItems.size} จาก ${totalHistoryCount} รายการ",
+                        "${allItems.size} of ${totalHistoryCount} items loaded"
+                    ),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -189,10 +193,26 @@ fun HistoryScreen(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = localizedText("ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น", "Create or scan a QR code to get started"),
+                        text = if (totalHistoryCount > allItems.size) {
+                            localizedText(
+                                "อาจมีรายการเก่ากว่านี้ที่ยังไม่ได้โหลด",
+                                "Older matching items may not be loaded yet"
+                            )
+                        } else {
+                            localizedText(
+                                "ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น",
+                                "Create or scan a QR code to get started"
+                            )
+                        },
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp
                     )
+                    if (totalHistoryCount > allItems.size) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = viewModel::loadMoreHistory) {
+                            Text(localizedText("โหลดประวัติเพิ่ม", "Load more history"))
+                        }
+                    }
                 }
             }
         } else {
@@ -215,7 +235,7 @@ fun HistoryScreen(
                                 val payload = PromptPayGenerator.generatePayload(item.targetId, item.amount)
                                 val qr = QrCodeUtil.generateQrBitmap(payload, size = 900)
                                 if (qr != null) {
-                                    val standee = QrCodeUtil.createPromptPayStandeeBitmap(
+                                    QrCodeUtil.createPromptPayStandeeBitmap(
                                         qrBitmap = qr,
                                         title = "THAI QR PAYMENT",
                                         targetId = item.targetId,
@@ -229,6 +249,17 @@ fun HistoryScreen(
                             }
                         }
                     )
+                }
+
+                if (allItems.size < totalHistoryCount) {
+                    item(key = "load_more_history") {
+                        TextButton(
+                            onClick = viewModel::loadMoreHistory,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(localizedText("โหลดประวัติเพิ่ม", "Load more history"))
+                        }
+                    }
                 }
             }
         }
