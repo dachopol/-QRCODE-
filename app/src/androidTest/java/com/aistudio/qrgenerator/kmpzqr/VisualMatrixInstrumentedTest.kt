@@ -120,6 +120,8 @@ class VisualMatrixInstrumentedTest {
     }
 
     private fun capture(outputDir: File, name: String) {
+        dismissRootWarningIfPresent()
+        composeRule.waitForIdle()
         val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
