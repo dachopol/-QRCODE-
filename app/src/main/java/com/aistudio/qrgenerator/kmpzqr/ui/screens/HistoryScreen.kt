@@ -71,8 +71,6 @@ import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
-import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
-import com.aistudio.qrgenerator.kmpzqr.util.QrCodeUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -231,19 +229,8 @@ fun HistoryScreen(
                                 LocationQrUtil.parseGeoOrNull(item.rawContent)?.let { point ->
                                     LocationQrUtil.openMap(context, point)
                                 } ?: copyToClipboard(item.rawContent)
-                            } else if (item.type == "PROMPTPAY" && item.targetId != null) {
-                                val payload = PromptPayGenerator.generatePayload(item.targetId, item.amount)
-                                val qr = QrCodeUtil.generateQrBitmap(payload, size = 900)
-                                if (qr != null) {
-                                    QrCodeUtil.createPromptPayStandeeBitmap(
-                                        qrBitmap = qr,
-                                        title = "THAI QR PAYMENT",
-                                        targetId = item.targetId,
-                                        amount = item.amount,
-                                        merchantName = item.title
-                                    )
-                                    viewModel.generatePromptPay()
-                                }
+                            } else if (item.type == "PROMPTPAY") {
+                                viewModel.openPromptPayHistoryItem(item)
                             } else {
                                 copyToClipboard(item.rawContent)
                             }
