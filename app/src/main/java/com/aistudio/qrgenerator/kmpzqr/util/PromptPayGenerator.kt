@@ -121,7 +121,15 @@ object PromptPayGenerator {
 
             if (QrValidationUtil.validatePromptPayTarget(target) !is ValidationResult.Valid) return null
 
-            val amount = topLevel["54"]?.toDoubleOrNull()
+            val amountText = topLevel["54"]
+            val amount = if (amountText != null) {
+                val parsedAmount = amountText.toDoubleOrNull() ?: return null
+                if (!parsedAmount.isFinite() || parsedAmount <= 0.0) return null
+                parsedAmount
+            } else {
+                null
+            }
+
             Pair(target, amount)
         } catch (_: Exception) {
             null
