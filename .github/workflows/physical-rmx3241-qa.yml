@@ -152,10 +152,10 @@ jobs:
             throw "APK installation failed"
           }
           $packageDump = (& adb shell dumpsys package $env:APP_ID) -join "`n"
-          if ($packageDump -notmatch ("versionCode=" + [regex]::Escape($env:EXPECTED_VERSION_CODE) + "\\b")) {
+          if ($packageDump -notmatch ("versionCode=" + [regex]::Escape($env:EXPECTED_VERSION_CODE) + "(?:\s|$)")) {
             throw "Installed versionCode mismatch"
           }
-          if ($packageDump -notmatch ("versionName=" + [regex]::Escape($env:EXPECTED_VERSION_NAME) + "\\b")) {
+          if ($packageDump -notmatch ("versionName=" + [regex]::Escape($env:EXPECTED_VERSION_NAME) + "(?:\s|$)")) {
             throw "Installed versionName mismatch"
           }
           Write-Host ("Installed package verified: " + $env:APP_ID + " v" + $env:EXPECTED_VERSION_NAME + " code" + $env:EXPECTED_VERSION_CODE)
