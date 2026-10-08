@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +20,7 @@ class Android16CompatibilityInstrumentedTest {
 
     @Test
     fun api36Runtime_navigationAndSystemBackRemainFunctional() {
-        assertTrue("Expected Android 16 / API 36 runtime", Build.VERSION.SDK_INT >= 36)
+        assumeTrue("Android 16 compatibility test requires API 36+", Build.VERSION.SDK_INT >= 36)
         waitForMainNavigation()
         dismissRootWarningIfPresent()
 

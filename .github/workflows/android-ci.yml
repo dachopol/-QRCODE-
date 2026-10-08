@@ -363,13 +363,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          REMOTE_VISUAL="/sdcard/Pictures/QuickQR-Visual-QA"
+          adb shell rm -rf "$REMOTE_VISUAL" || true
           gradle --no-daemon :app:connectedDebugAndroidTest             -Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.Android16CompatibilityInstrumentedTest,com.aistudio.qrgenerator.kmpzqr.VisualMatrixInstrumentedTest             --stacktrace
           rm -rf /tmp/quickqr-api36-phone
           mkdir -p /tmp/quickqr-api36-phone
-          adb pull /sdcard/Android/data/com.aistudio.qrgenerator.kmpzqr/files/visual /tmp/quickqr-api36-phone
+          test -n "$(adb shell find "$REMOTE_VISUAL" -maxdepth 1 -type f -name '*.png' -print -quit 2>/dev/null | tr -d '\r')" || { echo "Android 16 phone visual evidence directory is empty"; exit 1; }
+          adb pull "$REMOTE_VISUAL" /tmp/quickqr-api36-phone
           COUNT="$(find /tmp/quickqr-api36-phone -type f -name '*.png' | wc -l | tr -d ' ')"
           echo "Android 16 phone visual screenshot count: $COUNT"
-          test "$COUNT" -ge 18
+          test "$COUNT" -eq 18
 
       - name: Run Android 16 large-screen landscape compatibility tests
         shell: bash
@@ -386,13 +389,16 @@ jobs:
           echo "$DENSITY" | grep -Fq "320"
           # 2560px / (320dpi / 160) = 1280dp width; 1600px => 800dp height.
           # This is a CI test configuration, not a claim about a specific retail tablet.
+          REMOTE_VISUAL="/sdcard/Pictures/QuickQR-Visual-QA"
+          adb shell rm -rf "$REMOTE_VISUAL" || true
           gradle --no-daemon :app:connectedDebugAndroidTest             -Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.Android16CompatibilityInstrumentedTest,com.aistudio.qrgenerator.kmpzqr.VisualMatrixInstrumentedTest             --stacktrace
           rm -rf /tmp/quickqr-api36-large
           mkdir -p /tmp/quickqr-api36-large
-          adb pull /sdcard/Android/data/com.aistudio.qrgenerator.kmpzqr/files/visual /tmp/quickqr-api36-large
+          test -n "$(adb shell find "$REMOTE_VISUAL" -maxdepth 1 -type f -name '*.png' -print -quit 2>/dev/null | tr -d '\r')" || { echo "Android 16 large-screen visual evidence directory is empty"; exit 1; }
+          adb pull "$REMOTE_VISUAL" /tmp/quickqr-api36-large
           COUNT="$(find /tmp/quickqr-api36-large -type f -name '*.png' | wc -l | tr -d ' ')"
           echo "Android 16 large-screen visual screenshot count: $COUNT"
-          test "$COUNT" -ge 18
+          test "$COUNT" -eq 18
 
       - name: Reset Android 16 display overrides
         if: always()
