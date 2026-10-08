@@ -40,7 +40,13 @@ class QuickQrInstrumentedTest {
   @Test
   fun generatedQrVerification_passesOnlyForExactPayload() {
     val actualContent = "QRBUSINESS_EXACT_PAYLOAD"
-    val qr = QrCodeUtil.generateQrBitmap(content = actualContent)
+    val logo = Bitmap.createBitmap(220, 90, Bitmap.Config.ARGB_8888).apply {
+      eraseColor(Color.rgb(20, 100, 180))
+    }
+    val qr = QrCodeUtil.generateQrBitmap(
+      content = actualContent,
+      centerLogo = logo
+    )
 
     assertNotNull(qr)
 
