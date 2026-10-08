@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.google.devtools.ksp)
+  alias(libs.plugins.androidx.room)
 }
 
 val releaseKeystorePath = System.getenv("KEYSTORE_PATH")
@@ -69,8 +70,8 @@ android {
   }
 }
 
-ksp {
-  arg("room.schemaLocation", "$projectDir/schemas")
+room {
+  schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {

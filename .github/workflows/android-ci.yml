@@ -81,6 +81,30 @@ jobs:
       - name: Compile, test, lint and release bundle
         run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:bundleRelease --stacktrace
 
+      - name: Verify Room schema outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d app/schemas
+          mapfile -t SCHEMAS < <(find app/schemas -type f -name '*.json' -print | sort)
+          test "${#SCHEMAS[@]}" -gt 0 || { echo "No Room schema JSON was generated"; exit 1; }
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          files = sorted(Path("app/schemas").rglob("*.json"))
+          if not files:
+              raise SystemExit("No Room schema JSON was generated")
+          for path in files:
+              if path.stat().st_size == 0:
+                  raise SystemExit(f"Empty Room schema JSON: {path}")
+              with path.open("r", encoding="utf-8") as handle:
+                  value = json.load(handle)
+              if not isinstance(value, dict):
+                  raise SystemExit(f"Room schema is not a JSON object: {path}")
+          print(f"PASS: validated {len(files)} Room schema JSON file(s)")
+          PY
+
       - name: Verify built artifacts
         shell: bash
         run: |
