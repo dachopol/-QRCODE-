@@ -17,7 +17,7 @@ val hasReleaseSigning =
 
 android {
   namespace = "com.aistudio.qrgenerator.kmpzqr"
-  compileSdk = 37
+  compileSdk = 36
 
   defaultConfig {
     applicationId = "com.aistudio.qrgenerator.kmpzqr"
