@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import com.aistudio.qrgenerator.kmpzqr.MainViewModel
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassAccent
+import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassBorder
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
@@ -120,8 +121,7 @@ fun HistoryScreen(
             Column {
                 Text(
                     text = localizedText("ประวัติ", "History"),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
@@ -129,7 +129,7 @@ fun HistoryScreen(
                         "โหลดแล้ว ${allItems.size} จาก ${totalHistoryCount} รายการ",
                         "${allItems.size} of ${totalHistoryCount} items loaded"
                     ),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -301,7 +301,8 @@ private fun HistoryItemCard(
     Card(
         shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
@@ -352,7 +353,7 @@ private fun HistoryItemCard(
                             ) {
                                 Text(
                                     text = localizedText("สแกน", "Scanned"),
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     color = Color(0xFF3730A3),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
@@ -373,7 +374,7 @@ private fun HistoryItemCard(
 
                     Text(
                         text = dateFormatted,
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
