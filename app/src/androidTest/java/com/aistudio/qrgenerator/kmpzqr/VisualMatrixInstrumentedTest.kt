@@ -1,12 +1,12 @@
 package com.aistudio.qrgenerator.kmpzqr
 
+import android.content.ContentValues
 import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -120,11 +120,33 @@ class VisualMatrixInstrumentedTest {
     private fun capture(outputDir: File, name: String) {
         dismissRootWarningIfPresent()
         composeRule.waitForIdle()
-        val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
+        val bitmap = requireNotNull(
+            InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        ) { "UiAutomation screenshot unavailable" }
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
         }
         assertTrue(file.isFile && file.length() > 0L)
+        // Persist the emulator's actual UI capture beyond test-app cleanup.
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/QuickQR-Visual-QA")
+            put(MediaStore.Images.Media.IS_PENDING, 1)
+        }
+        val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+        val uri = requireNotNull(resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values))
+        try {
+            requireNotNull(resolver.openOutputStream(uri)).use { stream ->
+                assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
+            }
+            resolver.update(uri, ContentValues().apply {
+                put(MediaStore.Images.Media.IS_PENDING, 0)
+            }, null, null)
+        } catch (error: Exception) {
+            resolver.delete(uri, null, null)
+            throw error
+        }
     }
 }
