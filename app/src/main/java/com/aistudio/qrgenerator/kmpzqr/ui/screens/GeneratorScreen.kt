@@ -184,7 +184,7 @@ fun GeneratorScreen(
                             Text(
                                 text = pair.first,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 maxLines = 1,
                                 color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -192,6 +192,7 @@ fun GeneratorScreen(
                     },
                     modifier = Modifier
                         .padding(end = 6.dp, top = 6.dp, bottom = 6.dp)
+                        .defaultMinSize(minHeight = 48.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
                         .border(
