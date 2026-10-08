@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, research/dependency-modernization]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
