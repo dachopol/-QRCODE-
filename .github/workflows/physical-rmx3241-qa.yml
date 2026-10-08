@@ -95,12 +95,17 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $gradleHome = Join-Path $env:RUNNER_TEMP "quickqr-gradle-home"
+          $actionHome = Join-Path $env:RUNNER_TEMP "quickqr-action-home"
           New-Item -ItemType Directory -Force -Path $gradleHome | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $actionHome ".m2") | Out-Null
           ("GRADLE_USER_HOME=" + $gradleHome) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host "Isolated Gradle user home prepared under RUNNER_TEMP."
+          Write-Host "Isolated Gradle and action homes prepared under RUNNER_TEMP."
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v6
+        env:
+          HOME: ${{ runner.temp }}\quickqr-action-home
+          USERPROFILE: ${{ runner.temp }}\quickqr-action-home
         with:
           gradle-version: "9.3.1"
 
