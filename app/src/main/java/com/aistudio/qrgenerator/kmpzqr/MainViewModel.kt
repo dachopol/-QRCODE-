@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,6 +53,11 @@ data class ActiveQrPreview(
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private companion object {
+        // UI query batch only; this does not cap or delete stored history.
+        const val HISTORY_PAGE_SIZE = 100
+    }
 
     private val db = AppDatabase.getDatabase(application)
     private val dao = db.qrDao()
@@ -234,14 +240,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return _customCenterLogo.value ?: QrCodeUtil.createDefaultCenterLogo(type)
     }
 
-    // History flows from Room - Lazily loaded on demand when user opens History tab
-    val historyItems: StateFlow<List<QrItemEntity>> = dao.getAllQrItems()
+    // History is stored without a retention cap. The UI loads a bounded window and expands
+    // only after an explicit user action so a large local history does not become one unbounded query.
+    private val _historyLimit = MutableStateFlow(HISTORY_PAGE_SIZE)
+
+    val historyItems: StateFlow<List<QrItemEntity>> = _historyLimit
+        .flatMapLatest { limit -> dao.getAllQrItems(limit) }
         .catch { emit(emptyList()) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = emptyList()
         )
+
+    val historyTotalCount: StateFlow<Int> = dao.getQrItemCount()
+        .catch { emit(0) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = 0
+        )
+
+    fun loadMoreHistory() {
+        if (historyItems.value.size >= historyTotalCount.value) return
+        _historyLimit.value = _historyLimit.value + HISTORY_PAGE_SIZE
+    }
 
     init {
         // Load an optional custom QR center image from app-private storage.
