@@ -23,6 +23,7 @@ import com.aistudio.qrgenerator.kmpzqr.util.CurrentLocationProvider
 import com.aistudio.qrgenerator.kmpzqr.util.ImageExporter
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
 import com.aistudio.qrgenerator.kmpzqr.util.HistoryPromptPayResolver
+import com.aistudio.qrgenerator.kmpzqr.util.GalleryBitmapDecoder
 import com.aistudio.qrgenerator.kmpzqr.util.HistoryPrivacyUtil
 import com.aistudio.qrgenerator.kmpzqr.util.LocationError
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
@@ -1077,9 +1078,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun scanImageUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
-                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
+                val bitmap = GalleryBitmapDecoder.decode(
+                    resolver = getApplication<Application>().contentResolver,
+                    uri = uri
+                )
 
                 if (bitmap != null) {
                     val decodedText = QrScannerUtil.decodeBitmap(bitmap)
