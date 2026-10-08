@@ -242,10 +242,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun centerLogoFor(type: String): Bitmap? {
-        if (!_includeCenterLogo.value) return null
-        return _customCenterLogo.value ?: QrCodeUtil.createDefaultCenterLogo(type)
-    }
+    
 
     // History is stored without a retention cap. The UI loads a bounded window and expands
     // only after an explicit user action so a large local history does not become one unbounded query.
@@ -603,20 +600,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             if (!qrGenerationRequestGuard.isCurrent(requestToken)) return@launch
 
-            withContext(Dispatchers.Main) {
+            val historyItem = buildHistoryItem?.invoke(preview)
+            val accepted = withContext(Dispatchers.Main) {
                 if (qrGenerationRequestGuard.isCurrent(requestToken)) {
                     _activePreview.value = preview
+                    true
+                } else {
+                    false
                 }
             }
 
-            if (buildHistoryItem != null && qrGenerationRequestGuard.isCurrent(requestToken)) {
-                val historyItem = buildHistoryItem(preview)
-                if (historyItem != null) {
-                    withContext(Dispatchers.IO) {
-                        if (qrGenerationRequestGuard.isCurrent(requestToken)) {
-                            dao.insertQrItem(historyItem)
-                        }
-                    }
+            if (accepted && historyItem != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    dao.insertQrItem(historyItem)
                 }
             }
         }
