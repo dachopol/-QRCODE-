@@ -551,3 +551,12 @@ Official references:
 - Live Play API response, deployed MCP reachability, Windows/macOS execution, and tester continuity remain TO VERIFY.
 - PR #32 remains Draft and requires base reconciliation before merge.
 
+## Hosted instrumentation lane restored — 2026-10-08
+- Root cause of runs #200/#201/#202 was verified from downloaded artifacts: emulator could not resolve AVD `quickqr_ci` because the created AVD path and emulator search path differed.
+- CI-only PR #24 fixed AVD path ownership, added fail-closed discovery/diagnostics, and merged to `main` as `07daf33ada6291abfbabc4058867bd88800b866f`.
+- Exact PR #24 Android CI #204: build PASS + AVD discovery PASS + emulator boot PASS + `:app:connectedDebugAndroidTest` PASS.
+- Post-merge main Android CI #206 / run `37708369058`: build PASS + emulator boot PASS + connected instrumentation PASS + report upload PASS.
+- Hosted instrumentation infrastructure blocker is CLOSED on main.
+- No `app/` source changed between active code19 source commit `c7304af1dc3040c13aff69b7e2ee6574a1192276` and `07daf33...`; only CI/Play-probe/docs/state changed. Active Play v18.0/code19 boundary remains intact.
+- Production remains untouched.
+
