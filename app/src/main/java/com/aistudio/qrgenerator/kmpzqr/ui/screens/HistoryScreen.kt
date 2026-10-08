@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import com.aistudio.qrgenerator.kmpzqr.MainViewModel
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassAccent
+import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassBorder
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
