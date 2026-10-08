@@ -255,7 +255,6 @@ jobs:
         run: gradle --no-daemon :app:connectedDebugAndroidTest --stacktrace
 
       - name: Collect visual screenshot evidence
-        if: always()
         shell: bash
         run: |
           set -euo pipefail

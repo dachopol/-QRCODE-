@@ -79,7 +79,11 @@ class VisualMatrixInstrumentedTest {
 
             dismissRootWarningIfPresent()
             open("open_language_currency_button")
-            composeRule.onNodeWithTag("language_currency_dialog").assertExists()
+            composeRule.waitUntil(timeoutMillis = 5_000) {
+                composeRule.onAllNodesWithTag("language_currency_dialog")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
             capture(outputDir, locale + "_08_language_currency_dialog")
             open("close_lang_currency_dialog_button")
 
