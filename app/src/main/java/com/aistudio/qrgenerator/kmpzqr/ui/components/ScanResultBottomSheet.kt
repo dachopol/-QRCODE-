@@ -211,7 +211,7 @@ fun ScanResultBottomSheet(
                                 }
 
                                 Button(
-                                    onClick = { copyToClipboard(result.wifiPass, "รหัสผ่าน Wi-Fi") },
+                                    onClick = { copyToClipboard(result.wifiPass, localizedNow("รหัสผ่าน Wi-Fi", "Wi-Fi password")) },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
@@ -257,7 +257,7 @@ fun ScanResultBottomSheet(
                     if (!result.promptPayId.isNullOrBlank()) {
                         Button(
                             onClick = {
-                                copyToClipboard(result.promptPayId, "เบอร์/เลขพร้อมเพย์")
+                                copyToClipboard(result.promptPayId, localizedNow("เบอร์/เลขพร้อมเพย์", "PromptPay ID"))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -328,7 +328,7 @@ fun ScanResultBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
-                    onClick = { copyToClipboard(result.rawText, "ข้อความคิวอาร์") },
+                    onClick = { copyToClipboard(result.rawText, localizedNow("ข้อความคิวอาร์", "QR text")) },
                     modifier = Modifier
                         .weight(1f)
                         .defaultMinSize(minHeight = 44.dp),
@@ -345,7 +345,7 @@ fun ScanResultBottomSheet(
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, result.rawText)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "แชร์ข้อมูล"))
+                        context.startActivity(Intent.createChooser(shareIntent, localizedNow("แชร์ข้อมูล", "Share data")))
                     },
                     modifier = Modifier
                         .weight(1f)
