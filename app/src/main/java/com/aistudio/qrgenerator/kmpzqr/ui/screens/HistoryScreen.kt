@@ -120,8 +120,7 @@ fun HistoryScreen(
             Column {
                 Text(
                     text = localizedText("ประวัติ", "History"),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
@@ -129,7 +128,7 @@ fun HistoryScreen(
                         "โหลดแล้ว ${allItems.size} จาก ${totalHistoryCount} รายการ",
                         "${allItems.size} of ${totalHistoryCount} items loaded"
                     ),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -301,7 +300,8 @@ private fun HistoryItemCard(
     Card(
         shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
