@@ -353,7 +353,7 @@ private fun HistoryItemCard(
                             ) {
                                 Text(
                                     text = localizedText("สแกน", "Scanned"),
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     color = Color(0xFF3730A3),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
@@ -374,7 +374,7 @@ private fun HistoryItemCard(
 
                     Text(
                         text = dateFormatted,
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
