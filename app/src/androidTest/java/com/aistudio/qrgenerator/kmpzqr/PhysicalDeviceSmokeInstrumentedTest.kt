@@ -1,14 +1,15 @@
 package com.aistudio.qrgenerator.kmpzqr
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -24,10 +25,10 @@ class PhysicalDeviceSmokeInstrumentedTest {
     fun rmx3241_cameraX_bindsAndRebindsOnPhysicalDevice() {
         assertEquals("RMX3241", Build.MODEL)
 
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.uiAutomation.grantRuntimePermission(
-            BuildConfig.APPLICATION_ID,
-            Manifest.permission.CAMERA
+        assertEquals(
+            "CAMERA permission must be granted by the physical QA workflow before instrumentation starts",
+            PackageManager.PERMISSION_GRANTED,
+            ContextCompat.checkSelfPermission(composeRule.activity, Manifest.permission.CAMERA)
         )
 
         composeRule.runOnIdle {
