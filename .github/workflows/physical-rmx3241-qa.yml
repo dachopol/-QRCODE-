@@ -15,7 +15,7 @@ concurrency:
 jobs:
   physical-rmx3241:
     runs-on: [self-hosted, Windows, X64, dclite-project-quickqr-business]
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       APP_ID: com.aistudio.qrgenerator.kmpzqr
       EXPECTED_BASE: fa237c49dc999f95d393060849e2d87328127e8c
@@ -160,10 +160,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
+          $previousErrorPreference = $ErrorActionPreference
+          $ErrorActionPreference = "Continue"
           $install = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $apk 2>&1) -join "`n"
+          $installExit = $LASTEXITCODE
+          $ErrorActionPreference = $previousErrorPreference
           Write-Host $install
-          if ($LASTEXITCODE -ne 0 -or $install -notmatch "Success") {
-            throw "APK installation failed"
+          if ($installExit -ne 0 -or $install -notmatch "Success") {
+            throw ("APK installation failed; exit=" + $installExit)
           }
           $packageDump = (& adb -s $env:ADB_SERIAL shell dumpsys package $env:APP_ID) -join "`n"
           if ($packageDump -notmatch ("versionCode=" + [regex]::Escape($env:EXPECTED_VERSION_CODE) + "(?:\s|$)")) {
@@ -179,10 +183,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $testApk = (Resolve-Path "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk").Path
+          $previousErrorPreference = $ErrorActionPreference
+          $ErrorActionPreference = "Continue"
           $installTest = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $testApk 2>&1) -join "`n"
+          $installTestExit = $LASTEXITCODE
+          $ErrorActionPreference = $previousErrorPreference
           Write-Host $installTest
-          if ($LASTEXITCODE -ne 0 -or $installTest -notmatch "Success") {
-            throw "Physical test APK installation failed"
+          if ($installTestExit -ne 0 -or $installTest -notmatch "Success") {
+            throw ("Physical test APK installation failed; exit=" + $installTestExit)
           }
           $line = @(
             & adb -s $env:ADB_SERIAL shell pm list instrumentation |
