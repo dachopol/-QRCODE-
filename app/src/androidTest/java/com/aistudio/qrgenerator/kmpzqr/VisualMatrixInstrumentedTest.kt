@@ -298,6 +298,7 @@ class VisualMatrixInstrumentedTest {
                 .isNotEmpty()
         }
         composeRule.waitForIdle()
+        waitForScreenshotFrame()
     }
 
     private fun resetVisualHistory(populated: Boolean) {
