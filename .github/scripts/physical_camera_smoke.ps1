@@ -31,6 +31,21 @@ $startArgs = @{
   PassThru = $true
   WindowStyle = "Hidden"
 }
+# CameraX bind/rebind is a hardware/runtime gate, not a permission-dialog timing gate.
+# Put CAMERA in a deterministic granted state before instrumentation. The in-test
+# permission path and host-side dialog handler remain as a fallback/diagnostic path.
+$grantOutput = (& adb -s $env:ADB_SERIAL shell pm grant $env:APP_ID android.permission.CAMERA 2>&1) -join "`n"
+$grantExit = $LASTEXITCODE
+if ($grantExit -ne 0) {
+  Write-Host ("CAMERA pre-grant was not accepted; falling back to runtime dialog handling: " + $grantOutput)
+} else {
+  $packageDump = (& adb -s $env:ADB_SERIAL shell dumpsys package $env:APP_ID) -join "`n"
+  if ($packageDump -notmatch "android\.permission\.CAMERA:\s+granted=true") {
+    throw "CAMERA pre-grant command succeeded but dumpsys did not confirm granted=true"
+  }
+  Write-Host "CAMERA permission deterministically granted for CameraX hardware smoke."
+}
+
 & adb -s $env:ADB_SERIAL shell am force-stop $env:APP_ID | Out-Null
 Start-Sleep -Seconds 1
 
