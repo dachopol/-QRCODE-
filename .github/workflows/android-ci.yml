@@ -635,10 +635,10 @@ jobs:
 
           $adbPath = (Get-Command adb -ErrorAction Stop).Source
           $launchShotPath = Join-Path (Get-Location) "physical-evidence\launch.png"
-          $launchShotErrorPath = Join-Path $env:RUNNER_TEMP "quickqr-launch-screencap.stderr.txt"
-          Remove-Item $launchShotPath,$launchShotErrorPath -Force -ErrorAction SilentlyContinue
-          $capture = Start-Process -FilePath $adbPath -ArgumentList @("-s", $serial, "exec-out", "screencap", "-p") -NoNewWindow -Wait -PassThru -RedirectStandardOutput $launchShotPath -RedirectStandardError $launchShotErrorPath
-          if ($capture.ExitCode -ne 0) {
+          Remove-Item $launchShotPath -Force -ErrorAction SilentlyContinue
+          $cmdLine = '"' + $adbPath + '" -s "' + $serial + '" exec-out screencap -p > "' + $launchShotPath + '"'
+          & $env:ComSpec /d /s /c $cmdLine
+          if ($LASTEXITCODE -ne 0) {
             throw "Physical launch screenshot capture failed"
           }
           $launchEvidence = Get-Item $launchShotPath -ErrorAction Stop
