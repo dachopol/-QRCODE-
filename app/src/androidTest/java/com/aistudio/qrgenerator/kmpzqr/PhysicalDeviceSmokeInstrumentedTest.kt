@@ -37,27 +37,15 @@ class PhysicalDeviceSmokeInstrumentedTest {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
-        val initiallyGranted = permissions.associateWith { permission ->
-            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        val missingPermissions = permissions.filter { permission ->
+            context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
         }
-        val permissionsChanged = permissions.any { permission ->
-            initiallyGranted[permission] != true
-        }
+        assertTrue(
+            "Physical QA requires CAMERA and location permissions to be pre-granted by the QA install; missing=$missingPermissions",
+            missingPermissions.isEmpty()
+        )
 
-        try {
-            permissions
-                .filter { permission -> initiallyGranted[permission] != true }
-                .forEach { permission ->
-                    instrumentation.uiAutomation.grantRuntimePermission(packageName, permission)
-                }
-
-            if (permissionsChanged) {
-                composeRule.activityRule.scenario.recreate()
-                instrumentation.waitForIdleSync()
-                composeRule.waitForIdle()
-            }
-
-            waitForMainNavigation()
+        waitForMainNavigation()
             dismissRootWarningIfPresent()
 
             composeRule.onNodeWithTag("nav_scanner").performClick()
@@ -125,15 +113,6 @@ class PhysicalDeviceSmokeInstrumentedTest {
                 "No installed activity can handle geo map intents",
                 mapProbe.resolveActivity(context.packageManager)
             )
-        } finally {
-            permissions
-                .filter { permission -> initiallyGranted[permission] != true }
-                .forEach { permission ->
-                    runCatching {
-                        instrumentation.uiAutomation.revokeRuntimePermission(packageName, permission)
-                    }
-                }
-        }
     }
 
     @Test
