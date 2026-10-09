@@ -160,7 +160,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
-          $install = (& adb -s $env:ADB_SERIAL install -r -t $apk 2>&1) -join "`n"
+          $install = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $apk 2>&1) -join "`n"
           Write-Host $install
           if ($LASTEXITCODE -ne 0 -or $install -notmatch "Success") {
             throw "APK installation failed"
@@ -179,7 +179,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $testApk = (Resolve-Path "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk").Path
-          $installTest = (& adb -s $env:ADB_SERIAL install -r -t $testApk 2>&1) -join "`n"
+          $installTest = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $testApk 2>&1) -join "`n"
           Write-Host $installTest
           if ($LASTEXITCODE -ne 0 -or $installTest -notmatch "Success") {
             throw "Physical test APK installation failed"
