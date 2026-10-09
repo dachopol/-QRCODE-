@@ -129,7 +129,8 @@ class VisualMatrixInstrumentedTest {
             // 09: scanner baseline.
             dismissRootWarningIfPresent()
             open("nav_scanner")
-            composeRule.onNodeWithTag("scanner_screen").assertExists()
+            waitUntilDisplayed("scanner_screen", timeoutMillis = 8_000)
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_09_scanner")
 
             // 10: support/report sheet through the real app flow.
