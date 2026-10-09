@@ -81,15 +81,32 @@ if (-not $process.HasExited) {
 
 $process.WaitForExit()
 
+$stdoutText = ""
+$stderrText = ""
 if (Test-Path -LiteralPath $stdout) {
-  Get-Content -LiteralPath $stdout | Out-Host
+  $stdoutText = (Get-Content -LiteralPath $stdout) -join "`n"
+  $stdoutText | Out-Host
 }
 if (Test-Path -LiteralPath $stderr) {
-  Get-Content -LiteralPath $stderr | Out-Host
+  $stderrText = (Get-Content -LiteralPath $stderr) -join "`n"
+  $stderrText | Out-Host
 }
 
-if ($process.ExitCode -ne 0) {
-  throw ("RMX3241 CameraX smoke failed with exit code " + $process.ExitCode)
+$combined = ($stdoutText + "`n" + $stderrText).Trim()
+$reportedSuccess =
+  $combined -match "(?m)^INSTRUMENTATION_STATUS_CODE:\s*0\s*$" -and
+  $combined -match "(?m)^INSTRUMENTATION_CODE:\s*-1\s*$"
+$reportedFailure =
+  $combined -match "FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed|INSTRUMENTATION_STATUS:\s*stack="
+
+$exitCodeKnown = $null -ne $process.ExitCode
+if (
+  ($exitCodeKnown -and $process.ExitCode -ne 0) -or
+  -not $reportedSuccess -or
+  $reportedFailure
+) {
+  $exitLabel = if ($exitCodeKnown) { [string]$process.ExitCode } else { "unavailable" }
+  throw ("RMX3241 CameraX smoke failed; exit=" + $exitLabel)
 }
 
 Write-Host ("RMX3241 CameraX bind/rebind smoke passed. Permission dialog handled=" + $permissionHandled)
