@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -202,6 +205,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val currentTab by viewModel.currentTab.collectAsState()
     val activePreview by viewModel.activePreview.collectAsState()
     val activeScanResult by viewModel.activeScanResult.collectAsState()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val showSupportSheet by viewModel.showSupportSheet.collectAsState()
     val showLanguageAndCurrencyDialog by viewModel.showLanguageAndCurrencyDialog.collectAsState()
     val languageCurrencyInitialTab by viewModel.languageCurrencyInitialTab.collectAsState()
@@ -227,6 +232,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
         Triple(navScannerLabel, Icons.Default.QrCodeScanner, "nav_scanner"),
         Triple(navHistoryLabel, Icons.Default.History, "nav_history")
     )
+
+    LaunchedEffect(activePreview) {
+        if (activePreview != null) {
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
