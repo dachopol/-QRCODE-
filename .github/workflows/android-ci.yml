@@ -266,7 +266,7 @@ jobs:
           fi
           COUNT="$(find /tmp/quickqr-visual -type f -name '*.png' | wc -l | tr -d ' ')"
           echo "Visual screenshot count: $COUNT"
-          test "$COUNT" -ge 18 || { echo "Expected at least 18 runtime visual evidence PNG files"; exit 1; }
+          test "$COUNT" -ge 30 || { echo "Expected at least 30 runtime visual evidence PNG files (15 screens x TH/EN)"; exit 1; }
 
       - name: Upload instrumentation reports
         if: always()
