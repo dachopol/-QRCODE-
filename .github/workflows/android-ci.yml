@@ -699,7 +699,14 @@ jobs:
             if (Test-Path $statePath) {
               $state = Get-Content $statePath -Raw | ConvertFrom-Json
               if ($state.fontScale) {
-                & adb -s $serial shell settings put system font_scale $state.fontScale | Out-Null
+                try {
+                  & adb -s $serial shell settings put system font_scale $state.fontScale 2>$null | Out-Null
+                  if ($LASTEXITCODE -ne 0) {
+                    "font_scale_restore=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
+                  }
+                } catch {
+                  "font_scale_restore=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
+                }
               }
             }
           }
