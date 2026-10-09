@@ -121,25 +121,38 @@ jobs:
           & $gradleExe --version
           if ($LASTEXITCODE -ne 0) { throw "Gradle 9.3.1 version probe failed" }
 
-      - name: Verify authorized physical device
+      - name: Verify and pin authorized physical device
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $state = (& adb get-state 2>$null).Trim()
-          if ($state -ne "device") { throw "ADB device is not ready" }
-          $model = (& adb shell getprop ro.product.model).Trim()
-          $abi = (& adb shell getprop ro.product.cpu.abi).Trim()
-          $boot = (& adb shell getprop sys.boot_completed).Trim()
-          if ($model -ne $env:EXPECTED_MODEL) { throw "Unauthorized physical model: $model" }
+          $matches = @()
+          $rows = @(& adb devices | Select-Object -Skip 1 | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+          foreach ($row in $rows) {
+            $parts = @($row.Trim() -split "\s+")
+            if ($parts.Count -lt 2 -or $parts[1] -ne "device") { continue }
+            $serial = $parts[0]
+            $model = (& adb -s $serial shell getprop ro.product.model 2>$null).Trim()
+            if ($model -eq $env:EXPECTED_MODEL) {
+              $matches += $serial
+            }
+          }
+          if ($matches.Count -ne 1) {
+            throw ("Expected exactly one authorized " + $env:EXPECTED_MODEL + " device; matched=" + $matches.Count)
+          }
+          $serial = $matches[0]
+          $boot = (& adb -s $serial shell getprop sys.boot_completed).Trim()
+          $abi = (& adb -s $serial shell getprop ro.product.cpu.abi).Trim()
           if ($boot -ne "1") { throw "Physical device boot is incomplete" }
           if (-not $abi) { throw "Physical device ABI is unavailable" }
-          Write-Host ("Authorized physical device verified: model=" + $model + " abi=" + $abi)
+          ("ADB_SERIAL=" + $serial) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          ("ANDROID_SERIAL=" + $serial) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host ("Authorized physical device pinned: model=" + $env:EXPECTED_MODEL + " abi=" + $abi)
 
       - name: Build, unit test and lint exact candidate
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --stacktrace
+          & gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug --stacktrace
           if ($LASTEXITCODE -ne 0) { throw "Candidate build/unit/lint failed" }
 
       - name: Install and verify QuickQR v18 code19
@@ -147,12 +160,12 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
-          $install = (& adb install -r -t $apk 2>&1) -join "`n"
+          $install = (& adb -s $env:ADB_SERIAL install -r -t $apk 2>&1) -join "`n"
           Write-Host $install
           if ($LASTEXITCODE -ne 0 -or $install -notmatch "Success") {
             throw "APK installation failed"
           }
-          $packageDump = (& adb shell dumpsys package $env:APP_ID) -join "`n"
+          $packageDump = (& adb -s $env:ADB_SERIAL shell dumpsys package $env:APP_ID) -join "`n"
           if ($packageDump -notmatch ("versionCode=" + [regex]::Escape($env:EXPECTED_VERSION_CODE) + "(?:\s|$)")) {
             throw "Installed versionCode mismatch"
           }
@@ -161,19 +174,39 @@ jobs:
           }
           Write-Host ("Installed package verified: " + $env:APP_ID + " v" + $env:EXPECTED_VERSION_NAME + " code" + $env:EXPECTED_VERSION_CODE)
 
+      - name: Install physical test APK and resolve instrumentation
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $testApk = (Resolve-Path "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk").Path
+          $installTest = (& adb -s $env:ADB_SERIAL install -r -t $testApk 2>&1) -join "`n"
+          Write-Host $installTest
+          if ($LASTEXITCODE -ne 0 -or $installTest -notmatch "Success") {
+            throw "Physical test APK installation failed"
+          }
+          $line = @(
+            & adb -s $env:ADB_SERIAL shell pm list instrumentation |
+              Where-Object { $_ -match ([regex]::Escape($env:APP_ID + ".test/androidx.test.runner.AndroidJUnitRunner")) }
+          ) | Select-Object -First 1
+          if (-not $line) { throw "QuickQR AndroidJUnitRunner instrumentation was not registered" }
+          $instrumentation = (($line -replace "^instrumentation:", "") -split "\s+")[0]
+          if ([string]::IsNullOrWhiteSpace($instrumentation)) { throw "Instrumentation identity parse failed" }
+          ("TEST_INSTRUMENTATION=" + $instrumentation) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "QuickQR physical test instrumentation registered."
+
       - name: Launch installed app and verify live process
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & adb logcat -c
-          & adb shell am force-stop $env:APP_ID
-          $launch = (& adb shell am start -W -n "$env:APP_ID/.MainActivity" 2>&1) -join "`n"
+          & adb -s $env:ADB_SERIAL logcat -c
+          & adb -s $env:ADB_SERIAL shell am force-stop $env:APP_ID
+          $launch = (& adb -s $env:ADB_SERIAL shell am start -W -n "$env:APP_ID/.MainActivity" 2>&1) -join "`n"
           Write-Host $launch
           if ($LASTEXITCODE -ne 0 -or $launch -notmatch "Status:\s+ok") {
             throw "MainActivity launch failed"
           }
           Start-Sleep -Seconds 5
-          $appPid = (& adb shell pidof $env:APP_ID).Trim()
+          $appPid = (& adb -s $env:ADB_SERIAL shell pidof $env:APP_ID).Trim()
           if (-not $appPid) { throw "QuickQR process is not alive after launch" }
           Write-Host "QuickQR live process verified."
 
@@ -188,37 +221,42 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & adb shell rm -rf /sdcard/Pictures/QuickQR-Visual-QA
-          & gradle --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.notClass=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest" --stacktrace
-          if ($LASTEXITCODE -ne 0) { throw "Physical instrumentation suite failed" }
+          & adb -s $env:ADB_SERIAL shell rm -rf /sdcard/Pictures/QuickQR-Visual-QA
+          New-Item -ItemType Directory -Force -Path "physical-evidence" | Out-Null
+          $suite = (& adb -s $env:ADB_SERIAL shell am instrument -w -r $env:TEST_INSTRUMENTATION 2>&1) -join "`n"
+          $suite | Tee-Object -FilePath "physical-evidence\full-instrumentation.log" | Out-Host
+          if ($LASTEXITCODE -ne 0 -or $suite -match "FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed") {
+            throw "Physical instrumentation suite failed"
+          }
+          if ($suite -notmatch "OK \(") { throw "Physical instrumentation suite did not report OK" }
 
       - name: Verify physical visual evidence and final runtime
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
           New-Item -ItemType Directory -Force -Path "physical-evidence\visual" | Out-Null
-          $remoteFiles = @(& adb shell find /sdcard/Pictures/QuickQR-Visual-QA -maxdepth 1 -type f -name "*.png")
+          $remoteFiles = @(& adb -s $env:ADB_SERIAL shell find /sdcard/Pictures/QuickQR-Visual-QA -maxdepth 1 -type f -name "*.png")
           $remoteFiles = @($remoteFiles | Where-Object { $_.Trim() })
           if ($remoteFiles.Count -lt 18) {
             throw ("Expected at least 18 physical visual PNGs; found " + $remoteFiles.Count)
           }
-          & adb pull /sdcard/Pictures/QuickQR-Visual-QA "physical-evidence\visual" | Out-Host
+          & adb -s $env:ADB_SERIAL pull /sdcard/Pictures/QuickQR-Visual-QA "physical-evidence\visual" | Out-Host
           if ($LASTEXITCODE -ne 0) { throw "Could not pull visual evidence" }
 
-          & adb logcat -c
-          & adb shell am force-stop $env:APP_ID
-          & adb shell am start -W -n "$env:APP_ID/.MainActivity" | Out-Host
+          & adb -s $env:ADB_SERIAL logcat -c
+          & adb -s $env:ADB_SERIAL shell am force-stop $env:APP_ID
+          & adb -s $env:ADB_SERIAL shell am start -W -n "$env:APP_ID/.MainActivity" | Out-Host
           if ($LASTEXITCODE -ne 0) { throw "Final launch failed" }
           Start-Sleep -Seconds 5
-          $appPid = (& adb shell pidof $env:APP_ID).Trim()
+          $appPid = (& adb -s $env:ADB_SERIAL shell pidof $env:APP_ID).Trim()
           if (-not $appPid) { throw "QuickQR final process is not alive" }
 
-          & adb shell screencap -p /sdcard/quickqr_physical_final.png
-          & adb pull /sdcard/quickqr_physical_final.png "physical-evidence\quickqr_physical_final.png" | Out-Host
-          & adb shell uiautomator dump /sdcard/quickqr_window.xml | Out-Host
-          & adb pull /sdcard/quickqr_window.xml "physical-evidence\quickqr_window.xml" | Out-Host
+          & adb -s $env:ADB_SERIAL shell screencap -p /sdcard/quickqr_physical_final.png
+          & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_physical_final.png "physical-evidence\quickqr_physical_final.png" | Out-Host
+          & adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_window.xml | Out-Host
+          & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_window.xml "physical-evidence\quickqr_window.xml" | Out-Host
 
-          $crash = (& adb logcat -d -v brief AndroidRuntime:E "*:S" 2>&1) -join "`n"
+          $crash = (& adb -s $env:ADB_SERIAL logcat -d -v brief AndroidRuntime:E "*:S" 2>&1) -join "`n"
           [IO.File]::WriteAllText(
             (Join-Path $PWD "physical-evidence\androidruntime-error.log"),
             $crash,
