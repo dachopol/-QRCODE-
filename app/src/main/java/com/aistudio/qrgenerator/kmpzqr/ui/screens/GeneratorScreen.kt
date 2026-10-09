@@ -63,10 +63,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -163,52 +161,44 @@ fun GeneratorScreen(
                 )
             )
     ) {
-        // Compact, horizontally scrollable category chips keep the primary content above the fold.
-        ScrollableTabRow(
-            selectedTabIndex = category,
-            edgePadding = 12.dp,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary,
-            indicator = {},
-            divider = {}
+        // Keep every generator type discoverable without requiring a horizontal swipe.
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            maxItemsInEachRow = 3
         ) {
             categories.forEachIndexed { index, pair ->
                 val selected = category == index
-                Tab(
+                FilterChip(
                     selected = selected,
                     onClick = { viewModel.setGeneratorCategory(index) },
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
-                        ) {
-                            Icon(
-                                imageVector = pair.second,
-                                contentDescription = null,
-                                modifier = Modifier.size(17.dp),
-                                tint = if (selected) Color.White else MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = pair.first,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                                fontSize = 13.sp,
-                                maxLines = 1,
-                                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    label = {
+                        Text(
+                            text = pair.first,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = pair.second,
+                            contentDescription = null,
+                            modifier = Modifier.size(17.dp)
+                        )
                     },
                     modifier = Modifier
-                        .padding(end = 6.dp, top = 6.dp, bottom = 6.dp)
                         .defaultMinSize(minHeight = 48.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                        .border(
-                            1.dp,
-                            if (selected) MaterialTheme.colorScheme.primary else GlassBorder,
-                            RoundedCornerShape(14.dp)
-                        )
-                        .testTag("generator_tab_$index")
+                        .testTag("generator_tab_$index"),
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = Color.White,
+                        selectedLeadingIconColor = Color.White
+                    )
                 )
             }
         }
