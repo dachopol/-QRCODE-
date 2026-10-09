@@ -529,14 +529,22 @@ jobs:
               Where-Object { $_ -match "`tdevice$" } |
               ForEach-Object { ($_ -split "`t")[0] }
           )
-          if ($serials.Count -ne 1) {
-            throw "Expected exactly one authorized physical Android device; observed $($serials.Count)"
+          $matches = @()
+          foreach ($candidate in $serials) {
+            $candidateModel = ((& adb -s $candidate shell getprop ro.product.model) -join "").Trim()
+            if ($LASTEXITCODE -eq 0 -and $candidateModel -eq "RMX3241") {
+              $matches += $candidate
+            }
           }
-          $serial = $serials[0]
+          if ($matches.Count -ne 1) {
+            throw "Expected exactly one authorized RMX3241 physical target; observed $($matches.Count) among $($serials.Count) authorized devices"
+          }
+          $serial = $matches[0]
+          "QUICKQR_PHYSICAL_SERIAL=$serial" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
           $model = ((& adb -s $serial shell getprop ro.product.model) -join "").Trim()
           if ($model -ne "RMX3241") {
-            throw "Physical target mismatch: expected RMX3241"
+            throw "Physical target mismatch after binding: expected RMX3241"
           }
           $boot = ((& adb -s $serial shell getprop sys.boot_completed) -join "").Trim()
           if ($boot -ne "1") {
@@ -559,15 +567,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $packageName = "com.aistudio.qrgenerator.kmpzqr"
-          $serials = @(
-            (& adb devices) |
-              Where-Object { $_ -match "`tdevice$" } |
-              ForEach-Object { ($_ -split "`t")[0] }
-          )
-          if ($serials.Count -ne 1) {
-            throw "Expected exactly one authorized physical Android device"
+          $serial = $env:QUICKQR_PHYSICAL_SERIAL
+          if ([string]::IsNullOrWhiteSpace($serial)) {
+            throw "Bound RMX3241 serial is unavailable"
           }
-          $serial = $serials[0]
+          $state = ((& adb -s $serial get-state 2>&1) -join "").Trim()
+          if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
+            throw "Bound RMX3241 is not in adb device state"
+          }
 
           $state = [ordered]@{
             fontScale = (((& adb -s $serial shell settings get system font_scale) -join "").Trim())
@@ -650,15 +657,14 @@ jobs:
           $testPackage = "com.aistudio.qrgenerator.kmpzqr.test"
           $runner = "$testPackage/androidx.test.runner.AndroidJUnitRunner"
           $testSpec = "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
-          $serials = @(
-            (& adb devices) |
-              Where-Object { $_ -match "`tdevice$" } |
-              ForEach-Object { ($_ -split "`t")[0] }
-          )
-          if ($serials.Count -ne 1) {
-            throw "Expected exactly one authorized physical Android device"
+          $serial = $env:QUICKQR_PHYSICAL_SERIAL
+          if ([string]::IsNullOrWhiteSpace($serial)) {
+            throw "Bound RMX3241 serial is unavailable"
           }
-          $serial = $serials[0]
+          $state = ((& adb -s $serial get-state 2>&1) -join "").Trim()
+          if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
+            throw "Bound RMX3241 is not in adb device state"
+          }
 
           $testApks = @(
             Get-ChildItem "app\build\outputs\apk\androidTest\debug" -Filter "*.apk" -File
@@ -689,15 +695,14 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $serials = @(
-            (& adb devices) |
-              Where-Object { $_ -match "`tdevice$" } |
-              ForEach-Object { ($_ -split "`t")[0] }
-          )
-          if ($serials.Count -ne 1) {
-            throw "Expected exactly one authorized physical Android device"
+          $serial = $env:QUICKQR_PHYSICAL_SERIAL
+          if ([string]::IsNullOrWhiteSpace($serial)) {
+            throw "Bound RMX3241 serial is unavailable"
           }
-          $serial = $serials[0]
+          $state = ((& adb -s $serial get-state 2>&1) -join "").Trim()
+          if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
+            throw "Bound RMX3241 is not in adb device state"
+          }
           & adb -s $serial shell settings put system font_scale 1.3 | Out-Null
           if ($LASTEXITCODE -ne 0) {
             "large_font_core_controls=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
@@ -728,15 +733,14 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $packageName = "com.aistudio.qrgenerator.kmpzqr"
-          $serials = @(
-            (& adb devices) |
-              Where-Object { $_ -match "`tdevice$" } |
-              ForEach-Object { ($_ -split "`t")[0] }
-          )
-          if ($serials.Count -ne 1) {
-            throw "Expected exactly one authorized physical Android device"
+          $serial = $env:QUICKQR_PHYSICAL_SERIAL
+          if ([string]::IsNullOrWhiteSpace($serial)) {
+            throw "Bound RMX3241 serial is unavailable"
           }
-          $serial = $serials[0]
+          $state = ((& adb -s $serial get-state 2>&1) -join "").Trim()
+          if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
+            throw "Bound RMX3241 is not in adb device state"
+          }
           & adb -s $serial shell am force-stop $packageName | Out-Null
           $launch = ((& adb -s $serial shell am start -W -n "$packageName/.MainActivity") -join "`n")
           if ($LASTEXITCODE -ne 0 -or $launch -notmatch "Status:\s*ok") {
@@ -755,13 +759,10 @@ jobs:
         shell: powershell
         run: |
           $packageName = "com.aistudio.qrgenerator.kmpzqr"
-          $serials = @(
-            (& adb devices 2>$null) |
-              Where-Object { $_ -match "`tdevice$" } |
-              ForEach-Object { ($_ -split "`t")[0] }
-          )
-          if ($serials.Count -eq 1) {
-            $serial = $serials[0]
+          $serial = $env:QUICKQR_PHYSICAL_SERIAL
+          if (-not [string]::IsNullOrWhiteSpace($serial)) {
+            $boundState = ((& adb -s $serial get-state 2>$null) -join "").Trim()
+            if ($LASTEXITCODE -eq 0 -and $boundState -eq "device") {
             $statePath = Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json"
             if (Test-Path $statePath) {
               $state = Get-Content $statePath -Raw | ConvertFrom-Json
@@ -784,6 +785,7 @@ jobs:
             } else {
               "physical_test_apk_cleanup=blocked_package_manager" | Add-Content "physical-evidence\summary.txt"
               $global:LASTEXITCODE = 0
+            }
             }
           }
 
