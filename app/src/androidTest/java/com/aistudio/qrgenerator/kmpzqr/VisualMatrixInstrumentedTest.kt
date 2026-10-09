@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.inputmethod.InputMethodManager
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -116,12 +117,9 @@ class VisualMatrixInstrumentedTest {
             dismissRootWarningIfPresent()
             open("nav_generate")
             open("support_admin_button")
-            composeRule.waitUntil(timeoutMillis = 5_000) {
-                composeRule.onAllNodesWithTag("support_bottom_sheet")
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
-            }
+            waitUntilDisplayed("close_support_sheet_button", timeoutMillis = 8_000)
             settleAnimations()
+            waitUntilDisplayed("close_support_sheet_button")
             capture(outputDir, locale + "_10_support_sheet")
             open("close_support_sheet_button")
 
@@ -140,6 +138,7 @@ class VisualMatrixInstrumentedTest {
             }
             capture(outputDir, locale + "_11_qr_preview")
             open("close_qr_preview_button")
+            hideKeyboard()
 
             // 12: populated history backed by the real Room database.
             resetVisualHistory(populated = true)
@@ -179,7 +178,8 @@ class VisualMatrixInstrumentedTest {
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
-            composeRule.onNodeWithTag("qr_color_customizer_card").performScrollTo()
+            composeRule.onNodeWithTag("reset_qr_colors_button").performScrollTo()
+            waitUntilDisplayed("reset_qr_colors_button")
             settleAnimations()
             capture(outputDir, locale + "_14_qr_appearance")
 
@@ -228,6 +228,14 @@ class VisualMatrixInstrumentedTest {
     private fun open(tag: String) {
         composeRule.onNodeWithTag(tag).performClick()
         composeRule.waitForIdle()
+    }
+
+    private fun waitUntilDisplayed(tag: String, timeoutMillis: Long = 5_000) {
+        composeRule.waitUntil(timeoutMillis = timeoutMillis) {
+            runCatching {
+                composeRule.onNodeWithTag(tag).assertIsDisplayed()
+            }.isSuccess
+        }
     }
 
     private fun fillTextField(tag: String, text: String) {
