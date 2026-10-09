@@ -634,8 +634,39 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & gradle.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
-          if ($LASTEXITCODE -ne 0) {
+          $testPackage = "com.aistudio.qrgenerator.kmpzqr.test"
+          $runner = "$testPackage/androidx.test.runner.AndroidJUnitRunner"
+          $testSpec = "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
+          $serials = @(
+            (& adb devices) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -ne 1) {
+            throw "Expected exactly one authorized physical Android device"
+          }
+          $serial = $serials[0]
+
+          $testApks = @(
+            Get-ChildItem "app\build\outputs\apk\androidTest\debug" -Filter "*.apk" -File
+          )
+          if ($testApks.Count -ne 1) {
+            throw "Expected exactly one debug Android test APK; observed $($testApks.Count)"
+          }
+          $testInstall = ((& adb -s $serial install -r -t $testApks[0].FullName 2>&1) -join "`n")
+          if ($LASTEXITCODE -ne 0 -or $testInstall -notmatch "Success") {
+            "physical_test_apk_install=failed" | Add-Content "physical-evidence\summary.txt"
+            throw "Physical test APK install failed: $testInstall"
+          }
+          "physical_test_apk_install=passed" | Add-Content "physical-evidence\summary.txt"
+
+          $instrumentation = ((& adb -s $serial shell am instrument -w -e class $testSpec $runner 2>&1) -join "`n")
+          $instrumentation | Set-Content "physical-evidence\camera-location-instrumentation.txt"
+          if (
+            $LASTEXITCODE -ne 0 -or
+            $instrumentation -match "FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|Process crashed" -or
+            $instrumentation -notmatch "OK \([1-9][0-9]* test"
+          ) {
             "camera_location_map_smoke=failed" | Add-Content "physical-evidence\summary.txt"
             throw "Physical camera/location smoke failed"
           }
@@ -665,8 +696,16 @@ jobs:
           & adb -s $serial shell am force-stop com.aistudio.qrgenerator.kmpzqr | Out-Null
           Start-Sleep -Seconds 1
 
-          & gradle.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#largeFontCoreControlsRemainOperable"
-          if ($LASTEXITCODE -ne 0) {
+          $testPackage = "com.aistudio.qrgenerator.kmpzqr.test"
+          $runner = "$testPackage/androidx.test.runner.AndroidJUnitRunner"
+          $testSpec = "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#largeFontCoreControlsRemainOperable"
+          $instrumentation = ((& adb -s $serial shell am instrument -w -e class $testSpec $runner 2>&1) -join "`n")
+          $instrumentation | Set-Content "physical-evidence\large-font-instrumentation.txt"
+          if (
+            $LASTEXITCODE -ne 0 -or
+            $instrumentation -match "FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|Process crashed" -or
+            $instrumentation -notmatch "OK \([1-9][0-9]* test"
+          ) {
             throw "Large-font physical accessibility smoke failed"
           }
           "large_font_core_controls=passed" | Add-Content "physical-evidence\summary.txt"
@@ -724,6 +763,14 @@ jobs:
                 }
                 Remove-Item $fontScaleMarker -Force -ErrorAction SilentlyContinue
               }
+            }
+
+            $testCleanup = ((& adb -s $serial uninstall com.aistudio.qrgenerator.kmpzqr.test 2>&1) -join "`n")
+            if ($LASTEXITCODE -eq 0 -and $testCleanup -match "Success") {
+              "physical_test_apk_cleanup=passed" | Add-Content "physical-evidence\summary.txt"
+            } else {
+              "physical_test_apk_cleanup=blocked_package_manager" | Add-Content "physical-evidence\summary.txt"
+              $global:LASTEXITCODE = 0
             }
           }
 
