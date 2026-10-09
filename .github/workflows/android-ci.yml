@@ -433,7 +433,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 28 && github.event.pull_request.head.ref == 'integration/next-release' }}
     needs: build
     runs-on: [self-hosted, Windows, X64, desktop-commander, dclite-project-quickqr-business]
-    timeout-minutes: 35
+    timeout-minutes: 25
 
     steps:
       - name: Checkout exact PR head
@@ -603,9 +603,22 @@ jobs:
             throw "QuickQR process is not alive after launch"
           }
 
-          & adb -s $serial shell screencap -p /sdcard/quickqr-physical-launch.png | Out-Null
-          & adb -s $serial pull /sdcard/quickqr-physical-launch.png "physical-evidence\launch.png" | Out-Null
-          & adb -s $serial shell rm /sdcard/quickqr-physical-launch.png | Out-Null
+          $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
+          & adb -s $serial shell rm -f $remoteLaunchShot | Out-Null
+          & adb -s $serial shell screencap -p $remoteLaunchShot | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            throw "Physical launch screenshot capture failed"
+          }
+          & adb -s $serial pull $remoteLaunchShot "physical-evidence\launch.png" | Out-Null
+          $pullExit = $LASTEXITCODE
+          & adb -s $serial shell rm -f $remoteLaunchShot | Out-Null
+          if ($pullExit -ne 0) {
+            throw "Physical launch screenshot pull failed"
+          }
+          $launchEvidence = Get-Item "physical-evidence\launch.png" -ErrorAction Stop
+          if ($launchEvidence.Length -le 0) {
+            throw "Physical launch screenshot is empty"
+          }
 
           $accessibilityEnabled = (((& adb -s $serial shell settings get secure accessibility_enabled) -join "").Trim())
           $accessibilityServices = (((& adb -s $serial shell settings get secure enabled_accessibility_services) -join "").Trim())
@@ -623,6 +636,7 @@ jobs:
           $ErrorActionPreference = "Stop"
           & gradle.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
           if ($LASTEXITCODE -ne 0) {
+            "camera_location_map_smoke=failed" | Add-Content "physical-evidence\summary.txt"
             throw "Physical camera/location smoke failed"
           }
           "camera_location_map_smoke=passed" | Add-Content "physical-evidence\summary.txt"

@@ -40,6 +40,9 @@ class PhysicalDeviceSmokeInstrumentedTest {
         val initiallyGranted = permissions.associateWith { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         }
+        val permissionsChanged = permissions.any { permission ->
+            initiallyGranted[permission] != true
+        }
 
         try {
             permissions
@@ -47,6 +50,12 @@ class PhysicalDeviceSmokeInstrumentedTest {
                 .forEach { permission ->
                     instrumentation.uiAutomation.grantRuntimePermission(packageName, permission)
                 }
+
+            if (permissionsChanged) {
+                composeRule.activityRule.scenario.recreate()
+                instrumentation.waitForIdleSync()
+                composeRule.waitForIdle()
+            }
 
             waitForMainNavigation()
             dismissRootWarningIfPresent()
