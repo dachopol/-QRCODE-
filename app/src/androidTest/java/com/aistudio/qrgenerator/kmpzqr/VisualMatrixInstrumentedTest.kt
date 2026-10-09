@@ -132,9 +132,9 @@ class VisualMatrixInstrumentedTest {
             dismissRootWarningIfPresent()
             open("nav_generate")
             openGeneratorTab(3)
-            composeRule.onNodeWithTag("generic_text_input")
-                .performTextClearance()
-                .performTextInput("QuickQR Visual QA")
+            val textInput = composeRule.onNodeWithTag("generic_text_input")
+            textInput.performTextClearance()
+            textInput.performTextInput("QuickQR Visual QA")
             open("generate_text_button")
             composeRule.waitUntil(timeoutMillis = 8_000) {
                 composeRule.onAllNodesWithTag("qr_preview_dialog")
@@ -204,10 +204,10 @@ class VisualMatrixInstrumentedTest {
     }
 
     private fun fillTextField(tag: String, text: String) {
-        composeRule.onNodeWithTag(tag)
-            .performScrollTo()
-            .performTextClearance()
-            .performTextInput(text)
+        val field = composeRule.onNodeWithTag(tag)
+        field.performScrollTo()
+        field.performTextClearance()
+        field.performTextInput(text)
         composeRule.waitForIdle()
     }
 
