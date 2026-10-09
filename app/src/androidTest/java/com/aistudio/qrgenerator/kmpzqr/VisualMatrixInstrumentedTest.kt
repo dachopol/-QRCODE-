@@ -120,6 +120,7 @@ class VisualMatrixInstrumentedTest {
             waitUntilDisplayed("close_support_sheet_button", timeoutMillis = 8_000)
             settleAnimations()
             waitUntilDisplayed("close_support_sheet_button")
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_10_support_sheet")
             open("close_support_sheet_button")
 
@@ -240,6 +241,14 @@ class VisualMatrixInstrumentedTest {
                 composeRule.onNodeWithTag(tag).assertIsDisplayed()
             }.isSuccess
         }
+    }
+
+    private fun waitForScreenshotFrame() {
+        // Compose semantics can become visible before the emulator framebuffer is committed.
+        // Wait for the UI thread to drain, then allow the compositor to present the modal frame
+        // before UiAutomation.takeScreenshot() reads the display.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        android.os.SystemClock.sleep(350L)
     }
 
     private fun fillTextField(tag: String, text: String) {
