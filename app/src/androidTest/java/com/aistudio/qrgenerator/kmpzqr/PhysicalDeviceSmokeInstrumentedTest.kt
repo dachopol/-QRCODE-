@@ -1,9 +1,7 @@
 package com.aistudio.qrgenerator.kmpzqr
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -14,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Rule
@@ -27,7 +24,7 @@ class PhysicalDeviceSmokeInstrumentedTest {
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun physicalCameraLocationAndMapSmoke() {
+    fun physicalCameraAndLocationSmoke() {
         assumeFalse("Physical-device smoke must not run on an emulator", isProbablyEmulator())
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
@@ -104,15 +101,6 @@ class PhysicalDeviceSmokeInstrumentedTest {
         composeRule.onNodeWithTag("open_current_location_map_button")
             .performScrollTo()
             .assertIsEnabled()
-
-            val mapProbe = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("geo:1,1?q=1,1")
-            )
-            assertNotNull(
-                "No installed activity can handle geo map intents",
-                mapProbe.resolveActivity(context.packageManager)
-            )
     }
 
     @Test

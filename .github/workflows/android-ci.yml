@@ -656,7 +656,7 @@ jobs:
           $ErrorActionPreference = "Stop"
           $testPackage = "com.aistudio.qrgenerator.kmpzqr.test"
           $runner = "$testPackage/androidx.test.runner.AndroidJUnitRunner"
-          $testSpec = "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
+          $testSpec = "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraAndLocationSmoke"
           $serial = $env:QUICKQR_PHYSICAL_SERIAL
           if ([string]::IsNullOrWhiteSpace($serial)) {
             throw "Bound RMX3241 serial is unavailable"
@@ -686,10 +686,20 @@ jobs:
             $instrumentation -match "FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|Process crashed" -or
             $instrumentation -notmatch "OK \([1-9][0-9]* test"
           ) {
-            "camera_location_map_smoke=failed" | Add-Content "physical-evidence\summary.txt"
+            "camera_location_smoke=failed" | Add-Content "physical-evidence\summary.txt"
             throw "Physical camera/location smoke failed"
           }
-          "camera_location_map_smoke=passed" | Add-Content "physical-evidence\summary.txt"
+          "camera_location_smoke=passed" | Add-Content "physical-evidence\summary.txt"
+
+          $mapProbe = ((& adb -s $serial shell am start -W -a android.intent.action.VIEW -d "geo:1,1?q=1,1" 2>&1) -join "`n")
+          $mapProbe | Set-Content "physical-evidence\map-intent-probe.txt"
+          if ($LASTEXITCODE -eq 0 -and $mapProbe -match "Status:\s*ok") {
+            "map_external_handler=passed" | Add-Content "physical-evidence\summary.txt"
+          } else {
+            "map_external_handler=blocked_no_installed_handler" | Add-Content "physical-evidence\summary.txt"
+            "external_remaining_blocker=install_map_handler_to_verify_physical_geo_launch" | Add-Content "physical-evidence\summary.txt"
+            $global:LASTEXITCODE = 0
+          }
 
       - name: Run large-font accessibility smoke
         shell: powershell
