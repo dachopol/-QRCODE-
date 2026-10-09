@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - qa/physical-rmx3241-20261009
+      - qa/physical-rmx3241-final-gates-20261009
 
 permissions:
   contents: read
@@ -39,7 +40,12 @@ jobs:
           $allowed = @(
             ".github/workflows/physical-rmx3241-qa.yml",
             ".github/scripts/physical_camera_smoke.ps1",
-            "app/src/androidTest/java/com/aistudio/qrgenerator/kmpzqr/PhysicalDeviceSmokeInstrumentedTest.kt"
+            ".github/scripts/physical_location_smoke.ps1",
+            ".github/scripts/physical_accessibility_smoke.ps1",
+            "app/src/androidTest/java/com/aistudio/qrgenerator/kmpzqr/PhysicalDeviceSmokeInstrumentedTest.kt",
+            "app/src/androidTest/java/com/aistudio/qrgenerator/kmpzqr/PhysicalLocationSmokeInstrumentedTest.kt",
+            "app/src/androidTest/java/com/aistudio/qrgenerator/kmpzqr/PhysicalAccessibilityInstrumentedTest.kt",
+            "app/src/androidTest/java/com/aistudio/qrgenerator/kmpzqr/VisualMatrixInstrumentedTest.kt"
           )
           $unexpected = @($changed | Where-Object { $_ -notin $allowed })
           if ($unexpected.Count -gt 0) {
@@ -226,6 +232,20 @@ jobs:
           $ErrorActionPreference = "Stop"
           & ".github/scripts/physical_camera_smoke.ps1"
           if ($LASTEXITCODE -ne 0) { throw "RMX3241 CameraX smoke host driver failed" }
+
+      - name: Run RMX3241 real location and map smoke
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          & ".github/scripts/physical_location_smoke.ps1"
+          if ($LASTEXITCODE -ne 0) { throw "RMX3241 real-location/map smoke host driver failed" }
+
+      - name: Run RMX3241 large-font accessibility smoke
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          & ".github/scripts/physical_accessibility_smoke.ps1"
+          if ($LASTEXITCODE -ne 0) { throw "RMX3241 large-font accessibility smoke failed" }
 
       - name: Run full physical instrumentation and visual matrix
         shell: powershell
