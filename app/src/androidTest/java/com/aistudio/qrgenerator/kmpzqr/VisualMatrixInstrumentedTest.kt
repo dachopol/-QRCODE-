@@ -332,12 +332,42 @@ class VisualMatrixInstrumentedTest {
         composeRule.waitForIdle()
     }
 
+    private fun assertScreenshotHasVisibleContent(bitmap: Bitmap, name: String) {
+        val stepX = maxOf(1, bitmap.width / 32)
+        val stepY = maxOf(1, bitmap.height / 32)
+        var sampled = 0
+        var visible = 0
+        var y = 0
+        while (y < bitmap.height) {
+            var x = 0
+            while (x < bitmap.width) {
+                val pixel = bitmap.getPixel(x, y)
+                val brightness =
+                    android.graphics.Color.red(pixel) +
+                    android.graphics.Color.green(pixel) +
+                    android.graphics.Color.blue(pixel)
+                sampled += 1
+                if (brightness > 45) {
+                    visible += 1
+                }
+                x += stepX
+            }
+            y += stepY
+        }
+        val visibleRatio = if (sampled == 0) 0.0 else visible.toDouble() / sampled.toDouble()
+        assertTrue(
+            "$name screenshot appears blank/black: visibleRatio=$visibleRatio",
+            visibleRatio >= 0.05
+        )
+    }
+
     private fun capture(outputDir: File, name: String) {
         dismissRootWarningIfPresent()
         composeRule.waitForIdle()
         val bitmap = requireNotNull(
             InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
         ) { "UiAutomation screenshot unavailable" }
+        assertScreenshotHasVisibleContent(bitmap, name)
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
