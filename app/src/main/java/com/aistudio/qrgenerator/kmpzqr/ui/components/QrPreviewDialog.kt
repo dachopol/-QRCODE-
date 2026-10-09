@@ -123,7 +123,10 @@ fun QrPreviewDialog(
                         )
                     }
 
-                    IconButton(onClick = onDismiss) {
+                    IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.testTag("close_qr_preview_button")
+                        ) {
                         Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
