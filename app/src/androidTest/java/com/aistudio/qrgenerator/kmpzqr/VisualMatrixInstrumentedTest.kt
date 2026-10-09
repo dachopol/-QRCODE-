@@ -245,6 +245,7 @@ class VisualMatrixInstrumentedTest {
     private fun open(tag: String) {
         composeRule.onNodeWithTag(tag).performClick()
         composeRule.waitForIdle()
+        waitForScreenshotFrame()
     }
 
     private fun waitUntilDisplayed(tag: String, timeoutMillis: Long = 5_000) {
