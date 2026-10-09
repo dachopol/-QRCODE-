@@ -370,6 +370,8 @@ class VisualMatrixInstrumentedTest {
 
     private fun capture(outputDir: File, name: String) {
         dismissRootWarningIfPresent()
+        hideKeyboard()
+        waitForScreenshotFrame()
         composeRule.waitForIdle()
         val bitmap = requireNotNull(
             InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
