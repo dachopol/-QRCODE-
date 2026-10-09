@@ -39,16 +39,15 @@ class PhysicalDeviceSmokeInstrumentedTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("nav_generate").assertExists()
 
-        composeRule.onNodeWithTag("nav_scanner").performClick()
-        composeRule.waitForIdle()
+        openScannerAndEnsureCameraPermission()
         waitForPhysicalCameraBind()
     }
 
     private fun openScannerAndEnsureCameraPermission() {
+        dismissRootWarningIfPresent()
         composeRule.onNodeWithTag("nav_scanner").performClick()
-        composeRule.waitUntil(timeoutMillis = 12_000) {
-            nodeExists("scanner_screen")
-        }
+        composeRule.waitForIdle()
+        waitForScannerSurface()
         dismissRootWarningIfPresent()
 
         if (!cameraPermissionGranted()) {
@@ -60,7 +59,21 @@ class PhysicalDeviceSmokeInstrumentedTest {
                 cameraPermissionGranted()
             }
             composeRule.waitForIdle()
+            waitForScannerSurface()
         }
+    }
+
+    private fun waitForScannerSurface() {
+        val deadline = android.os.SystemClock.uptimeMillis() + 20_000L
+        while (android.os.SystemClock.uptimeMillis() < deadline) {
+            dismissRootWarningIfPresent()
+            if (nodeExists("scanner_screen")) {
+                composeRule.waitForIdle()
+                return
+            }
+            Thread.sleep(250L)
+        }
+        throw AssertionError("Scanner screen did not become available on RMX3241")
     }
 
     private fun waitForPhysicalCameraBind() {

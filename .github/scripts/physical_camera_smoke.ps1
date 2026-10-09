@@ -14,6 +14,37 @@ $localDump = Join-Path $env:RUNNER_TEMP "quickqr-permission.xml"
 
 Remove-Item $stdout, $stderr, $localDump -Force -ErrorAction SilentlyContinue
 
+$evidenceDir = Join-Path $PWD "physical-evidence"
+New-Item -ItemType Directory -Force -Path $evidenceDir | Out-Null
+
+function Save-CameraDiagnostics {
+  $previousPreference = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    if (Test-Path -LiteralPath $stdout) {
+      Copy-Item -LiteralPath $stdout -Destination (Join-Path $evidenceDir "camera-smoke.stdout.log") -Force
+    }
+    if (Test-Path -LiteralPath $stderr) {
+      Copy-Item -LiteralPath $stderr -Destination (Join-Path $evidenceDir "camera-smoke.stderr.log") -Force
+    }
+
+    & adb -s $env:ADB_SERIAL shell screencap -p /sdcard/quickqr_camera_failure.png | Out-Null
+    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_camera_failure.png (Join-Path $evidenceDir "camera-failure.png") | Out-Null
+
+    & cmd.exe /d /s /c "adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_camera_failure.xml >nul 2>nul" | Out-Null
+    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_camera_failure.xml (Join-Path $evidenceDir "camera-failure.xml") | Out-Null
+
+    $packageDump = (& adb -s $env:ADB_SERIAL shell dumpsys package $env:APP_ID 2>&1) -join "`n"
+    [IO.File]::WriteAllText(
+      (Join-Path $evidenceDir "camera-permission-state.txt"),
+      $packageDump,
+      (New-Object Text.UTF8Encoding($false))
+    )
+  } finally {
+    $ErrorActionPreference = $previousPreference
+  }
+}
+
 $arguments = @(
   "-s", $env:ADB_SERIAL,
   "shell", "am", "instrument",
@@ -31,24 +62,6 @@ $startArgs = @{
   PassThru = $true
   WindowStyle = "Hidden"
 }
-# CameraX bind/rebind is a hardware/runtime gate, not a permission-dialog timing gate.
-# Put CAMERA in a deterministic granted state before instrumentation. The in-test
-# permission path and host-side dialog handler remain as a fallback/diagnostic path.
-$previousErrorPreference = $ErrorActionPreference
-$ErrorActionPreference = "Continue"
-$grantOutput = (& adb -s $env:ADB_SERIAL shell pm grant $env:APP_ID android.permission.CAMERA 2>&1) -join "`n"
-$grantExit = $LASTEXITCODE
-$ErrorActionPreference = $previousErrorPreference
-if ($grantExit -ne 0) {
-  Write-Host ("CAMERA pre-grant was not accepted; falling back to runtime dialog handling: " + $grantOutput)
-} else {
-  $packageDump = (& adb -s $env:ADB_SERIAL shell dumpsys package $env:APP_ID) -join "`n"
-  if ($packageDump -notmatch "android\.permission\.CAMERA:\s+granted=true") {
-    throw "CAMERA pre-grant command succeeded but dumpsys did not confirm granted=true"
-  }
-  Write-Host "CAMERA permission deterministically granted for CameraX hardware smoke."
-}
-
 & adb -s $env:ADB_SERIAL shell am force-stop $env:APP_ID | Out-Null
 Start-Sleep -Seconds 1
 
@@ -94,6 +107,7 @@ while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
 
 if (-not $process.HasExited) {
   Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+  Save-CameraDiagnostics
   throw "RMX3241 CameraX smoke exceeded 3-minute bound"
 }
 
@@ -124,6 +138,7 @@ if (
   $reportedFailure
 ) {
   $exitLabel = if ($exitCodeKnown) { [string]$process.ExitCode } else { "unavailable" }
+  Save-CameraDiagnostics
   throw ("RMX3241 CameraX smoke failed; exit=" + $exitLabel)
 }
 
