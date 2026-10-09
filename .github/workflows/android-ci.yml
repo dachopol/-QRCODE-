@@ -372,7 +372,7 @@ jobs:
           adb pull "$REMOTE_VISUAL" /tmp/quickqr-api36-phone
           COUNT="$(find /tmp/quickqr-api36-phone -type f -name '*.png' | wc -l | tr -d ' ')"
           echo "Android 16 phone visual screenshot count: $COUNT"
-          test "$COUNT" -eq 18
+          test "$COUNT" -eq 30
 
       - name: Run Android 16 large-screen landscape compatibility tests
         shell: bash
@@ -398,7 +398,7 @@ jobs:
           adb pull "$REMOTE_VISUAL" /tmp/quickqr-api36-large
           COUNT="$(find /tmp/quickqr-api36-large -type f -name '*.png' | wc -l | tr -d ' ')"
           echo "Android 16 large-screen visual screenshot count: $COUNT"
-          test "$COUNT" -eq 18
+          test "$COUNT" -eq 30
 
       - name: Reset Android 16 display overrides
         if: always()
