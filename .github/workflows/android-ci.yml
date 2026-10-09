@@ -635,32 +635,21 @@ jobs:
 
           $adbPath = (Get-Command adb -ErrorAction Stop).Source
           $launchShotPath = Join-Path (Get-Location) "physical-evidence\launch.png"
-          $psi = New-Object System.Diagnostics.ProcessStartInfo
-          $psi.FileName = $adbPath
-          $psi.Arguments = "-s `"$serial`" exec-out screencap -p"
-          $psi.UseShellExecute = $false
-          $psi.RedirectStandardOutput = $true
-          $psi.RedirectStandardError = $true
-          $psi.CreateNoWindow = $true
-          $process = New-Object System.Diagnostics.Process
-          $process.StartInfo = $psi
-          if (-not $process.Start()) {
-            throw "Physical launch screenshot process did not start"
-          }
-          $stream = [System.IO.File]::Create($launchShotPath)
-          try {
-            $process.StandardOutput.BaseStream.CopyTo($stream)
-          } finally {
-            $stream.Dispose()
-          }
-          $stderr = $process.StandardError.ReadToEnd()
-          $process.WaitForExit()
-          if ($process.ExitCode -ne 0) {
+          $launchShotErrorPath = Join-Path $env:RUNNER_TEMP "quickqr-launch-screencap.stderr.txt"
+          Remove-Item $launchShotPath,$launchShotErrorPath -Force -ErrorAction SilentlyContinue
+          $capture = Start-Process -FilePath $adbPath -ArgumentList @("-s", $serial, "exec-out", "screencap", "-p") -NoNewWindow -Wait -PassThru -RedirectStandardOutput $launchShotPath -RedirectStandardError $launchShotErrorPath
+          if ($capture.ExitCode -ne 0) {
             throw "Physical launch screenshot capture failed"
           }
-          $launchEvidence = Get-Item "physical-evidence\launch.png" -ErrorAction Stop
-          if ($launchEvidence.Length -le 0) {
+          $launchEvidence = Get-Item $launchShotPath -ErrorAction Stop
+          if ($launchEvidence.Length -le 8) {
             throw "Physical launch screenshot is empty"
+          }
+          $bytes = [System.IO.File]::ReadAllBytes($launchShotPath)
+          $header = $bytes[0..7]
+          $pngHeader = [byte[]](0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A)
+          if ([System.BitConverter]::ToString($header) -ne [System.BitConverter]::ToString($pngHeader)) {
+            throw "Physical launch screenshot did not return PNG data"
           }
 
           $accessibilityEnabled = (((& adb -s $serial shell settings get secure accessibility_enabled) -join "").Trim())
