@@ -598,8 +598,8 @@ jobs:
             throw "QuickQR MainActivity did not launch successfully"
           }
           Start-Sleep -Seconds 2
-          $pid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
-          if ([string]::IsNullOrWhiteSpace($pid)) {
+          $appPid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
+          if ([string]::IsNullOrWhiteSpace($appPid)) {
             throw "QuickQR process is not alive after launch"
           }
 
@@ -646,6 +646,7 @@ jobs:
             "accessibility_remaining_blocker=physical_font_scale_mutation_denied_by_oem" | Add-Content "physical-evidence\summary.txt"
             exit 0
           }
+          New-Item -ItemType File -Force -Path (Join-Path $env:RUNNER_TEMP "quickqr-font-scale-mutated.marker") | Out-Null
 
           & adb -s $serial shell am force-stop com.aistudio.qrgenerator.kmpzqr | Out-Null
           Start-Sleep -Seconds 1
@@ -676,8 +677,8 @@ jobs:
             throw "Final QuickQR relaunch failed"
           }
           Start-Sleep -Seconds 2
-          $pid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
-          if ([string]::IsNullOrWhiteSpace($pid)) {
+          $appPid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
+          if ([string]::IsNullOrWhiteSpace($appPid)) {
             throw "QuickQR process is not alive after final relaunch"
           }
           "final_live_process=passed" | Add-Content "physical-evidence\summary.txt"
@@ -698,15 +699,16 @@ jobs:
             $statePath = Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json"
             if (Test-Path $statePath) {
               $state = Get-Content $statePath -Raw | ConvertFrom-Json
-              if ($state.fontScale) {
-                try {
-                  & adb -s $serial shell settings put system font_scale $state.fontScale 2>$null | Out-Null
-                  if ($LASTEXITCODE -ne 0) {
-                    "font_scale_restore=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
-                  }
-                } catch {
+              $fontScaleMarker = Join-Path $env:RUNNER_TEMP "quickqr-font-scale-mutated.marker"
+              if ($state.fontScale -and (Test-Path $fontScaleMarker)) {
+                & adb -s $serial shell settings put system font_scale $state.fontScale 2>$null | Out-Null
+                if ($LASTEXITCODE -ne 0) {
                   "font_scale_restore=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
+                  $global:LASTEXITCODE = 0
+                } else {
+                  "font_scale_restore=passed" | Add-Content "physical-evidence\summary.txt"
                 }
+                Remove-Item $fontScaleMarker -Force -ErrorAction SilentlyContinue
               }
             }
           }
