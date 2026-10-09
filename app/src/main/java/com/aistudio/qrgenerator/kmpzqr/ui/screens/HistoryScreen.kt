@@ -255,6 +255,7 @@ fun HistoryScreen(
         itemToDelete?.let { item ->
             AlertDialog(
                 onDismissRequest = { itemToDelete = null },
+                modifier = Modifier.testTag("history_delete_dialog"),
                 title = { Text(localizedText("ลบรายการนี้?", "Delete this item?")) },
                 text = { Text(localizedText("ต้องการลบ \"${item.title}\" ออกจากประวัติใช่หรือไม่?", "Delete \"${item.title}\" from history?")) },
                 confirmButton = {
@@ -268,7 +269,10 @@ fun HistoryScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { itemToDelete = null }) {
+                    TextButton(
+                        onClick = { itemToDelete = null },
+                        modifier = Modifier.testTag("history_delete_cancel_button")
+                    ) {
                         Text(localizedText("ยกเลิก", "Cancel"))
                     }
                 }
@@ -390,7 +394,10 @@ private fun HistoryItemCard(
                     )
                 }
 
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.testTag("history_delete_button")
+                ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = localizedText("ลบ", "Delete"),
