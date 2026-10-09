@@ -47,6 +47,11 @@ class VisualMatrixInstrumentedTest {
         outputDir.deleteRecursively()
         assertTrue(outputDir.mkdirs() || outputDir.isDirectory)
 
+        // Full physical suites may run clipboard/privacy tests immediately before
+        // this visual matrix. Wait once for Android clipboard/toast overlays to
+        // leave the screen so screenshots contain only app UI.
+        Thread.sleep(4_000)
+
         listOf("th", "en").forEach { locale ->
             composeRule.runOnIdle {
                 LocalizationManager.setLanguageByCode(locale)
@@ -119,6 +124,20 @@ class VisualMatrixInstrumentedTest {
 
     private fun open(tag: String) {
         composeRule.onNodeWithTag(tag).performClick()
+
+        val expectedPageTag = when (tag) {
+            "nav_card" -> "digital_card_preview"
+            "nav_history" -> "history_screen"
+            "nav_scanner" -> "scanner_screen"
+            else -> null
+        }
+        if (expectedPageTag != null) {
+            composeRule.waitUntil(timeoutMillis = 8_000) {
+                composeRule.onAllNodesWithTag(expectedPageTag)
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+        }
         composeRule.waitForIdle()
     }
 
