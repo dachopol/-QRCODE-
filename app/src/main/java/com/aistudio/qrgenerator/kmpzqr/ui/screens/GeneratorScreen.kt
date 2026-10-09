@@ -870,7 +870,9 @@ private fun LocationForm(viewModel: MainViewModel) {
                     shape = RoundedCornerShape(14.dp),
                     color = Color(0xFFECFDF5),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("current_location_ready")
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
@@ -918,7 +920,8 @@ private fun LocationForm(viewModel: MainViewModel) {
                 Text(
                     text = locationError.orEmpty(),
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("current_location_error")
                 )
             }
 
