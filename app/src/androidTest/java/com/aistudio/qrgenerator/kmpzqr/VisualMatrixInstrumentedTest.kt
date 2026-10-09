@@ -165,7 +165,12 @@ class VisualMatrixInstrumentedTest {
             // 14: real QR appearance/customizer state.
             open("nav_generate")
             openGeneratorTab(0)
-            open("qr_appearance_toggle")
+            val appearanceAlreadyOpen = composeRule.onAllNodesWithTag("qr_color_customizer_card")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+            if (!appearanceAlreadyOpen) {
+                open("qr_appearance_toggle")
+            }
             composeRule.waitUntil(timeoutMillis = 5_000) {
                 composeRule.onAllNodesWithTag("qr_color_customizer_card")
                     .fetchSemanticsNodes()
