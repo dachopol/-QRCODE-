@@ -1,6 +1,13 @@
 $ErrorActionPreference = "Stop"
 
-$gradle = (Get-Command gradle.bat -ErrorAction Stop).Source
+if ([string]::IsNullOrWhiteSpace($env:ADB_SERIAL)) {
+  throw "ADB_SERIAL is required for RMX3241 physical QA"
+}
+if ([string]::IsNullOrWhiteSpace($env:TEST_INSTRUMENTATION)) {
+  throw "TEST_INSTRUMENTATION is required for RMX3241 physical QA"
+}
+
+$adb = (Get-Command adb.exe -ErrorAction Stop).Source
 $stdout = Join-Path $env:RUNNER_TEMP "quickqr-camera-smoke.stdout.log"
 $stderr = Join-Path $env:RUNNER_TEMP "quickqr-camera-smoke.stderr.log"
 $localDump = Join-Path $env:RUNNER_TEMP "quickqr-permission.xml"
@@ -8,14 +15,15 @@ $localDump = Join-Path $env:RUNNER_TEMP "quickqr-permission.xml"
 Remove-Item $stdout, $stderr, $localDump -Force -ErrorAction SilentlyContinue
 
 $arguments = @(
-  "--no-daemon",
-  ":app:connectedDebugAndroidTest",
-  "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest",
-  "--stacktrace"
+  "-s", $env:ADB_SERIAL,
+  "shell", "am", "instrument",
+  "-w", "-r",
+  "-e", "class", "com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest",
+  $env:TEST_INSTRUMENTATION
 )
 
 $startArgs = @{
-  FilePath = $gradle
+  FilePath = $adb
   ArgumentList = $arguments
   WorkingDirectory = $PWD.Path
   RedirectStandardOutput = $stdout
@@ -25,15 +33,15 @@ $startArgs = @{
 }
 $process = Start-Process @startArgs
 
-$deadline = [DateTime]::UtcNow.AddMinutes(4)
+$deadline = [DateTime]::UtcNow.AddMinutes(3)
 $permissionHandled = $false
 
 while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
   Start-Sleep -Seconds 2
 
   try {
-    & adb shell uiautomator dump /sdcard/quickqr_permission.xml 2>$null | Out-Null
-    & adb pull /sdcard/quickqr_permission.xml $localDump 2>$null | Out-Null
+    & adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_permission.xml 2>$null | Out-Null
+    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_permission.xml $localDump 2>$null | Out-Null
 
     if (Test-Path -LiteralPath $localDump -PathType Leaf) {
       [xml]$xml = Get-Content -Raw -LiteralPath $localDump
@@ -49,7 +57,7 @@ while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
         if ($bounds -match "^\[(\d+),(\d+)\]\[(\d+),(\d+)\]$") {
           $x = [int](([int]$Matches[1] + [int]$Matches[3]) / 2)
           $y = [int](([int]$Matches[2] + [int]$Matches[4]) / 2)
-          & adb shell input tap $x $y | Out-Null
+          & adb -s $env:ADB_SERIAL shell input tap $x $y | Out-Null
           $permissionHandled = $true
           Write-Host ("Accepted Android camera permission dialog at " + $x + "," + $y)
           Start-Sleep -Seconds 1
@@ -65,7 +73,7 @@ while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
 
 if (-not $process.HasExited) {
   Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-  throw "RMX3241 CameraX smoke exceeded 4-minute bound"
+  throw "RMX3241 CameraX smoke exceeded 3-minute bound"
 }
 
 $process.WaitForExit()
