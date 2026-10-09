@@ -524,6 +524,17 @@ jobs:
             throw "ADB is not available on the self-hosted runner"
           }
 
+          function Get-PhysicalModel([string]$candidate) {
+            for ($attempt = 1; $attempt -le 5; $attempt++) {
+              $value = ((& adb -s $candidate shell getprop ro.product.model 2>$null) -join "").Trim()
+              if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($value)) {
+                return $value
+              }
+              Start-Sleep -Seconds 2
+            }
+            return ""
+          }
+
           $serials = @(
             (& adb devices) |
               Where-Object { $_ -match "`tdevice$" } |
@@ -531,8 +542,8 @@ jobs:
           )
           $matches = @()
           foreach ($candidate in $serials) {
-            $candidateModel = ((& adb -s $candidate shell getprop ro.product.model) -join "").Trim()
-            if ($LASTEXITCODE -eq 0 -and $candidateModel -eq "RMX3241") {
+            $candidateModel = Get-PhysicalModel $candidate
+            if ($candidateModel -eq "RMX3241") {
               $matches += $candidate
             }
           }
@@ -542,7 +553,7 @@ jobs:
           $serial = $matches[0]
           "QUICKQR_PHYSICAL_SERIAL=$serial" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-          $model = ((& adb -s $serial shell getprop ro.product.model) -join "").Trim()
+          $model = Get-PhysicalModel $serial
           if ($model -ne "RMX3241") {
             throw "Physical target mismatch after binding: expected RMX3241"
           }
