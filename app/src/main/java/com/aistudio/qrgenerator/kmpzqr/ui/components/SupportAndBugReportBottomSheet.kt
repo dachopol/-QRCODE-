@@ -133,7 +133,10 @@ fun SupportAndBugReportBottomSheet(
                     }
                 }
 
-                IconButton(onClick = onDismiss) {
+                IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.testTag("close_support_sheet_button")
+                    ) {
                     Icon(Icons.Default.Close, contentDescription = localizedText("ปิด", "Close"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
