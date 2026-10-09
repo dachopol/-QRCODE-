@@ -1,6 +1,8 @@
 package com.aistudio.qrgenerator.kmpzqr
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
@@ -27,10 +29,29 @@ class PhysicalDeviceSmokeInstrumentedTest {
     @Test
     fun physicalCameraLocationAndMapSmoke() {
         assumeFalse("Physical-device smoke must not run on an emulator", isProbablyEmulator())
-        waitForMainNavigation()
-        dismissRootWarningIfPresent()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        val packageName = context.packageName
+        val permissions = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        val initiallyGranted = permissions.associateWith { permission ->
+            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
 
-        composeRule.onNodeWithTag("nav_scanner").performClick()
+        try {
+            permissions
+                .filter { permission -> initiallyGranted[permission] != true }
+                .forEach { permission ->
+                    instrumentation.uiAutomation.grantRuntimePermission(packageName, permission)
+                }
+
+            waitForMainNavigation()
+            dismissRootWarningIfPresent()
+
+            composeRule.onNodeWithTag("nav_scanner").performClick()
         composeRule.waitUntil(timeoutMillis = 15_000) {
             val active = composeRule.onAllNodesWithTag("camera_active_state")
                 .fetchSemanticsNodes().isNotEmpty()
@@ -87,15 +108,23 @@ class PhysicalDeviceSmokeInstrumentedTest {
             .performScrollTo()
             .assertIsEnabled()
 
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val mapProbe = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("geo:1,1?q=1,1")
-        )
-        assertNotNull(
-            "No installed activity can handle geo map intents",
-            mapProbe.resolveActivity(context.packageManager)
-        )
+            val mapProbe = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("geo:1,1?q=1,1")
+            )
+            assertNotNull(
+                "No installed activity can handle geo map intents",
+                mapProbe.resolveActivity(context.packageManager)
+            )
+        } finally {
+            permissions
+                .filter { permission -> initiallyGranted[permission] != true }
+                .forEach { permission ->
+                    runCatching {
+                        instrumentation.uiAutomation.revokeRuntimePermission(packageName, permission)
+                    }
+                }
+        }
     }
 
     @Test
