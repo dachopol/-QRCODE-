@@ -95,9 +95,11 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $gradleUserHome = Join-Path $env:RUNNER_TEMP "quickqr-gradle-home"
-          $distRoot = Join-Path $env:RUNNER_TEMP "quickqr-gradle-dist"
-          $zipPath = Join-Path $env:RUNNER_TEMP "gradle-9.3.1-bin.zip"
+          $runnerCacheRoot = Join-Path $env:LOCALAPPDATA "DesktopCommanderLite\project-runners\quickqr-business\qa-cache"
+          $gradleUserHome = Join-Path $runnerCacheRoot "gradle-home"
+          $distRoot = Join-Path $runnerCacheRoot "gradle-dist"
+          $zipPath = Join-Path $runnerCacheRoot "gradle-9.3.1-bin.zip"
+          New-Item -ItemType Directory -Force -Path $runnerCacheRoot | Out-Null
           $gradleBin = Join-Path $distRoot "gradle-9.3.1\bin"
           $gradleExe = Join-Path $gradleBin "gradle.bat"
 
