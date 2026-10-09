@@ -1,10 +1,11 @@
 package com.aistudio.qrgenerator.kmpzqr
 
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.activity.compose.setContent
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -17,13 +18,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.data.AppDatabase
 import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
-import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrResult
-import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrType
-import com.aistudio.qrgenerator.kmpzqr.ui.components.RootSecurityWarningDialog
-import com.aistudio.qrgenerator.kmpzqr.ui.components.ScanResultBottomSheet
-import com.aistudio.qrgenerator.kmpzqr.ui.theme.MyApplicationTheme
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
-import com.aistudio.qrgenerator.kmpzqr.util.RootCheckResult
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.runBlocking
@@ -119,12 +114,14 @@ class VisualMatrixInstrumentedTest {
 
             // 10: support/report sheet through the real app flow.
             dismissRootWarningIfPresent()
+            open("nav_generate")
             open("support_admin_button")
             composeRule.waitUntil(timeoutMillis = 5_000) {
                 composeRule.onAllNodesWithTag("support_bottom_sheet")
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
+            settleAnimations()
             capture(outputDir, locale + "_10_support_sheet")
             open("close_support_sheet_button")
 
@@ -160,19 +157,41 @@ class VisualMatrixInstrumentedTest {
             fillTextField("card_name_input", "QA User")
             fillTextField("card_profession_input", "QR workflow verification")
             fillTextField("card_services_input", "Deterministic visual QA fixture")
+            hideKeyboard()
             composeRule.onNodeWithTag("digital_card_preview").performScrollTo()
             composeRule.waitForIdle()
             capture(outputDir, locale + "_13_business_card_populated")
-        }
 
-        // 14-15: deterministic production-component states.
-        // These are explicit QA fixtures and are not claims about live user/device state.
-        listOf("th", "en").forEach { locale ->
-            renderScanResultFixture(locale)
-            capture(outputDir, locale + "_14_scan_result_fixture")
+            // 14: real QR appearance/customizer state.
+            open("nav_generate")
+            openGeneratorTab(0)
+            open("qr_appearance_toggle")
+            composeRule.waitUntil(timeoutMillis = 5_000) {
+                composeRule.onAllNodesWithTag("qr_color_customizer_card")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+            composeRule.onNodeWithTag("qr_color_customizer_card").performScrollTo()
+            settleAnimations()
+            capture(outputDir, locale + "_14_qr_appearance")
 
-            renderRootWarningFixture(locale)
-            capture(outputDir, locale + "_15_root_warning_fixture")
+            // 15: real History delete-confirmation state backed by Room data.
+            resetVisualHistory(populated = true)
+            open("nav_history")
+            composeRule.waitUntil(timeoutMillis = 5_000) {
+                composeRule.onAllNodesWithText("Visual QA item")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+            composeRule.onAllNodesWithTag("history_delete_button")[0].performClick()
+            composeRule.waitUntil(timeoutMillis = 5_000) {
+                composeRule.onAllNodesWithTag("history_delete_dialog")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+            settleAnimations()
+            capture(outputDir, locale + "_15_history_delete_dialog")
+            open("history_delete_cancel_button")
         }
 
         val pngs = outputDir.listFiles { file -> file.extension == "png" }.orEmpty()
@@ -254,51 +273,18 @@ class VisualMatrixInstrumentedTest {
         composeRule.waitForIdle()
     }
 
-    private fun renderScanResultFixture(locale: String) {
-        composeRule.runOnUiThread {
-            LocalizationManager.setLanguageByCode(locale)
-            composeRule.activity.setContent {
-                MyApplicationTheme(darkTheme = false) {
-                    ScanResultBottomSheet(
-                        result = ParsedQrResult(
-                            rawText = "QuickQR visual QA",
-                            type = ParsedQrType.TEXT,
-                            title = "QuickQR Visual QA",
-                            subtitle = "Deterministic runtime fixture"
-                        ),
-                        onDismiss = {}
-                    )
-                }
-            }
-        }
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithTag("scan_result_sheet")
-                .fetchSemanticsNodes()
-                .isNotEmpty()
-        }
+    private fun settleAnimations() {
+        composeRule.mainClock.advanceTimeBy(800L)
         composeRule.waitForIdle()
     }
 
-    private fun renderRootWarningFixture(locale: String) {
+    private fun hideKeyboard() {
         composeRule.runOnUiThread {
-            LocalizationManager.setLanguageByCode(locale)
-            composeRule.activity.setContent {
-                MyApplicationTheme(darkTheme = false) {
-                    RootSecurityWarningDialog(
-                        result = RootCheckResult(
-                            isRooted = true,
-                            reasons = listOf("QA test-keys fixture"),
-                            testKeysFound = true
-                        ),
-                        onDismiss = {}
-                    )
-                }
-            }
-        }
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithTag("root_security_warning_dialog")
-                .fetchSemanticsNodes()
-                .isNotEmpty()
+            val focus = composeRule.activity.currentFocus ?: return@runOnUiThread
+            val inputMethodManager = composeRule.activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(focus.windowToken, 0)
+            focus.clearFocus()
         }
         composeRule.waitForIdle()
     }
