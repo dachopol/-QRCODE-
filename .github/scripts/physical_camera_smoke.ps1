@@ -31,6 +31,9 @@ $startArgs = @{
   PassThru = $true
   WindowStyle = "Hidden"
 }
+& adb -s $env:ADB_SERIAL shell am force-stop $env:APP_ID | Out-Null
+Start-Sleep -Seconds 1
+
 $process = Start-Process @startArgs
 
 $deadline = [DateTime]::UtcNow.AddMinutes(3)
@@ -40,11 +43,11 @@ while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
   Start-Sleep -Seconds 2
 
   try {
-    & adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_permission.xml 2>$null | Out-Null
-    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_permission.xml $localDump 2>$null | Out-Null
+    & cmd.exe /d /s /c "adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_permission.xml >nul 2>nul" | Out-Null
+    $xmlText = (& cmd.exe /d /s /c "adb -s $env:ADB_SERIAL exec-out cat /sdcard/quickqr_permission.xml 2>nul") -join "`n"
 
-    if (Test-Path -LiteralPath $localDump -PathType Leaf) {
-      [xml]$xml = Get-Content -Raw -LiteralPath $localDump
+    if (-not [string]::IsNullOrWhiteSpace($xmlText)) {
+      [xml]$xml = $xmlText
       $candidate = @(
         $xml.SelectNodes("//node") | Where-Object {
           $resourceId = $_.GetAttribute("resource-id")
