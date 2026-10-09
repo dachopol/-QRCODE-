@@ -144,11 +144,8 @@ class VisualMatrixInstrumentedTest {
             // 12: populated history backed by the real Room database.
             resetVisualHistory(populated = true)
             open("nav_history")
-            composeRule.waitUntil(timeoutMillis = 5_000) {
-                composeRule.onAllNodesWithText("Visual QA item")
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
-            }
+            waitUntilDisplayed("history_delete_button", timeoutMillis = 8_000)
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_12_history_populated")
 
             // 13: business-card populated state using real form interactions.
@@ -186,23 +183,17 @@ class VisualMatrixInstrumentedTest {
             composeRule.onNodeWithTag("reset_qr_colors_button").performScrollTo()
             waitUntilDisplayed("reset_qr_colors_button")
             settleAnimations()
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_14_qr_appearance")
 
             // 15: real History delete-confirmation state backed by Room data.
             resetVisualHistory(populated = true)
             open("nav_history")
-            composeRule.waitUntil(timeoutMillis = 5_000) {
-                composeRule.onAllNodesWithText("Visual QA item")
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
-            }
+            waitUntilDisplayed("history_delete_button", timeoutMillis = 8_000)
             composeRule.onAllNodesWithTag("history_delete_button")[0].performClick()
-            composeRule.waitUntil(timeoutMillis = 5_000) {
-                composeRule.onAllNodesWithTag("history_delete_dialog")
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
-            }
+            waitUntilDisplayed("history_delete_cancel_button", timeoutMillis = 5_000)
             settleAnimations()
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_15_history_delete_dialog")
             open("history_delete_cancel_button")
         }
