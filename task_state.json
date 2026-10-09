@@ -301,5 +301,28 @@
     "app_source_commit": "c7304af1dc3040c13aff69b7e2ee6574a1192276",
     "current_main_app_source_delta": "NONE VERIFIED THROUGH 07daf33ada6291abfbabc4058867bd88800b866f",
     "production": "NOT TOUCHED"
+  },
+  "next_release_integration": {
+    "pr": 28,
+    "branch": "integration/next-release",
+    "verified_head": "6c5e663f81f3008bf1dfeec1aa5373a1e6dd0637",
+    "android_ci_run": 37881554876,
+    "android_ci_run_number": 267,
+    "build": "PASS",
+    "instrumentation": "PASS",
+    "android16_phone": "PASS",
+    "android16_large_screen_landscape": "PASS",
+    "visual_matrix": {
+      "states_per_language": 15,
+      "languages": [
+        "th",
+        "en"
+      ],
+      "screenshot_count_required": 30,
+      "screenshot_collection": "PASS",
+      "truth_boundary": "runtime emulator captures; scan-result and root-warning are deterministic QA component fixtures, not live camera/root-device evidence"
+    },
+    "active_play_release_unchanged": true,
+    "production_untouched": true
   }
 }
