@@ -13,6 +13,34 @@ $stderr = Join-Path $env:RUNNER_TEMP "quickqr-location-smoke.stderr.log"
 
 Remove-Item $stdout, $stderr -Force -ErrorAction SilentlyContinue
 
+$evidenceDir = Join-Path $PWD "physical-evidence"
+New-Item -ItemType Directory -Force -Path $evidenceDir | Out-Null
+
+function Save-LocationDiagnostics {
+  $previousPreference = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    if (Test-Path -LiteralPath $stdout) {
+      Copy-Item -LiteralPath $stdout -Destination (Join-Path $evidenceDir "location-smoke.stdout.log") -Force
+    }
+    if (Test-Path -LiteralPath $stderr) {
+      Copy-Item -LiteralPath $stderr -Destination (Join-Path $evidenceDir "location-smoke.stderr.log") -Force
+    }
+    & adb -s $env:ADB_SERIAL shell screencap -p /sdcard/quickqr_location_failure.png | Out-Null
+    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_location_failure.png (Join-Path $evidenceDir "location-failure.png") | Out-Null
+    & cmd.exe /d /s /c "adb -s $env:ADB_SERIAL shell uiautomator dump /sdcard/quickqr_location_failure.xml >nul 2>nul" | Out-Null
+    & adb -s $env:ADB_SERIAL pull /sdcard/quickqr_location_failure.xml (Join-Path $evidenceDir "location-failure.xml") | Out-Null
+    $activities = (& adb -s $env:ADB_SERIAL shell dumpsys activity activities 2>&1) -join "`n"
+    [IO.File]::WriteAllText(
+      (Join-Path $evidenceDir "location-activities.txt"),
+      $activities,
+      (New-Object Text.UTF8Encoding($false))
+    )
+  } finally {
+    $ErrorActionPreference = $previousPreference
+  }
+}
+
 $arguments = @(
   "-s", $env:ADB_SERIAL,
   "shell", "am", "instrument",
@@ -76,6 +104,7 @@ while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
 
 if (-not $process.HasExited) {
   Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+  Save-LocationDiagnostics
   throw "RMX3241 real-location smoke exceeded 2-minute bound"
 }
 
@@ -106,6 +135,7 @@ if (
   $reportedFailure
 ) {
   $exitLabel = if ($exitCodeKnown) { [string]$process.ExitCode } else { "unavailable" }
+  Save-LocationDiagnostics
   throw ("RMX3241 real-location/map smoke failed; exit=" + $exitLabel)
 }
 

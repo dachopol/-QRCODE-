@@ -1,9 +1,7 @@
 package com.aistudio.qrgenerator.kmpzqr
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.assertIsEnabled
@@ -19,7 +17,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,28 +77,23 @@ class PhysicalLocationSmokeInstrumentedTest {
             .assertExists()
             .assertIsEnabled()
 
-        val mapIntent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("geo:1,1?q=1,1")
-        )
-        assertNotNull(
-            "No map/browser handler is available on the physical device",
-            composeRule.activity.packageManager.resolveActivity(
-                mapIntent,
-                PackageManager.MATCH_DEFAULT_ONLY
-            )
-        )
-
         val requireMapLaunch =
             InstrumentationRegistry.getArguments().getString("physicalMap") == "true"
         if (requireMapLaunch) {
+            // Exercise the app's real fallback chain instead of pre-querying geo:
+            // handlers. Android package visibility can hide resolveActivity()
+            // results even when startActivity() can launch a compatible app.
+            // LocationQrUtil tries Google Maps, generic geo:, then HTTPS.
             composeRule.onNodeWithTag("open_generated_location_map_button").performClick()
             Thread.sleep(2_000)
             val activities = shell("dumpsys activity activities")
             val appStillResumed = Regex(
                 """mResumedActivity=.*com\.aistudio\.qrgenerator\.kmpzqr/"""
             ).containsMatchIn(activities)
-            assertFalse("Map handler did not take foreground", appStillResumed)
+            assertFalse(
+                "App map/browser fallback did not take foreground",
+                appStillResumed
+            )
         }
     }
 
