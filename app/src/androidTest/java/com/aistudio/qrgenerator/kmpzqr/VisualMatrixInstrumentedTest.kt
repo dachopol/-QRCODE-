@@ -83,12 +83,28 @@ class VisualMatrixInstrumentedTest {
                     3 -> "text"
                     else -> "location"
                 }
+                if (index == 3) {
+                    clearTextField("generic_text_input")
+                    hideKeyboard()
+                }
                 capture(outputDir, locale + "_0" + (index + 1) + "_generate_" + name)
             }
 
-            // 06: business card baseline.
+            // 06: business card baseline. Clear values populated by the previous locale.
             dismissRootWarningIfPresent()
             open("nav_card")
+            listOf(
+                "card_business_input",
+                "card_name_input",
+                "card_profession_input",
+                "card_services_input"
+            ).forEach(::clearTextField)
+            hideKeyboard()
+            // Re-enter so the baseline capture starts at the top after scrolling through the fields.
+            open("nav_history")
+            open("nav_card")
+            waitUntilDisplayed("digital_card_preview")
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_06_business_card")
 
             // 07: deterministic empty history.
@@ -240,6 +256,13 @@ class VisualMatrixInstrumentedTest {
         // before UiAutomation.takeScreenshot() reads the display.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         android.os.SystemClock.sleep(350L)
+    }
+
+    private fun clearTextField(tag: String) {
+        val field = composeRule.onNodeWithTag(tag)
+        field.performScrollTo()
+        field.performTextClearance()
+        composeRule.waitForIdle()
     }
 
     private fun fillTextField(tag: String, text: String) {
