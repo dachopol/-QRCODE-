@@ -22,6 +22,7 @@ import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
 import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
 import java.io.File
 import java.io.FileOutputStream
+import java.security.MessageDigest
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -33,6 +34,8 @@ import org.junit.runner.RunWith
 class VisualMatrixInstrumentedTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
+
+    private val screenshotDigestOwners = mutableMapOf<String, String>()
 
     private val originalLanguage by lazy {
         LocalizationManager.currentLanguage.value.code
@@ -373,6 +376,15 @@ class VisualMatrixInstrumentedTest {
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
         }
         assertTrue(file.isFile && file.length() > 0L)
+
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(file.readBytes())
+            .joinToString("") { byte -> "%02x".format(byte) }
+        val duplicateOwner = screenshotDigestOwners.putIfAbsent(digest, name)
+        assertTrue(
+            "$name duplicates visual evidence screenshot $duplicateOwner",
+            duplicateOwner == null
+        )
 
         // Persist the emulator's actual UI capture beyond test-app cleanup.
         val values = ContentValues().apply {
