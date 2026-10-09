@@ -290,7 +290,7 @@ class VisualMatrixInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("generator_tab_" + index)
-            .performScrollTo()
+            .assertIsDisplayed()
             .performClick()
 
         composeRule.waitUntil(timeoutMillis = 5_000) {

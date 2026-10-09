@@ -66,7 +66,7 @@ class PhysicalDeviceSmokeInstrumentedTest {
 
         composeRule.onNodeWithTag("nav_generate").performClick()
         composeRule.onNodeWithTag("generator_tab_4")
-            .performScrollTo()
+            .assertIsDisplayed()
             .performClick()
 
         composeRule.waitUntil(timeoutMillis = 22_000) {
