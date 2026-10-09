@@ -543,7 +543,7 @@ jobs:
             throw "Physical target has not completed boot"
           }
 
-          & .\gradlew.bat --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest
+          & gradle.bat --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest
           if ($LASTEXITCODE -ne 0) {
             throw "Windows physical candidate build failed"
           }
@@ -636,7 +636,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & .\gradlew.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
+          & gradle.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
           if ($LASTEXITCODE -ne 0) {
             throw "Physical camera/location smoke failed"
           }
@@ -659,7 +659,7 @@ jobs:
           & adb -s $serial shell am force-stop com.aistudio.qrgenerator.kmpzqr | Out-Null
           Start-Sleep -Seconds 1
 
-          & .\gradlew.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#largeFontCoreControlsRemainOperable"
+          & gradle.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#largeFontCoreControlsRemainOperable"
           if ($LASTEXITCODE -ne 0) {
             throw "Large-font physical accessibility smoke failed"
           }
