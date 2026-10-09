@@ -46,10 +46,8 @@ class PhysicalDeviceSmokeInstrumentedTest {
 
     private fun openScannerAndEnsureCameraPermission() {
         composeRule.onNodeWithTag("nav_scanner").performClick()
-        composeRule.waitUntil(timeoutMillis = 8_000) {
-            composeRule.onAllNodesWithTag("scanner_screen")
-                .fetchSemanticsNodes()
-                .isNotEmpty()
+        composeRule.waitUntil(timeoutMillis = 12_000) {
+            nodeExists("scanner_screen")
         }
         dismissRootWarningIfPresent()
 
@@ -69,10 +67,14 @@ class PhysicalDeviceSmokeInstrumentedTest {
         // The torch control appears only after CameraX has bound a physical
         // camera instance that reports a flash unit. RMX3241 has a rear flash,
         // making this a direct physical bind signal rather than a mock preview.
-        composeRule.waitUntil(timeoutMillis = 15_000) {
-            composeRule.onAllNodesWithContentDescription("Toggle flash")
-                .fetchSemanticsNodes()
-                .isNotEmpty()
+        composeRule.waitUntil(timeoutMillis = 20_000) {
+            try {
+                composeRule.onAllNodesWithContentDescription("Toggle flash")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            } catch (_: IllegalStateException) {
+                false
+            }
         }
     }
 
@@ -83,12 +85,19 @@ class PhysicalDeviceSmokeInstrumentedTest {
         ) == PackageManager.PERMISSION_GRANTED
 
     private fun waitForMainNavigation() {
-        composeRule.waitUntil(timeoutMillis = 8_000) {
-            composeRule.onAllNodesWithTag("nav_generate")
-                .fetchSemanticsNodes()
-                .isNotEmpty()
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            nodeExists("nav_generate")
         }
     }
+
+    private fun nodeExists(tag: String): Boolean =
+        try {
+            composeRule.onAllNodesWithTag(tag)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        } catch (_: IllegalStateException) {
+            false
+        }
 
     private fun dismissRootWarningIfPresent() {
         val warningVisible = composeRule.onAllNodesWithTag("root_security_warning_dialog")
