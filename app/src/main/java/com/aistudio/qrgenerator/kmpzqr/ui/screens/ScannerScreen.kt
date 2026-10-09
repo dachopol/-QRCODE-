@@ -224,6 +224,14 @@ fun ScannerScreen(
                 modifier = Modifier.fillMaxSize()
             )
 
+            if (cameraInstance != null) {
+                Box(
+                    modifier = Modifier
+                        .size(1.dp)
+                        .testTag("camera_active_state")
+                )
+            }
+
             cameraError?.let {
                 Surface(
                     shape = AppSectionShape,
@@ -231,6 +239,7 @@ fun ScannerScreen(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(24.dp)
+                        .testTag("camera_error_state")
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
