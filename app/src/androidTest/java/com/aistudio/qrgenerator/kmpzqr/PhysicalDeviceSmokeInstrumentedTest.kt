@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,27 +26,25 @@ class PhysicalDeviceSmokeInstrumentedTest {
     fun rmx3241_cameraX_bindsAndRebindsOnPhysicalDevice() {
         assertEquals("RMX3241", Build.MODEL)
 
-        assertEquals(
-            "CAMERA permission must be granted by the physical QA workflow before instrumentation starts",
-            PackageManager.PERMISSION_GRANTED,
-            ContextCompat.checkSelfPermission(composeRule.activity, Manifest.permission.CAMERA)
-        )
-
         composeRule.runOnIdle {
             LocalizationManager.setLanguageByCode("en")
         }
         waitForMainNavigation()
         dismissRootWarningIfPresent()
 
-        openScannerAndWaitForCamera()
+        openScannerAndEnsureCameraPermission()
+        waitForPhysicalCameraBind()
+
         composeRule.onNodeWithTag("nav_generate").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("nav_generate").assertExists()
 
-        openScannerAndWaitForCamera()
+        composeRule.onNodeWithTag("nav_scanner").performClick()
+        composeRule.waitForIdle()
+        waitForPhysicalCameraBind()
     }
 
-    private fun openScannerAndWaitForCamera() {
+    private fun openScannerAndEnsureCameraPermission() {
         composeRule.onNodeWithTag("nav_scanner").performClick()
         composeRule.waitUntil(timeoutMillis = 8_000) {
             composeRule.onAllNodesWithTag("scanner_screen")
@@ -54,15 +53,34 @@ class PhysicalDeviceSmokeInstrumentedTest {
         }
         dismissRootWarningIfPresent()
 
-        // The torch control is rendered only after CameraX binds a physical
+        if (!cameraPermissionGranted()) {
+            composeRule.onNodeWithText("Allow camera").performClick()
+            // The host-side physical QA workflow accepts the Android runtime
+            // permission dialog exactly as a user would. Keep this test alive
+            // while that system dialog is handled outside the app process.
+            composeRule.waitUntil(timeoutMillis = 30_000) {
+                cameraPermissionGranted()
+            }
+            composeRule.waitForIdle()
+        }
+    }
+
+    private fun waitForPhysicalCameraBind() {
+        // The torch control appears only after CameraX has bound a physical
         // camera instance that reports a flash unit. RMX3241 has a rear flash,
-        // so this is a direct bind/readiness signal rather than a preview mock.
-        composeRule.waitUntil(timeoutMillis = 12_000) {
+        // making this a direct physical bind signal rather than a mock preview.
+        composeRule.waitUntil(timeoutMillis = 15_000) {
             composeRule.onAllNodesWithContentDescription("Toggle flash")
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
     }
+
+    private fun cameraPermissionGranted(): Boolean =
+        ContextCompat.checkSelfPermission(
+            composeRule.activity,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
 
     private fun waitForMainNavigation() {
         composeRule.waitUntil(timeoutMillis = 8_000) {
