@@ -428,3 +428,243 @@ jobs:
             /tmp/quickqr-api36-emulator.log
           if-no-files-found: warn
           retention-days: 7
+
+  physical-device:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 28 && github.event.pull_request.head.ref == 'integration/next-release' }}
+    needs: build
+    runs-on: [self-hosted, Windows, X64, desktop-commander, dclite-project-quickqr-business]
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Verify physical target and build exact candidate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $packageName = "com.aistudio.qrgenerator.kmpzqr"
+
+          if (-not (Get-Command adb -ErrorAction SilentlyContinue)) {
+            throw "ADB is not available on the self-hosted runner"
+          }
+
+          $serials = @(
+            (& adb devices) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -ne 1) {
+            throw "Expected exactly one authorized physical Android device; observed $($serials.Count)"
+          }
+          $serial = $serials[0]
+
+          $model = ((& adb -s $serial shell getprop ro.product.model) -join "").Trim()
+          if ($model -ne "RMX3241") {
+            throw "Physical target mismatch: expected RMX3241"
+          }
+          $boot = ((& adb -s $serial shell getprop sys.boot_completed) -join "").Trim()
+          if ($boot -ne "1") {
+            throw "Physical target has not completed boot"
+          }
+
+          & .\gradlew.bat --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest
+          if ($LASTEXITCODE -ne 0) {
+            throw "Windows physical candidate build failed"
+          }
+
+          New-Item -ItemType Directory -Force -Path "physical-evidence" | Out-Null
+          "candidate_head=${{ github.event.pull_request.head.sha }}" | Set-Content "physical-evidence\summary.txt"
+          "model=$model" | Add-Content "physical-evidence\summary.txt"
+          "device_count=1" | Add-Content "physical-evidence\summary.txt"
+          "boot_completed=true" | Add-Content "physical-evidence\summary.txt"
+
+      - name: Install, verify version and launch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $packageName = "com.aistudio.qrgenerator.kmpzqr"
+          $serials = @(
+            (& adb devices) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -ne 1) {
+            throw "Expected exactly one authorized physical Android device"
+          }
+          $serial = $serials[0]
+
+          $before = ((& adb -s $serial shell dumpsys package $packageName 2>$null) -join "`n")
+          $state = [ordered]@{
+            cameraGranted = ($before -match "android.permission.CAMERA: granted=true")
+            coarseGranted = ($before -match "android.permission.ACCESS_COARSE_LOCATION: granted=true")
+            fineGranted = ($before -match "android.permission.ACCESS_FINE_LOCATION: granted=true")
+            fontScale = (((& adb -s $serial shell settings get system font_scale) -join "").Trim())
+          }
+          $state | ConvertTo-Json | Set-Content (Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json")
+
+          $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
+          $install = ((& adb -s $serial install -r $apk 2>&1) -join "`n")
+          if ($LASTEXITCODE -ne 0 -or $install -notmatch "Success") {
+            throw "APK install failed; existing app data/package was not removed automatically. $install"
+          }
+
+          $gradleText = Get-Content "app\build.gradle.kts" -Raw
+          $expectedName = [regex]::Match($gradleText, 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
+          $expectedCode = [regex]::Match($gradleText, 'versionCode\s*=\s*(\d+)').Groups[1].Value
+          $installed = ((& adb -s $serial shell dumpsys package $packageName) -join "`n")
+          $actualName = [regex]::Match($installed, 'versionName=([^\r\n]+)').Groups[1].Value.Trim()
+          $actualCode = [regex]::Match($installed, 'versionCode=(\d+)').Groups[1].Value
+          if ($actualName -ne $expectedName -or $actualCode -ne $expectedCode) {
+            throw "Installed package version does not match candidate"
+          }
+
+          foreach ($permission in @(
+            "android.permission.CAMERA",
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION"
+          )) {
+            & adb -s $serial shell pm grant $packageName $permission | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+              throw "Could not grant required runtime permission for physical QA"
+            }
+          }
+
+          & adb -s $serial shell input keyevent KEYCODE_WAKEUP | Out-Null
+          & adb -s $serial shell wm dismiss-keyguard | Out-Null
+          & adb -s $serial shell am force-stop $packageName | Out-Null
+          $launch = ((& adb -s $serial shell am start -W -n "$packageName/.MainActivity") -join "`n")
+          if ($LASTEXITCODE -ne 0 -or $launch -notmatch "Status:\s*ok") {
+            throw "QuickQR MainActivity did not launch successfully"
+          }
+          Start-Sleep -Seconds 2
+          $pid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
+          if ([string]::IsNullOrWhiteSpace($pid)) {
+            throw "QuickQR process is not alive after launch"
+          }
+
+          & adb -s $serial shell screencap -p /sdcard/quickqr-physical-launch.png | Out-Null
+          & adb -s $serial pull /sdcard/quickqr-physical-launch.png "physical-evidence\launch.png" | Out-Null
+          & adb -s $serial shell rm /sdcard/quickqr-physical-launch.png | Out-Null
+
+          $accessibilityEnabled = (((& adb -s $serial shell settings get secure accessibility_enabled) -join "").Trim())
+          $accessibilityServices = (((& adb -s $serial shell settings get secure enabled_accessibility_services) -join "").Trim())
+          $talkBackActive = ($accessibilityEnabled -eq "1" -and $accessibilityServices -match "(?i)(talkback|marvin)")
+
+          "version_name=$actualName" | Add-Content "physical-evidence\summary.txt"
+          "version_code=$actualCode" | Add-Content "physical-evidence\summary.txt"
+          "install=passed" | Add-Content "physical-evidence\summary.txt"
+          "launch=passed" | Add-Content "physical-evidence\summary.txt"
+          "talkback_active=$($talkBackActive.ToString().ToLowerInvariant())" | Add-Content "physical-evidence\summary.txt"
+
+      - name: Run physical camera and real-location smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          & .\gradlew.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#physicalCameraLocationAndMapSmoke"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Physical camera/location smoke failed"
+          }
+          "camera_location_map_smoke=passed" | Add-Content "physical-evidence\summary.txt"
+
+      - name: Run large-font accessibility smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $serials = @(
+            (& adb devices) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -ne 1) {
+            throw "Expected exactly one authorized physical Android device"
+          }
+          $serial = $serials[0]
+          & adb -s $serial shell settings put system font_scale 1.3 | Out-Null
+          & adb -s $serial shell am force-stop com.aistudio.qrgenerator.kmpzqr | Out-Null
+          Start-Sleep -Seconds 1
+
+          & .\gradlew.bat --no-daemon :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.aistudio.qrgenerator.kmpzqr.PhysicalDeviceSmokeInstrumentedTest#largeFontCoreControlsRemainOperable"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Large-font physical accessibility smoke failed"
+          }
+          "large_font_core_controls=passed" | Add-Content "physical-evidence\summary.txt"
+
+      - name: Final live-process and crash smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $packageName = "com.aistudio.qrgenerator.kmpzqr"
+          $serials = @(
+            (& adb devices) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -ne 1) {
+            throw "Expected exactly one authorized physical Android device"
+          }
+          $serial = $serials[0]
+          & adb -s $serial shell am force-stop $packageName | Out-Null
+          $launch = ((& adb -s $serial shell am start -W -n "$packageName/.MainActivity") -join "`n")
+          if ($LASTEXITCODE -ne 0 -or $launch -notmatch "Status:\s*ok") {
+            throw "Final QuickQR relaunch failed"
+          }
+          Start-Sleep -Seconds 2
+          $pid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
+          if ([string]::IsNullOrWhiteSpace($pid)) {
+            throw "QuickQR process is not alive after final relaunch"
+          }
+          "final_live_process=passed" | Add-Content "physical-evidence\summary.txt"
+          "crash_anr_smoke=passed_via_instrumentation_and_live_relaunch" | Add-Content "physical-evidence\summary.txt"
+
+      - name: Restore physical-device QA state
+        if: always()
+        shell: pwsh
+        run: |
+          $packageName = "com.aistudio.qrgenerator.kmpzqr"
+          $serials = @(
+            (& adb devices 2>$null) |
+              Where-Object { $_ -match "`tdevice$" } |
+              ForEach-Object { ($_ -split "`t")[0] }
+          )
+          if ($serials.Count -eq 1) {
+            $serial = $serials[0]
+            $statePath = Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json"
+            if (Test-Path $statePath) {
+              $state = Get-Content $statePath -Raw | ConvertFrom-Json
+              if ($state.fontScale) {
+                & adb -s $serial shell settings put system font_scale $state.fontScale | Out-Null
+              }
+              if (-not $state.cameraGranted) {
+                & adb -s $serial shell pm revoke $packageName android.permission.CAMERA | Out-Null
+              }
+              if (-not $state.coarseGranted) {
+                & adb -s $serial shell pm revoke $packageName android.permission.ACCESS_COARSE_LOCATION | Out-Null
+              }
+              if (-not $state.fineGranted) {
+                & adb -s $serial shell pm revoke $packageName android.permission.ACCESS_FINE_LOCATION | Out-Null
+              }
+            }
+          }
+
+      - name: Upload sanitized physical-device evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quickqr-physical-device-evidence
+          path: physical-evidence/
+          if-no-files-found: warn
+          retention-days: 7
+
