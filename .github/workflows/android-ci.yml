@@ -633,17 +633,30 @@ jobs:
             throw "QuickQR process is not alive after launch"
           }
 
-          $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
-          & adb -s $serial shell rm -f $remoteLaunchShot | Out-Null
-          & adb -s $serial shell screencap -p $remoteLaunchShot | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            throw "Physical launch screenshot capture failed"
+          $adbPath = (Get-Command adb -ErrorAction Stop).Source
+          $launchShotPath = Join-Path (Get-Location) "physical-evidence\launch.png"
+          $psi = New-Object System.Diagnostics.ProcessStartInfo
+          $psi.FileName = $adbPath
+          $psi.Arguments = "-s `"$serial`" exec-out screencap -p"
+          $psi.UseShellExecute = $false
+          $psi.RedirectStandardOutput = $true
+          $psi.RedirectStandardError = $true
+          $psi.CreateNoWindow = $true
+          $process = New-Object System.Diagnostics.Process
+          $process.StartInfo = $psi
+          if (-not $process.Start()) {
+            throw "Physical launch screenshot process did not start"
           }
-          & adb -s $serial pull $remoteLaunchShot "physical-evidence\launch.png" | Out-Null
-          $pullExit = $LASTEXITCODE
-          & adb -s $serial shell rm -f $remoteLaunchShot | Out-Null
-          if ($pullExit -ne 0) {
-            throw "Physical launch screenshot pull failed"
+          $stream = [System.IO.File]::Create($launchShotPath)
+          try {
+            $process.StandardOutput.BaseStream.CopyTo($stream)
+          } finally {
+            $stream.Dispose()
+          }
+          $stderr = $process.StandardError.ReadToEnd()
+          $process.WaitForExit()
+          if ($process.ExitCode -ne 0) {
+            throw "Physical launch screenshot capture failed"
           }
           $launchEvidence = Get-Item "physical-evidence\launch.png" -ErrorAction Stop
           if ($launchEvidence.Length -le 0) {
