@@ -23,8 +23,8 @@ android {
     applicationId = "com.aistudio.qrgenerator.kmpzqr"
     minSdk = 24
     targetSdk = 36
-    versionCode = 19
-    versionName = "18.0"
+    versionCode = 20
+    versionName = "19.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
