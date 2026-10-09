@@ -117,6 +117,14 @@ fun GeneratorScreen(
     val scrollState = rememberScrollState()
     var showAppearance by rememberSaveable { mutableStateOf(false) }
 
+    // Keep the controls in view as the expandable appearance panel grows.
+    // Following maxValue avoids a second manual scroll after the user opens the panel.
+    LaunchedEffect(showAppearance, scrollState.maxValue) {
+        if (showAppearance) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
+
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
     val includeCenterLogo by viewModel.includeCenterLogo.collectAsState()

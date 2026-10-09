@@ -201,8 +201,8 @@ class VisualMatrixInstrumentedTest {
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
-            composeRule.onNodeWithTag("reset_qr_colors_button").performScrollTo()
-            waitUntilDisplayed("reset_qr_colors_button")
+            // Production UX must reveal real controls itself; the test must not scroll them into view.
+            waitUntilDisplayed("color_light_-1", timeoutMillis = 8_000)
             settleAnimations()
             waitForScreenshotFrame()
             capture(outputDir, locale + "_14_qr_appearance")
