@@ -181,6 +181,7 @@ class VisualMatrixInstrumentedTest {
             waitUntilDisplayed("digital_card_preview")
             composeRule.onNodeWithTag("digital_card_preview").performScrollTo()
             composeRule.waitForIdle()
+            waitForScreenshotFrame()
             capture(outputDir, locale + "_13_business_card_populated")
 
             // 14: real QR appearance/customizer state.
