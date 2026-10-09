@@ -164,7 +164,7 @@ jobs:
           $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
           $previousErrorPreference = $ErrorActionPreference
           $ErrorActionPreference = "Continue"
-          $install = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $apk 2>&1) -join "`n"
+          $install = (& adb -s $env:ADB_SERIAL install -r -t $apk 2>&1) -join "`n"
           $installExit = $LASTEXITCODE
           $ErrorActionPreference = $previousErrorPreference
           Write-Host $install
@@ -187,7 +187,7 @@ jobs:
           $testApk = (Resolve-Path "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk").Path
           $previousErrorPreference = $ErrorActionPreference
           $ErrorActionPreference = "Continue"
-          $installTest = (& adb -s $env:ADB_SERIAL install --no-streaming -r -t $testApk 2>&1) -join "`n"
+          $installTest = (& adb -s $env:ADB_SERIAL install -r -t $testApk 2>&1) -join "`n"
           $installTestExit = $LASTEXITCODE
           $ErrorActionPreference = $previousErrorPreference
           Write-Host $installTest
