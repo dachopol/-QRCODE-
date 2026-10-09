@@ -157,6 +157,10 @@ class VisualMatrixInstrumentedTest {
             fillTextField("card_profession_input", "QR workflow verification")
             fillTextField("card_services_input", "Deterministic visual QA fixture")
             hideKeyboard()
+            // Re-enter the real Business Card screen so its scroll state starts at the populated preview.
+            open("nav_history")
+            open("nav_card")
+            waitUntilDisplayed("digital_card_preview")
             composeRule.onNodeWithTag("digital_card_preview").performScrollTo()
             composeRule.waitForIdle()
             capture(outputDir, locale + "_13_business_card_populated")
