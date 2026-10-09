@@ -169,7 +169,10 @@ class VisualMatrixInstrumentedTest {
                 .fetchSemanticsNodes()
                 .isNotEmpty()
             if (!appearanceAlreadyOpen) {
-                open("qr_appearance_toggle")
+                composeRule.onNodeWithTag("qr_appearance_toggle")
+                    .performScrollTo()
+                    .performClick()
+                settleAnimations()
             }
             composeRule.waitUntil(timeoutMillis = 5_000) {
                 composeRule.onAllNodesWithTag("qr_color_customizer_card")
