@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -202,6 +205,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val currentTab by viewModel.currentTab.collectAsState()
     val activePreview by viewModel.activePreview.collectAsState()
     val activeScanResult by viewModel.activeScanResult.collectAsState()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val showSupportSheet by viewModel.showSupportSheet.collectAsState()
     val showLanguageAndCurrencyDialog by viewModel.showLanguageAndCurrencyDialog.collectAsState()
     val languageCurrencyInitialTab by viewModel.languageCurrencyInitialTab.collectAsState()
@@ -227,6 +232,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
         Triple(navScannerLabel, Icons.Default.QrCodeScanner, "nav_scanner"),
         Triple(navHistoryLabel, Icons.Default.History, "nav_history")
     )
+
+    LaunchedEffect(activePreview) {
+        if (activePreview != null) {
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -274,8 +286,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         )
                         Text(
                             text = "v${BuildConfig.VERSION_NAME}",
-                            fontSize = 9.sp,
-                            lineHeight = 10.sp,
+                            fontSize = 11.sp,
+                            lineHeight = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF0284C7),
                             maxLines = 1
@@ -289,6 +301,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         modifier = Modifier
                             .padding(start = if (compactLargeText) 2.dp else 6.dp, end = if (compactLargeText) 2.dp else 4.dp)
                             .wrapContentWidth()
+                            .defaultMinSize(minHeight = 44.dp)
                             .clickable { viewModel.openLanguageAndCurrencyDialog(0) }
                             .testTag("open_language_currency_button")
                     ) {
@@ -299,7 +312,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             if (compactLargeText) {
                                 Text(
                                     text = "${currentLanguage.code.uppercase()}/${currentCurrency.code}",
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0369A1),
                                     maxLines = 1,
@@ -391,12 +404,12 @@ fun MainAppScreen(viewModel: MainViewModel) {
                             Text(
                                 text = label,
                                 fontSize = when {
-                                    compactLargeText -> 9.sp
+                                    compactLargeText -> 10.sp
                                     compactLayout -> if (isSelected) 11.sp else 10.sp
                                     isSelected -> 12.sp
                                     else -> 11.sp
                                 },
-                                lineHeight = if (compactLargeText) 11.sp else 14.sp,
+                                lineHeight = if (compactLargeText) 12.sp else 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                                 color = if (isSelected) Color(0xFF0369A1) else MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,

@@ -11,14 +11,34 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface QrDao {
 
-    @Query("SELECT * FROM qr_items ORDER BY timestamp DESC")
-    fun getAllQrItems(): Flow<List<QrItemEntity>>
+    @Query("""
+        SELECT id, type, title, subtitle, rawContent, targetId, amount, timestamp, isScan, isFavorite
+        FROM qr_items
+        ORDER BY timestamp DESC
+        LIMIT :limit
+    """)
+    fun getAllQrItems(limit: Int): Flow<List<QrItemEntity>>
 
-    @Query("SELECT * FROM qr_items WHERE isScan = 0 ORDER BY timestamp DESC")
-    fun getGeneratedItems(): Flow<List<QrItemEntity>>
+    @Query("""
+        SELECT id, type, title, subtitle, rawContent, targetId, amount, timestamp, isScan, isFavorite
+        FROM qr_items
+        WHERE isScan = 0
+        ORDER BY timestamp DESC
+        LIMIT :limit
+    """)
+    fun getGeneratedItems(limit: Int): Flow<List<QrItemEntity>>
 
-    @Query("SELECT * FROM qr_items WHERE isScan = 1 ORDER BY timestamp DESC")
-    fun getScannedItems(): Flow<List<QrItemEntity>>
+    @Query("""
+        SELECT id, type, title, subtitle, rawContent, targetId, amount, timestamp, isScan, isFavorite
+        FROM qr_items
+        WHERE isScan = 1
+        ORDER BY timestamp DESC
+        LIMIT :limit
+    """)
+    fun getScannedItems(limit: Int): Flow<List<QrItemEntity>>
+
+    @Query("SELECT COUNT(*) FROM qr_items")
+    fun getQrItemCount(): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQrItem(item: QrItemEntity): Long

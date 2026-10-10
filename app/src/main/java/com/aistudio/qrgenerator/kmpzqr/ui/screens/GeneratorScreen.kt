@@ -63,10 +63,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -117,6 +115,14 @@ fun GeneratorScreen(
     val scrollState = rememberScrollState()
     var showAppearance by rememberSaveable { mutableStateOf(false) }
 
+    // Keep the controls in view as the expandable appearance panel grows.
+    // Following maxValue avoids a second manual scroll after the user opens the panel.
+    LaunchedEffect(showAppearance, scrollState.maxValue) {
+        if (showAppearance) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
+
     val qrDarkColor by viewModel.qrForegroundColor.collectAsState()
     val qrLightColor by viewModel.qrBackgroundColor.collectAsState()
     val includeCenterLogo by viewModel.includeCenterLogo.collectAsState()
@@ -155,51 +161,44 @@ fun GeneratorScreen(
                 )
             )
     ) {
-        // Compact, horizontally scrollable category chips keep the primary content above the fold.
-        ScrollableTabRow(
-            selectedTabIndex = category,
-            edgePadding = 12.dp,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary,
-            indicator = {},
-            divider = {}
+        // Keep every generator type discoverable without requiring a horizontal swipe.
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            maxItemsInEachRow = 3
         ) {
             categories.forEachIndexed { index, pair ->
                 val selected = category == index
-                Tab(
+                FilterChip(
                     selected = selected,
                     onClick = { viewModel.setGeneratorCategory(index) },
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
-                        ) {
-                            Icon(
-                                imageVector = pair.second,
-                                contentDescription = null,
-                                modifier = Modifier.size(17.dp),
-                                tint = if (selected) Color.White else MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = pair.first,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    label = {
+                        Text(
+                            text = pair.first,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = pair.second,
+                            contentDescription = null,
+                            modifier = Modifier.size(17.dp)
+                        )
                     },
                     modifier = Modifier
-                        .padding(end = 6.dp, top = 6.dp, bottom = 6.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
-                        .border(
-                            1.dp,
-                            if (selected) MaterialTheme.colorScheme.primary else GlassBorder,
-                            RoundedCornerShape(14.dp)
-                        )
-                        .testTag("generator_tab_$index")
+                        .defaultMinSize(minHeight = 48.dp)
+                        .testTag("generator_tab_$index"),
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = Color.White,
+                        selectedLeadingIconColor = Color.White
+                    )
                 )
             }
         }
@@ -226,6 +225,8 @@ fun GeneratorScreen(
                 onClick = { showAppearance = !showAppearance },
                 shape = AppCardShape,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(0.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                 modifier = Modifier.fillMaxWidth().testTag("qr_appearance_toggle")
             ) {
                 Row(
@@ -867,7 +868,9 @@ private fun LocationForm(viewModel: MainViewModel) {
                     shape = RoundedCornerShape(14.dp),
                     color = Color(0xFFECFDF5),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0)),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("current_location_ready")
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
@@ -915,7 +918,8 @@ private fun LocationForm(viewModel: MainViewModel) {
                 Text(
                     text = locationError.orEmpty(),
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("current_location_error")
                 )
             }
 

@@ -1,9 +1,5 @@
 package com.aistudio.qrgenerator.kmpzqr.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
@@ -67,12 +63,12 @@ import androidx.compose.ui.unit.sp
 import com.aistudio.qrgenerator.kmpzqr.MainViewModel
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.AppCardShape
 import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassAccent
+import com.aistudio.qrgenerator.kmpzqr.ui.theme.GlassBorder
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
+import com.aistudio.qrgenerator.kmpzqr.util.SecureClipboardUtil
 import com.aistudio.qrgenerator.kmpzqr.util.localizedText
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 import com.aistudio.qrgenerator.kmpzqr.data.QrItemEntity
-import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
-import com.aistudio.qrgenerator.kmpzqr.util.QrCodeUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -84,6 +80,7 @@ fun HistoryScreen(
 ) {
     val context = LocalContext.current
     val allItems by viewModel.historyItems.collectAsState()
+    val totalHistoryCount by viewModel.historyTotalCount.collectAsState()
     var selectedFilter by remember { mutableIntStateOf(0) } // 0=All, 1=Created, 2=Scanned
     var itemToDelete by remember { mutableStateOf<QrItemEntity?>(null) }
 
@@ -96,9 +93,12 @@ fun HistoryScreen(
     }
 
     val copyToClipboard = { text: String ->
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("QR Code", text))
-        Toast.makeText(context, localizedNow("คัดลอกแล้ว", "Copied"), Toast.LENGTH_SHORT).show()
+        SecureClipboardUtil.copyQrContent(
+            context = context,
+            label = "QR Code",
+            text = text,
+            confirmation = localizedNow("คัดลอกแล้ว", "Copied")
+        )
     }
 
     Column(
@@ -121,13 +121,15 @@ fun HistoryScreen(
             Column {
                 Text(
                     text = localizedText("ประวัติ", "History"),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = localizedText("รายการทั้งหมด ${filteredItems.size} รายการ", "${filteredItems.size} saved items"),
-                    fontSize = 12.sp,
+                    text = localizedText(
+                        "โหลดแล้ว ${allItems.size} จาก ${totalHistoryCount} รายการ",
+                        "${allItems.size} of ${totalHistoryCount} items loaded"
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -189,10 +191,26 @@ fun HistoryScreen(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = localizedText("ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น", "Create or scan a QR code to get started"),
+                        text = if (totalHistoryCount > allItems.size) {
+                            localizedText(
+                                "อาจมีรายการเก่ากว่านี้ที่ยังไม่ได้โหลด",
+                                "Older matching items may not be loaded yet"
+                            )
+                        } else {
+                            localizedText(
+                                "ลองสร้าง QR หรือสแกนเพื่อเริ่มต้น",
+                                "Create or scan a QR code to get started"
+                            )
+                        },
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp
                     )
+                    if (totalHistoryCount > allItems.size) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = viewModel::loadMoreHistory) {
+                            Text(localizedText("โหลดประวัติเพิ่ม", "Load more history"))
+                        }
+                    }
                 }
             }
         } else {
@@ -211,24 +229,24 @@ fun HistoryScreen(
                                 LocationQrUtil.parseGeoOrNull(item.rawContent)?.let { point ->
                                     LocationQrUtil.openMap(context, point)
                                 } ?: copyToClipboard(item.rawContent)
-                            } else if (item.type == "PROMPTPAY" && item.targetId != null) {
-                                val payload = PromptPayGenerator.generatePayload(item.targetId, item.amount)
-                                val qr = QrCodeUtil.generateQrBitmap(payload, size = 900)
-                                if (qr != null) {
-                                    val standee = QrCodeUtil.createPromptPayStandeeBitmap(
-                                        qrBitmap = qr,
-                                        title = "THAI QR PAYMENT",
-                                        targetId = item.targetId,
-                                        amount = item.amount,
-                                        merchantName = item.title
-                                    )
-                                    viewModel.generatePromptPay()
-                                }
+                            } else if (item.type == "PROMPTPAY") {
+                                viewModel.openPromptPayHistoryItem(item)
                             } else {
                                 copyToClipboard(item.rawContent)
                             }
                         }
                     )
+                }
+
+                if (allItems.size < totalHistoryCount) {
+                    item(key = "load_more_history") {
+                        TextButton(
+                            onClick = viewModel::loadMoreHistory,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(localizedText("โหลดประวัติเพิ่ม", "Load more history"))
+                        }
+                    }
                 }
             }
         }
@@ -237,6 +255,7 @@ fun HistoryScreen(
         itemToDelete?.let { item ->
             AlertDialog(
                 onDismissRequest = { itemToDelete = null },
+                modifier = Modifier.testTag("history_delete_dialog"),
                 title = { Text(localizedText("ลบรายการนี้?", "Delete this item?")) },
                 text = { Text(localizedText("ต้องการลบ \"${item.title}\" ออกจากประวัติใช่หรือไม่?", "Delete \"${item.title}\" from history?")) },
                 confirmButton = {
@@ -250,7 +269,10 @@ fun HistoryScreen(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { itemToDelete = null }) {
+                    TextButton(
+                        onClick = { itemToDelete = null },
+                        modifier = Modifier.testTag("history_delete_cancel_button")
+                    ) {
                         Text(localizedText("ยกเลิก", "Cancel"))
                     }
                 }
@@ -283,7 +305,8 @@ private fun HistoryItemCard(
     Card(
         shape = AppCardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
@@ -334,7 +357,7 @@ private fun HistoryItemCard(
                             ) {
                                 Text(
                                     text = localizedText("สแกน", "Scanned"),
-                                    fontSize = 9.sp,
+                                    fontSize = 11.sp,
                                     color = Color(0xFF3730A3),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
@@ -355,7 +378,7 @@ private fun HistoryItemCard(
 
                     Text(
                         text = dateFormatted,
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -371,7 +394,10 @@ private fun HistoryItemCard(
                     )
                 }
 
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.testTag("history_delete_button")
+                ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = localizedText("ลบ", "Delete"),

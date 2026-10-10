@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.google.devtools.ksp)
+  alias(libs.plugins.androidx.room)
 }
 
 val releaseKeystorePath = System.getenv("KEYSTORE_PATH")
@@ -22,8 +23,8 @@ android {
     applicationId = "com.aistudio.qrgenerator.kmpzqr"
     minSdk = 24
     targetSdk = 36
-    versionCode = 19
-    versionName = "18.0"
+    versionCode = 20
+    versionName = "19.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -69,6 +70,10 @@ android {
   }
 }
 
+room {
+  schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
   implementation(libs.androidx.activity.compose)
@@ -95,6 +100,7 @@ dependencies {
 
   testImplementation(libs.junit)
   androidTestImplementation(platform(libs.androidx.compose.bom))
+  androidTestImplementation("androidx.compose.ui:ui-test-junit4")
   androidTestImplementation(libs.androidx.espresso.core)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.runner)
