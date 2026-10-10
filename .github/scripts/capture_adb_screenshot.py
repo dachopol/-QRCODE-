@@ -5,6 +5,22 @@ import subprocess
 import sys
 
 PNG_HEADER = b"\x89PNG\r\n\x1a\n"
+REMOTE_FALLBACK = "/data/local/tmp/quickqr-physical-screenshot.png"
+
+
+def run(cmd, timeout=60):
+    return subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=timeout,
+        check=False,
+    )
+
+
+def valid_png(data: bytes) -> bool:
+    return data.startswith(PNG_HEADER) and len(data) > len(PNG_HEADER)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -12,30 +28,61 @@ def main() -> int:
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
-    try:
-        completed = subprocess.run(
-            ["adb", "-s", args.serial, "exec-out", "screencap", "-p"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=60,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        print(f"ADB screenshot execution failed: {type(exc).__name__}", file=sys.stderr)
-        return 2
-
-    if completed.returncode != 0:
-        print("ADB screenshot command returned non-zero exit status", file=sys.stderr)
-        return 3
-    if not completed.stdout.startswith(PNG_HEADER):
-        print(f"ADB screenshot did not return PNG data; bytes={len(completed.stdout)}", file=sys.stderr)
-        return 4
-
     output = pathlib.Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_bytes(completed.stdout)
-    print(f"screenshot_bytes={len(completed.stdout)}")
+
+    try:
+        direct = run(["adb", "-s", args.serial, "exec-out", "screencap", "-p"])
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"ADB direct screenshot execution failed: {type(exc).__name__}", file=sys.stderr)
+        direct = None
+
+    if direct is not None and direct.returncode == 0 and valid_png(direct.stdout):
+        output.write_bytes(direct.stdout)
+        print(f"screenshot_mode=exec-out bytes={len(direct.stdout)}")
+        return 0
+
+    print(
+        "ADB exec-out screenshot unavailable or empty; using shell screencap + pull fallback",
+        file=sys.stderr,
+    )
+
+    try:
+        capture = run([
+            "adb", "-s", args.serial, "shell", "screencap", "-p", REMOTE_FALLBACK
+        ])
+        if capture.returncode != 0:
+            print("ADB fallback screencap command failed", file=sys.stderr)
+            return 3
+
+        pull = run([
+            "adb", "-s", args.serial, "pull", REMOTE_FALLBACK, str(output)
+        ])
+        if pull.returncode != 0:
+            print("ADB fallback pull command failed", file=sys.stderr)
+            return 4
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"ADB fallback screenshot execution failed: {type(exc).__name__}", file=sys.stderr)
+        return 5
+    finally:
+        try:
+            run(["adb", "-s", args.serial, "shell", "rm", "-f", REMOTE_FALLBACK], timeout=15)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+
+    try:
+        data = output.read_bytes()
+    except OSError as exc:
+        print(f"Pulled screenshot could not be read: {type(exc).__name__}", file=sys.stderr)
+        return 6
+
+    if not valid_png(data):
+        print(f"Pulled screenshot is not valid PNG data; bytes={len(data)}", file=sys.stderr)
+        return 7
+
+    print(f"screenshot_mode=shell-pull bytes={len(data)}")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
