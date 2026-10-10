@@ -448,26 +448,6 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Resolve existing Python for binary ADB evidence
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
-          $python = Get-Command python.exe -ErrorAction SilentlyContinue
-          if ($null -ne $python) {
-            "QUICKQR_PYTHON_EXE=$($python.Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            "QUICKQR_PYTHON_MODE=python" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            exit 0
-          }
-
-          $py = Get-Command py.exe -ErrorAction SilentlyContinue
-          if ($null -ne $py) {
-            "QUICKQR_PYTHON_EXE=$($py.Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            "QUICKQR_PYTHON_MODE=py" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            exit 0
-          }
-
-          throw "No existing Python interpreter is available on the physical QA host"
-
       - name: Verify existing Android SDK on physical host
         shell: powershell
         run: |
@@ -660,19 +640,62 @@ jobs:
           }
           "device_locked=$deviceLocked" | Add-Content "physical-evidence\summary.txt"
 
-          $launchShotPath = Join-Path (Get-Location) "physical-evidence\launch.png"
+          function Invoke-AdbBounded {
+            param(
+              [Parameter(Mandatory = $true)][string[]]$AdbArgs,
+              [int]$TimeoutSeconds = 20
+            )
+            $adbExe = (Get-Command adb.exe -ErrorAction Stop).Source
+            $process = New-Object System.Diagnostics.Process
+            $process.StartInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $process.StartInfo.FileName = $adbExe
+            $process.StartInfo.Arguments = ($AdbArgs -join " ")
+            $process.StartInfo.UseShellExecute = $false
+            $process.StartInfo.RedirectStandardOutput = $true
+            $process.StartInfo.RedirectStandardError = $true
+            $process.StartInfo.CreateNoWindow = $true
+            if (-not $process.Start()) {
+              throw "Unable to start bounded ADB command"
+            }
+            if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+              try { $process.Kill() } catch {}
+              throw "ADB command timed out after $TimeoutSeconds seconds: $($AdbArgs -join ' ')"
+            }
+            $stdout = $process.StandardOutput.ReadToEnd()
+            $stderr = $process.StandardError.ReadToEnd()
+            if ($process.ExitCode -ne 0) {
+              throw "ADB command failed with exit code $($process.ExitCode): $stderr"
+            }
+            return $stdout
+          }
+
+          $launchShotPath = "physical-evidence\launch.png"
+          $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
           Remove-Item $launchShotPath -Force -ErrorAction SilentlyContinue
-          if ($env:QUICKQR_PYTHON_MODE -eq "py") {
-            & $env:QUICKQR_PYTHON_EXE -3 .github/scripts/capture_adb_screenshot.py --serial $serial --output $launchShotPath
-          } else {
-            & $env:QUICKQR_PYTHON_EXE .github/scripts/capture_adb_screenshot.py --serial $serial --output $launchShotPath
+          try {
+            Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "rm", "-f", $remoteLaunchShot) -TimeoutSeconds 10 | Out-Null
+            Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "screencap", "-p", $remoteLaunchShot) -TimeoutSeconds 20 | Out-Null
+            Invoke-AdbBounded -AdbArgs @("-s", $serial, "pull", $remoteLaunchShot, $launchShotPath) -TimeoutSeconds 20 | Out-Null
+          } finally {
+            try {
+              Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "rm", "-f", $remoteLaunchShot) -TimeoutSeconds 10 | Out-Null
+            } catch {}
           }
-          if ($LASTEXITCODE -ne 0) {
-            throw "Physical launch screenshot capture failed"
-          }
+
           $launchEvidence = Get-Item $launchShotPath -ErrorAction Stop
-          if ($launchEvidence.Length -le 8) {
-            throw "Physical launch screenshot is empty"
+          $launchBytes = [System.IO.File]::ReadAllBytes($launchShotPath)
+          $pngHeader = [byte[]](137, 80, 78, 71, 13, 10, 26, 10)
+          $validHeader = $launchBytes.Length -gt 8
+          if ($validHeader) {
+            for ($i = 0; $i -lt $pngHeader.Length; $i++) {
+              if ($launchBytes[$i] -ne $pngHeader[$i]) {
+                $validHeader = $false
+                break
+              }
+            }
+          }
+          if (-not $validHeader) {
+            throw "Physical launch screenshot is not valid PNG evidence"
           }
 
           $accessibilityEnabled = (((& adb -s $serial shell settings get secure accessibility_enabled) -join "").Trim())
