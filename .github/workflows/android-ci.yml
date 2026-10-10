@@ -575,6 +575,7 @@ jobs:
 
       - name: Install, verify version and launch
         shell: powershell
+        timeout-minutes: 5
         run: |
           $ErrorActionPreference = "Stop"
           $packageName = "com.aistudio.qrgenerator.kmpzqr"
@@ -582,31 +583,68 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($serial)) {
             throw "Bound RMX3241 serial is unavailable"
           }
-          $state = ((& adb -s $serial get-state 2>&1) -join "").Trim()
-          if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
+
+          function Invoke-AdbBounded {
+            param(
+              [Parameter(Mandatory = $true)][string[]]$AdbArgs,
+              [int]$TimeoutSeconds = 20
+            )
+            $adbExe = (Get-Command adb.exe -ErrorAction Stop).Source
+            $token = [guid]::NewGuid().ToString("N")
+            $stdoutPath = Join-Path $env:RUNNER_TEMP ("quickqr-adb-" + $token + ".stdout.txt")
+            $stderrPath = Join-Path $env:RUNNER_TEMP ("quickqr-adb-" + $token + ".stderr.txt")
+            try {
+              $process = Start-Process -FilePath $adbExe -ArgumentList $AdbArgs -WorkingDirectory (Get-Location).Path -NoNewWindow -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+              if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+                try { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue } catch {}
+                throw "ADB command timed out after $TimeoutSeconds seconds: $($AdbArgs -join ' ')"
+              }
+              $stdout = if (Test-Path $stdoutPath) { Get-Content $stdoutPath -Raw } else { "" }
+              $stderr = if (Test-Path $stderrPath) { Get-Content $stderrPath -Raw } else { "" }
+              if ($process.ExitCode -ne 0) {
+                throw "ADB command failed with exit code $($process.ExitCode): $stderr"
+              }
+              return $stdout
+            } finally {
+              Remove-Item $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+          "install_launch_step=started" | Add-Content "physical-evidence\summary.txt"
+
+          $transport = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "get-state") -TimeoutSeconds 10).Trim()
+          if ($transport -ne "device") {
             throw "Bound RMX3241 is not in adb device state"
           }
+          "adb_state=passed" | Add-Content "physical-evidence\summary.txt"
 
-          $state = [ordered]@{
-            fontScale = (((& adb -s $serial shell settings get system font_scale) -join "").Trim())
-          }
+          $fontScale = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "system", "font_scale") -TimeoutSeconds 10).Trim()
+          $state = [ordered]@{ fontScale = $fontScale }
           $state | ConvertTo-Json | Set-Content (Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json")
+          "device_state_capture=passed" | Add-Content "physical-evidence\summary.txt"
 
-          $apk = (Resolve-Path "app\build\outputs\apk\debug\app-debug.apk").Path
-          $install = ((& adb -s $serial install -r -g $apk 2>&1) -join "`n")
-          if ($LASTEXITCODE -ne 0 -or $install -notmatch "Success") {
+          $apk = "app\build\outputs\apk\debug\app-debug.apk"
+          if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) {
+            throw "Physical QA APK is missing: $apk"
+          }
+          $install = Invoke-AdbBounded -AdbArgs @("-s", $serial, "install", "-r", "-g", $apk) -TimeoutSeconds 90
+          if ($install -notmatch "Success") {
             throw "APK install with QA runtime-permission grant failed; existing app data/package was not removed automatically. $install"
           }
+          "install=passed" | Add-Content "physical-evidence\summary.txt"
 
           $gradleText = Get-Content "app\build.gradle.kts" -Raw
           $expectedName = [regex]::Match($gradleText, 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
           $expectedCode = [regex]::Match($gradleText, 'versionCode\s*=\s*(\d+)').Groups[1].Value
-          $installed = ((& adb -s $serial shell dumpsys package $packageName) -join "`n")
+          $installed = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "package", $packageName) -TimeoutSeconds 20
           $actualName = [regex]::Match($installed, 'versionName=([^\r\n]+)').Groups[1].Value.Trim()
           $actualCode = [regex]::Match($installed, 'versionCode=(\d+)').Groups[1].Value
           if ($actualName -ne $expectedName -or $actualCode -ne $expectedCode) {
             throw "Installed package version does not match candidate"
           }
+          "version_name=$actualName" | Add-Content "physical-evidence\summary.txt"
+          "version_code=$actualCode" | Add-Content "physical-evidence\summary.txt"
+          "version_match=passed" | Add-Content "physical-evidence\summary.txt"
 
           $requiredRuntimePermissions = @(
             "android.permission.CAMERA",
@@ -619,55 +657,29 @@ jobs:
               throw "QA install did not pre-grant required runtime permission: $permission"
             }
           }
+          "runtime_permissions_pregranted=passed" | Add-Content "physical-evidence\summary.txt"
 
-          & adb -s $serial shell input keyevent KEYCODE_WAKEUP | Out-Null
-          & adb -s $serial shell wm dismiss-keyguard | Out-Null
-          & adb -s $serial shell am force-stop $packageName | Out-Null
-          $launch = ((& adb -s $serial shell am start -W -n "$packageName/.MainActivity") -join "`n")
-          if ($LASTEXITCODE -ne 0 -or $launch -notmatch "Status:\s*ok") {
+          Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP") -TimeoutSeconds 10 | Out-Null
+          Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "wm", "dismiss-keyguard") -TimeoutSeconds 10 | Out-Null
+          Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "am", "force-stop", $packageName) -TimeoutSeconds 10 | Out-Null
+          $launch = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "am", "start", "-W", "-n", "$packageName/.MainActivity") -TimeoutSeconds 20
+          if ($launch -notmatch "Status:\s*ok") {
             throw "QuickQR MainActivity did not launch successfully"
           }
           Start-Sleep -Seconds 2
-          $appPid = ((& adb -s $serial shell pidof $packageName) -join "").Trim()
+          $appPid = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "pidof", $packageName) -TimeoutSeconds 10).Trim()
           if ([string]::IsNullOrWhiteSpace($appPid)) {
             throw "QuickQR process is not alive after launch"
           }
+          "launch=passed" | Add-Content "physical-evidence\summary.txt"
+          "live_process=passed" | Add-Content "physical-evidence\summary.txt"
 
-          $trust = ((& adb -s $serial shell dumpsys trust 2>$null) -join "`n")
+          $trust = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "trust") -TimeoutSeconds 15
           $deviceLocked = "unknown"
           if ($trust -match "(?i)deviceLocked=(true|false)") {
             $deviceLocked = $Matches[1].ToLowerInvariant()
           }
           "device_locked=$deviceLocked" | Add-Content "physical-evidence\summary.txt"
-
-          function Invoke-AdbBounded {
-            param(
-              [Parameter(Mandatory = $true)][string[]]$AdbArgs,
-              [int]$TimeoutSeconds = 20
-            )
-            $adbExe = (Get-Command adb.exe -ErrorAction Stop).Source
-            $process = New-Object System.Diagnostics.Process
-            $process.StartInfo = New-Object System.Diagnostics.ProcessStartInfo
-            $process.StartInfo.FileName = $adbExe
-            $process.StartInfo.Arguments = ($AdbArgs -join " ")
-            $process.StartInfo.UseShellExecute = $false
-            $process.StartInfo.RedirectStandardOutput = $true
-            $process.StartInfo.RedirectStandardError = $true
-            $process.StartInfo.CreateNoWindow = $true
-            if (-not $process.Start()) {
-              throw "Unable to start bounded ADB command"
-            }
-            if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
-              try { $process.Kill() } catch {}
-              throw "ADB command timed out after $TimeoutSeconds seconds: $($AdbArgs -join ' ')"
-            }
-            $stdout = $process.StandardOutput.ReadToEnd()
-            $stderr = $process.StandardError.ReadToEnd()
-            if ($process.ExitCode -ne 0) {
-              throw "ADB command failed with exit code $($process.ExitCode): $stderr"
-            }
-            return $stdout
-          }
 
           $launchShotPath = "physical-evidence\launch.png"
           $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
@@ -682,7 +694,6 @@ jobs:
             } catch {}
           }
 
-          $launchEvidence = Get-Item $launchShotPath -ErrorAction Stop
           $launchBytes = [System.IO.File]::ReadAllBytes($launchShotPath)
           $pngHeader = [byte[]](137, 80, 78, 71, 13, 10, 26, 10)
           $validHeader = $launchBytes.Length -gt 8
@@ -697,17 +708,13 @@ jobs:
           if (-not $validHeader) {
             throw "Physical launch screenshot is not valid PNG evidence"
           }
+          "launch_screenshot=passed" | Add-Content "physical-evidence\summary.txt"
 
-          $accessibilityEnabled = (((& adb -s $serial shell settings get secure accessibility_enabled) -join "").Trim())
-          $accessibilityServices = (((& adb -s $serial shell settings get secure enabled_accessibility_services) -join "").Trim())
+          $accessibilityEnabled = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "secure", "accessibility_enabled") -TimeoutSeconds 10).Trim()
+          $accessibilityServices = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "secure", "enabled_accessibility_services") -TimeoutSeconds 10).Trim()
           $talkBackActive = ($accessibilityEnabled -eq "1" -and $accessibilityServices -match "(?i)(talkback|marvin)")
-
-          "version_name=$actualName" | Add-Content "physical-evidence\summary.txt"
-          "version_code=$actualCode" | Add-Content "physical-evidence\summary.txt"
-          "install=passed" | Add-Content "physical-evidence\summary.txt"
-          "runtime_permissions_pregranted=passed" | Add-Content "physical-evidence\summary.txt"
-          "launch=passed" | Add-Content "physical-evidence\summary.txt"
           "talkback_active=$($talkBackActive.ToString().ToLowerInvariant())" | Add-Content "physical-evidence\summary.txt"
+          "install_launch_step=passed" | Add-Content "physical-evidence\summary.txt"
 
       - name: Run physical camera and real-location smoke
         shell: powershell
