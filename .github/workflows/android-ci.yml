@@ -448,10 +448,25 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Python 3.12 for binary ADB evidence
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Resolve existing Python for binary ADB evidence
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if ($null -ne $python) {
+            "QUICKQR_PYTHON_EXE=$($python.Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            "QUICKQR_PYTHON_MODE=python" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            exit 0
+          }
+
+          $py = Get-Command py.exe -ErrorAction SilentlyContinue
+          if ($null -ne $py) {
+            "QUICKQR_PYTHON_EXE=$($py.Source)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            "QUICKQR_PYTHON_MODE=py" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            exit 0
+          }
+
+          throw "No existing Python interpreter is available on the physical QA host"
 
       - name: Verify existing Android SDK on physical host
         shell: powershell
@@ -647,7 +662,11 @@ jobs:
 
           $launchShotPath = Join-Path (Get-Location) "physical-evidence\launch.png"
           Remove-Item $launchShotPath -Force -ErrorAction SilentlyContinue
-          & python .github/scripts/capture_adb_screenshot.py --serial $serial --output $launchShotPath
+          if ($env:QUICKQR_PYTHON_MODE -eq "py") {
+            & $env:QUICKQR_PYTHON_EXE -3 .github/scripts/capture_adb_screenshot.py --serial $serial --output $launchShotPath
+          } else {
+            & $env:QUICKQR_PYTHON_EXE .github/scripts/capture_adb_screenshot.py --serial $serial --output $launchShotPath
+          }
           if ($LASTEXITCODE -ne 0) {
             throw "Physical launch screenshot capture failed"
           }
