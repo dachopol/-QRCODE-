@@ -618,6 +618,15 @@ jobs:
           }
           "adb_state=passed" | Add-Content "physical-evidence\summary.txt"
 
+          # Fail closed before APK installation or launch. Device unlocking is manual only.
+          $trust = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "trust") -TimeoutSeconds 15
+          $lockStates = @([regex]::Matches($trust, '(?i)\bdeviceLocked=(true|false)\b') | ForEach-Object { $_.Groups[1].Value.ToLowerInvariant() })
+          if ($lockStates.Count -eq 0 -or @($lockStates | Where-Object { $_ -ne "false" }).Count -gt 0) {
+            "device_locked=locked_or_unverified" | Add-Content "physical-evidence\summary.txt"
+            throw "Physical QA requires an already manually unlocked authorized RMX3241; cannot verify unlocked state. No unlock attempted."
+          }
+          "device_locked=false" | Add-Content "physical-evidence\summary.txt"
+
           $fontScale = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "system", "font_scale") -TimeoutSeconds 10).Trim()
           $state = [ordered]@{ fontScale = $fontScale }
           $state | ConvertTo-Json | Set-Content (Join-Path $env:RUNNER_TEMP "quickqr-physical-state.json")
@@ -659,8 +668,7 @@ jobs:
           }
           "runtime_permissions_pregranted=passed" | Add-Content "physical-evidence\summary.txt"
 
-          Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP") -TimeoutSeconds 10 | Out-Null
-          Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "wm", "dismiss-keyguard") -TimeoutSeconds 10 | Out-Null
+          # The device was verified unlocked before any install; do not dismiss its keyguard.
           Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "am", "force-stop", $packageName) -TimeoutSeconds 10 | Out-Null
           $launch = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "am", "start", "-W", "-n", "$packageName/.MainActivity") -TimeoutSeconds 20
           if ($launch -notmatch "Status:\s*ok") {
@@ -673,13 +681,6 @@ jobs:
           }
           "launch=passed" | Add-Content "physical-evidence\summary.txt"
           "live_process=passed" | Add-Content "physical-evidence\summary.txt"
-
-          $trust = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "trust") -TimeoutSeconds 15
-          $deviceLocked = "unknown"
-          if ($trust -match "(?i)deviceLocked=(true|false)") {
-            $deviceLocked = $Matches[1].ToLowerInvariant()
-          }
-          "device_locked=$deviceLocked" | Add-Content "physical-evidence\summary.txt"
 
           $launchShotPath = "physical-evidence\launch.png"
           $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
