@@ -5,11 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertTrue
@@ -21,7 +22,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PhysicalDeviceSmokeInstrumentedTest {
     @get:Rule
-    val composeRule = createAndroidComposeRule<MainActivity>()
+    val composeRule = createEmptyComposeRule()
 
     @Test
     fun physicalCameraAndLocationSmoke() {
@@ -42,7 +43,8 @@ class PhysicalDeviceSmokeInstrumentedTest {
             missingPermissions.isEmpty()
         )
 
-        waitForMainNavigation()
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitForMainNavigation()
             dismissRootWarningIfPresent()
 
             composeRule.onNodeWithTag("nav_scanner").performClick()
@@ -98,21 +100,26 @@ class PhysicalDeviceSmokeInstrumentedTest {
         composeRule.onNodeWithTag("qr_preview_dialog").assertIsDisplayed()
         composeRule.onNodeWithTag("close_qr_preview_button").performClick()
 
-        composeRule.onNodeWithTag("open_current_location_map_button")
-            .performScrollTo()
-            .assertIsEnabled()
+            composeRule.onNodeWithTag("open_current_location_map_button")
+                .performScrollTo()
+                .assertIsEnabled()
+        }
     }
 
     @Test
     fun largeFontCoreControlsRemainOperable() {
         assumeFalse("Large-font physical smoke must not run on an emulator", isProbablyEmulator())
-        val fontScale = composeRule.activity.resources.configuration.fontScale
-        assertTrue("Expected system font scale >= 1.25, observed $fontScale", fontScale >= 1.25f)
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            var fontScale = 1.0f
+            scenario.onActivity { activity ->
+                fontScale = activity.resources.configuration.fontScale
+            }
+            assertTrue("Expected system font scale >= 1.25, observed $fontScale", fontScale >= 1.25f)
 
-        waitForMainNavigation()
-        dismissRootWarningIfPresent()
+            waitForMainNavigation()
+            dismissRootWarningIfPresent()
 
-        listOf("nav_generate", "nav_card", "nav_scanner", "nav_history").forEach { tag ->
+            listOf("nav_generate", "nav_card", "nav_scanner", "nav_history").forEach { tag ->
             composeRule.onNodeWithTag(tag)
                 .assertIsDisplayed()
                 .performClick()
@@ -136,7 +143,8 @@ class PhysicalDeviceSmokeInstrumentedTest {
             composeRule.onAllNodesWithTag("close_support_sheet_button")
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag("close_support_sheet_button").performClick()
+            composeRule.onNodeWithTag("close_support_sheet_button").performClick()
+        }
     }
 
     private fun waitForMainNavigation() {
