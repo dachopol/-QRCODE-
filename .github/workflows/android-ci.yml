@@ -610,7 +610,10 @@ jobs:
                 throw "ADB command failed with exit code ${exitCode}: $stderr"
               }
               if ($null -eq $exitCode -and -not [string]::IsNullOrWhiteSpace($stderr)) {
-                throw "ADB command completed without an exit code and wrote stderr: $stderr"
+                $benignTransferProgress = $stderr -match '(?im)\b\d+\s+file(?:s)?\s+(?:pushed|pulled)\b'
+                if (-not $benignTransferProgress) {
+                  throw "ADB command completed without an exit code and wrote stderr: $stderr"
+                }
               }
               return $stdout
             } finally {
