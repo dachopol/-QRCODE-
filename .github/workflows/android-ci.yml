@@ -602,8 +602,8 @@ jobs:
               # Wait once more without a timeout so redirected streams finish.
               $process.WaitForExit()
               $process.Refresh()
-              $stdout = if (Test-Path $stdoutPath) { Get-Content $stdoutPath -Raw } else { "" }
-              $stderr = if (Test-Path $stderrPath) { Get-Content $stderrPath -Raw } else { "" }
+              $stdout = if (Test-Path $stdoutPath) { [string](Get-Content $stdoutPath -Raw) } else { "" }
+              $stderr = if (Test-Path $stderrPath) { [string](Get-Content $stderrPath -Raw) } else { "" }
               $exitCode = $null
               try { $exitCode = $process.ExitCode } catch {}
               if ($null -ne $exitCode -and $exitCode -ne 0) {
