@@ -2,6 +2,7 @@ package com.aistudio.qrgenerator.kmpzqr
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -109,41 +110,65 @@ class PhysicalDeviceSmokeInstrumentedTest {
     @Test
     fun largeFontCoreControlsRemainOperable() {
         assumeFalse("Large-font physical smoke must not run on an emulator", isProbablyEmulator())
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            var fontScale = 1.0f
-            scenario.onActivity { activity ->
-                fontScale = activity.resources.configuration.fontScale
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        val originalConfiguration = Configuration(context.resources.configuration)
+        val largeFontConfiguration = Configuration(originalConfiguration).apply {
+            fontScale = 1.3f
+        }
+
+        @Suppress("DEPRECATION")
+        context.resources.updateConfiguration(
+            largeFontConfiguration,
+            context.resources.displayMetrics
+        )
+
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                var fontScale = 1.0f
+                scenario.onActivity { activity ->
+                    fontScale = activity.resources.configuration.fontScale
+                }
+                assertTrue(
+                    "Expected physical test Activity font scale >= 1.25, observed $fontScale",
+                    fontScale >= 1.25f
+                )
+
+                waitForMainNavigation()
+                dismissRootWarningIfPresent()
+
+                listOf("nav_generate", "nav_card", "nav_scanner", "nav_history").forEach { tag ->
+                    composeRule.onNodeWithTag(tag)
+                        .assertIsDisplayed()
+                        .performClick()
+                    composeRule.waitForIdle()
+                    dismissRootWarningIfPresent()
+                }
+
+                composeRule.onNodeWithTag("open_language_currency_button")
+                    .assertIsDisplayed()
+                    .performClick()
+                composeRule.waitUntil(timeoutMillis = 5_000) {
+                    composeRule.onAllNodesWithTag("language_currency_dialog")
+                        .fetchSemanticsNodes().isNotEmpty()
+                }
+                composeRule.onNodeWithTag("close_lang_currency_dialog_button").performClick()
+
+                composeRule.onNodeWithTag("support_admin_button")
+                    .assertIsDisplayed()
+                    .performClick()
+                composeRule.waitUntil(timeoutMillis = 8_000) {
+                    composeRule.onAllNodesWithTag("close_support_sheet_button")
+                        .fetchSemanticsNodes().isNotEmpty()
+                }
+                composeRule.onNodeWithTag("close_support_sheet_button").performClick()
             }
-            assertTrue("Expected system font scale >= 1.25, observed $fontScale", fontScale >= 1.25f)
-
-            waitForMainNavigation()
-            dismissRootWarningIfPresent()
-
-            listOf("nav_generate", "nav_card", "nav_scanner", "nav_history").forEach { tag ->
-            composeRule.onNodeWithTag(tag)
-                .assertIsDisplayed()
-                .performClick()
-            composeRule.waitForIdle()
-            dismissRootWarningIfPresent()
-        }
-
-        composeRule.onNodeWithTag("open_language_currency_button")
-            .assertIsDisplayed()
-            .performClick()
-        composeRule.waitUntil(timeoutMillis = 5_000) {
-            composeRule.onAllNodesWithTag("language_currency_dialog")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeRule.onNodeWithTag("close_lang_currency_dialog_button").performClick()
-
-        composeRule.onNodeWithTag("support_admin_button")
-            .assertIsDisplayed()
-            .performClick()
-        composeRule.waitUntil(timeoutMillis = 8_000) {
-            composeRule.onAllNodesWithTag("close_support_sheet_button")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-            composeRule.onNodeWithTag("close_support_sheet_button").performClick()
+        } finally {
+            @Suppress("DEPRECATION")
+            context.resources.updateConfiguration(
+                originalConfiguration,
+                context.resources.displayMetrics
+            )
         }
     }
 
