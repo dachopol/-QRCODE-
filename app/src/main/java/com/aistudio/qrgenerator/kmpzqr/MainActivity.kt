@@ -1,5 +1,6 @@
 package com.aistudio.qrgenerator.kmpzqr
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
@@ -84,9 +85,22 @@ import com.aistudio.qrgenerator.kmpzqr.util.RootSecurityManager
 import com.aistudio.qrgenerator.kmpzqr.util.localizedString
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val EXTRA_QA_FONT_SCALE = "qa_font_scale"
+    }
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (BuildConfig.DEBUG) {
+            val qaFontScale = intent?.getFloatExtra(EXTRA_QA_FONT_SCALE, 0f) ?: 0f
+            if (qaFontScale in 1.0f..2.0f) {
+                applyOverrideConfiguration(
+                    Configuration().apply { fontScale = qaFontScale }
+                )
+            }
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
