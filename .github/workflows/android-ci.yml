@@ -650,7 +650,7 @@ jobs:
           if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) {
             throw "Physical QA APK is missing: $apk"
           }
-          $install = Invoke-AdbBounded -AdbArgs @("-s", $serial, "install", "-r", "-g", $apk) -TimeoutSeconds 90
+          $install = Invoke-AdbBounded -AdbArgs @("-s", $serial, "install", "--no-streaming", "-r", "-g", $apk) -TimeoutSeconds 120
           if ($install -notmatch "Success") {
             throw "APK install with QA runtime-permission grant failed; existing app data/package was not removed automatically. $install"
           }
