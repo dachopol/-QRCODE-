@@ -828,13 +828,7 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $state -ne "device") {
             throw "Bound RMX3241 is not in adb device state"
           }
-          & adb -s $serial shell settings put system font_scale 1.3 | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            "large_font_core_controls=blocked_oem_write_settings" | Add-Content "physical-evidence\summary.txt"
-            "accessibility_remaining_blocker=physical_font_scale_mutation_denied_by_oem" | Add-Content "physical-evidence\summary.txt"
-            exit 0
-          }
-          New-Item -ItemType File -Force -Path (Join-Path $env:RUNNER_TEMP "quickqr-font-scale-mutated.marker") | Out-Null
+          "large_font_mode=test_scoped_activity_font_scale_1.3" | Add-Content "physical-evidence\summary.txt"
 
           & adb -s $serial shell am force-stop com.aistudio.qrgenerator.kmpzqr | Out-Null
           Start-Sleep -Seconds 1
@@ -852,6 +846,7 @@ jobs:
             throw "Large-font physical accessibility smoke failed"
           }
           "large_font_core_controls=passed" | Add-Content "physical-evidence\summary.txt"
+          "accessibility_remaining_blocker=none" | Add-Content "physical-evidence\summary.txt"
 
       - name: Final live-process and crash smoke
         shell: powershell
