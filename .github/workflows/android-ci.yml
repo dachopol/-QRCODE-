@@ -611,7 +611,12 @@ jobs:
               }
               if ($null -eq $exitCode -and -not [string]::IsNullOrWhiteSpace($stderr)) {
                 $benignTransferProgress = $stderr -match '(?im)\b\d+\s+file(?:s)?\s+(?:pushed|pulled)\b'
-                $benignDaemonStartup = $stderr -match '(?is)^\s*\* daemon not running; starting now at tcp:\d+\s*\* daemon started successfully\s*              return $stdout
+                $benignDaemonStartup = $stderr -match '(?is)^\s*\* daemon not running; starting now at tcp:\d+\s*\* daemon started successfully\s*$'
+                if (-not ($benignTransferProgress -or $benignDaemonStartup)) {
+                  throw "ADB command completed without an exit code and wrote stderr: $stderr"
+                }
+              }
+              return $stdout
             } finally {
               Remove-Item $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
             }
