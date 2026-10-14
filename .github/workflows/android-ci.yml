@@ -626,14 +626,20 @@ jobs:
           }
           "adb_state=passed" | Add-Content "physical-evidence\summary.txt"
 
-          # Fail closed before APK installation or launch. Device unlocking is manual only.
+          # Device unlocking is manual only. Fail immediately only when trust explicitly reports locked.
+          # Some OEM builds do not expose deviceLocked= in dumpsys trust; those continue to a
+          # stronger post-launch foreground-focus verification without attempting any unlock.
           $trust = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "trust") -TimeoutSeconds 15
           $lockStates = @([regex]::Matches($trust, '(?i)\bdeviceLocked=(true|false)\b') | ForEach-Object { $_.Groups[1].Value.ToLowerInvariant() })
-          if ($lockStates.Count -eq 0 -or @($lockStates | Where-Object { $_ -ne "false" }).Count -gt 0) {
-            "device_locked=locked_or_unverified" | Add-Content "physical-evidence\summary.txt"
-            throw "Physical QA requires an already manually unlocked authorized RMX3241; cannot verify unlocked state. No unlock attempted."
+          if (@($lockStates | Where-Object { $_ -eq "true" }).Count -gt 0) {
+            "device_locked=true" | Add-Content "physical-evidence\summary.txt"
+            throw "Physical QA requires an already manually unlocked authorized RMX3241. No unlock attempted."
           }
-          "device_locked=false" | Add-Content "physical-evidence\summary.txt"
+          if ($lockStates.Count -eq 0) {
+            "device_locked=precheck_unverified_oem" | Add-Content "physical-evidence\summary.txt"
+          } else {
+            "device_locked=false" | Add-Content "physical-evidence\summary.txt"
+          }
 
           $fontScale = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "system", "font_scale") -TimeoutSeconds 10).Trim()
           $state = [ordered]@{ fontScale = $fontScale }
@@ -687,8 +693,14 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($appPid)) {
             throw "QuickQR process is not alive after launch"
           }
+          $windowState = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "window") -TimeoutSeconds 20
+          $focusPattern = '(?im)(mCurrentFocus|mFocusedApp).*' + [regex]::Escape($packageName)
+          if ($windowState -notmatch $focusPattern) {
+            throw "QuickQR is alive but not the focused foreground app; physical unlock/foreground state is not verified. No unlock attempted."
+          }
           "launch=passed" | Add-Content "physical-evidence\summary.txt"
           "live_process=passed" | Add-Content "physical-evidence\summary.txt"
+          "foreground_focus=passed" | Add-Content "physical-evidence\summary.txt"
 
           $launchShotPath = "physical-evidence\launch.png"
           $remoteLaunchShot = "/data/local/tmp/quickqr-physical-launch.png"
