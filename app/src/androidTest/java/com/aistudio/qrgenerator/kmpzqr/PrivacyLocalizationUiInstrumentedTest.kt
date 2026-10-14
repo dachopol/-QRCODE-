@@ -80,9 +80,10 @@ class PrivacyLocalizationUiInstrumentedTest {
         }
 
         composeRule.runOnUiThread {
+            val historyViewModel = MainViewModel(application)
             composeRule.activity.setContent {
                 MyApplicationTheme(darkTheme = false) {
-                    HistoryScreen(viewModel = MainViewModel(application))
+                    HistoryScreen(viewModel = historyViewModel)
                 }
             }
         }
