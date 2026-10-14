@@ -55,3 +55,4 @@ androidx-runner = { group = "androidx.test", name = "runner", version.ref = "run
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "googleDevtoolsKsp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }

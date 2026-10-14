@@ -215,6 +215,32 @@ object QrScannerUtil {
         return fields
     }
 
+    private fun unescapeVCardText(value: String): String {
+        val output = StringBuilder(value.length)
+        var index = 0
+        while (index < value.length) {
+            val current = value[index]
+            if (current == '\\' && index + 1 < value.length) {
+                val next = value[index + 1]
+                when (next) {
+                    '\\' -> output.append('\\')
+                    ';' -> output.append(';')
+                    ',' -> output.append(',')
+                    'n', 'N' -> output.append('\n')
+                    else -> {
+                        output.append('\\')
+                        output.append(next)
+                    }
+                }
+                index += 2
+            } else {
+                output.append(current)
+                index += 1
+            }
+        }
+        return output.toString()
+    }
+
     /**
      * Classifies a decoded QR payload into PromptPay, Wi-Fi, URL, vCard or text.
      */
@@ -281,16 +307,16 @@ object QrScannerUtil {
 
             trimmed.lines().forEach { line ->
                 val l = line.trim()
-                if (l.startsWith("FN:", ignoreCase = true)) fn = l.substring(3).trim()
+                if (l.startsWith("FN:", ignoreCase = true)) fn = unescapeVCardText(l.substring(3).trim())
                 if (l.startsWith("TEL", ignoreCase = true)) {
                     val colonIdx = l.indexOf(':')
-                    if (colonIdx != -1) tel = l.substring(colonIdx + 1).trim()
+                    if (colonIdx != -1) tel = unescapeVCardText(l.substring(colonIdx + 1).trim())
                 }
                 if (l.startsWith("EMAIL", ignoreCase = true)) {
                     val colonIdx = l.indexOf(':')
-                    if (colonIdx != -1) email = l.substring(colonIdx + 1).trim()
+                    if (colonIdx != -1) email = unescapeVCardText(l.substring(colonIdx + 1).trim())
                 }
-                if (l.startsWith("ORG:", ignoreCase = true)) org = l.substring(4).trim()
+                if (l.startsWith("ORG:", ignoreCase = true)) org = unescapeVCardText(l.substring(4).trim())
             }
 
             return ParsedQrResult(
