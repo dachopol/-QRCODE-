@@ -610,7 +610,7 @@ jobs:
               $stdout = if (Test-Path $stdoutPath) { Get-Content $stdoutPath -Raw } else { "" }
               $stderr = if (Test-Path $stderrPath) { Get-Content $stderrPath -Raw } else { "" }
               if ($exitCode -ne 0) {
-                throw "ADB command failed with exit code $exitCode: $stderr"
+                throw "ADB command failed with exit code ${exitCode}: $stderr"
               }
               return $stdout
             } finally {
