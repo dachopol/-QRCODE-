@@ -599,18 +599,18 @@ jobs:
                 try { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue } catch {}
                 throw "ADB command timed out after $TimeoutSeconds seconds: $($AdbArgs -join ' ')"
               }
-              # Wait once more without a timeout so redirected streams finish and
-              # Windows PowerShell exposes a stable ExitCode on the Process object.
+              # Wait once more without a timeout so redirected streams finish.
               $process.WaitForExit()
               $process.Refresh()
-              $exitCode = $process.ExitCode
-              if ($null -eq $exitCode) {
-                throw "ADB command completed but exit code was unavailable: $($AdbArgs -join ' ')"
-              }
               $stdout = if (Test-Path $stdoutPath) { Get-Content $stdoutPath -Raw } else { "" }
               $stderr = if (Test-Path $stderrPath) { Get-Content $stderrPath -Raw } else { "" }
-              if ($exitCode -ne 0) {
+              $exitCode = $null
+              try { $exitCode = $process.ExitCode } catch {}
+              if ($null -ne $exitCode -and $exitCode -ne 0) {
                 throw "ADB command failed with exit code ${exitCode}: $stderr"
+              }
+              if ($null -eq $exitCode -and -not [string]::IsNullOrWhiteSpace($stderr)) {
+                throw "ADB command completed without an exit code and wrote stderr: $stderr"
               }
               return $stdout
             } finally {
