@@ -650,16 +650,40 @@ jobs:
           if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) {
             throw "Physical QA APK is missing: $apk"
           }
-          $install = Invoke-AdbBounded -AdbArgs @("-s", $serial, "install", "--no-streaming", "-r", "-g", $apk) -TimeoutSeconds 120
-          if ($install -notmatch "Success") {
-            throw "APK install with QA runtime-permission grant failed; existing app data/package was not removed automatically. $install"
-          }
-          "install=passed" | Add-Content "physical-evidence\summary.txt"
 
           $gradleText = Get-Content "app\build.gradle.kts" -Raw
           $expectedName = [regex]::Match($gradleText, 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
           $expectedCode = [regex]::Match($gradleText, 'versionCode\s*=\s*(\d+)').Groups[1].Value
-          $installed = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "package", $packageName) -TimeoutSeconds 20
+
+          $install = ""
+          $installed = ""
+          try {
+            $install = Invoke-AdbBounded -AdbArgs @("-s", $serial, "install", "--no-streaming", "-r", "-g", $apk) -TimeoutSeconds 120
+          } catch {
+            if ($_.Exception.Message -notmatch "ADB command timed out") {
+              throw
+            }
+            # Verify-before-retry: an OEM installer can outlive the adb client timeout.
+            # Accept the install only when the exact candidate version is already present.
+            $installedAfterTimeout = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "package", $packageName) -TimeoutSeconds 20
+            $timeoutName = [regex]::Match($installedAfterTimeout, 'versionName=([^\r\n]+)').Groups[1].Value.Trim()
+            $timeoutCode = [regex]::Match($installedAfterTimeout, 'versionCode=(\d+)').Groups[1].Value
+            if ($timeoutName -eq $expectedName -and $timeoutCode -eq $expectedCode) {
+              $install = "Success (verified after adb timeout)"
+              $installed = $installedAfterTimeout
+              "install=verified_after_adb_timeout" | Add-Content "physical-evidence\summary.txt"
+            } else {
+              "install=blocked_oem_confirmation_or_timeout" | Add-Content "physical-evidence\summary.txt"
+              throw "ADB install timed out and the exact candidate version is not installed. Manual OEM USB-install confirmation may be required on the physical device."
+            }
+          }
+          if ($install -notmatch "Success") {
+            throw "APK install with QA runtime-permission grant failed; existing app data/package was not removed automatically. $install"
+          }
+          if ([string]::IsNullOrWhiteSpace($installed)) {
+            "install=passed" | Add-Content "physical-evidence\summary.txt"
+            $installed = Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "dumpsys", "package", $packageName) -TimeoutSeconds 20
+          }
           $actualName = [regex]::Match($installed, 'versionName=([^\r\n]+)').Groups[1].Value.Trim()
           $actualCode = [regex]::Match($installed, 'versionCode=(\d+)').Groups[1].Value
           if ($actualName -ne $expectedName -or $actualCode -ne $expectedCode) {
