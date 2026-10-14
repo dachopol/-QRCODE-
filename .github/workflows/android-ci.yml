@@ -56,6 +56,9 @@ jobs:
             --base-ref FETCH_HEAD \
             --head-file app/build.gradle.kts
 
+      - name: Self-test read-only A1 and A5 (synthetic only)
+        run: python .github/scripts/quickqr_evidence_agents.py self-test
+
       - name: Verify project policy
         shell: bash
         run: |
