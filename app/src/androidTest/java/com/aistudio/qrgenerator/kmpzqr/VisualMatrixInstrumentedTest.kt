@@ -340,6 +340,37 @@ class VisualMatrixInstrumentedTest {
         composeRule.waitForIdle()
     }
 
+    private fun assertCaptureSurfaceReady(name: String) {
+        var activityReady = false
+        var activityDetails = ""
+        composeRule.runOnIdle {
+            val activity = composeRule.activity
+            val decor = activity.window.decorView
+            activityReady =
+                !activity.isFinishing &&
+                    !activity.isDestroyed &&
+                    decor.isShown &&
+                    decor.width > 0 &&
+                    decor.height > 0
+            activityDetails =
+                "finishing=${activity.isFinishing}," +
+                    "destroyed=${activity.isDestroyed}," +
+                    "shown=${decor.isShown}," +
+                    "size=${decor.width}x${decor.height}"
+        }
+
+        val activePackage = InstrumentationRegistry.getInstrumentation()
+            .uiAutomation
+            .rootInActiveWindow
+            ?.packageName
+            ?.toString()
+
+        assertTrue(
+            "$name capture surface not ready: $activityDetails, activePackage=$activePackage",
+            activityReady && activePackage == appContext.packageName
+        )
+    }
+
     private fun assertScreenshotHasVisibleContent(bitmap: Bitmap, name: String) {
         val stepX = maxOf(1, bitmap.width / 32)
         val stepY = maxOf(1, bitmap.height / 32)
@@ -374,6 +405,7 @@ class VisualMatrixInstrumentedTest {
         hideKeyboard()
         waitForScreenshotFrame()
         composeRule.waitForIdle()
+        assertCaptureSurfaceReady(name)
         val bitmap = DeviceCapture.takeScreenshot()
         assertScreenshotHasVisibleContent(bitmap, name)
         val file = File(outputDir, name + ".png")
