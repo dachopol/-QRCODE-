@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.DeviceCapture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.data.AppDatabase
@@ -373,9 +374,7 @@ class VisualMatrixInstrumentedTest {
         hideKeyboard()
         waitForScreenshotFrame()
         composeRule.waitForIdle()
-        val bitmap = requireNotNull(
-            InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-        ) { "UiAutomation screenshot unavailable" }
+        val bitmap = DeviceCapture.takeScreenshot()
         assertScreenshotHasVisibleContent(bitmap, name)
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
