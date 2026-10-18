@@ -15,7 +15,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.test.core.app.DeviceCapture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.aistudio.qrgenerator.kmpzqr.data.AppDatabase
@@ -371,7 +370,7 @@ class VisualMatrixInstrumentedTest {
         )
     }
 
-    private fun assertScreenshotHasVisibleContent(bitmap: Bitmap, name: String) {
+    private fun screenshotVisibleRatio(bitmap: Bitmap): Double {
         val stepX = maxOf(1, bitmap.width / 32)
         val stepY = maxOf(1, bitmap.height / 32)
         var sampled = 0
@@ -393,10 +392,30 @@ class VisualMatrixInstrumentedTest {
             }
             y += stepY
         }
-        val visibleRatio = if (sampled == 0) 0.0 else visible.toDouble() / sampled.toDouble()
-        assertTrue(
-            "$name screenshot appears blank/black: visibleRatio=$visibleRatio",
-            visibleRatio >= 0.05
+        return if (sampled == 0) 0.0 else visible.toDouble() / sampled.toDouble()
+    }
+
+    private fun takeVisibleScreenshot(name: String): Bitmap {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val ratios = mutableListOf<Double>()
+        for (attempt in 1..3) {
+            composeRule.runOnUiThread {
+                composeRule.activity.window.decorView.postInvalidateOnAnimation()
+            }
+            instrumentation.waitForIdleSync()
+            android.os.SystemClock.sleep(if (attempt == 1) 200L else 350L)
+
+            val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot()) {
+                "$name UiAutomation screenshot unavailable on attempt $attempt"
+            }
+            val ratio = screenshotVisibleRatio(bitmap)
+            ratios += ratio
+            if (ratio >= 0.05) {
+                return bitmap
+            }
+        }
+        throw AssertionError(
+            "$name screenshot remains blank/black after 3 redraw attempts: visibleRatios=$ratios"
         )
     }
 
@@ -406,8 +425,7 @@ class VisualMatrixInstrumentedTest {
         waitForScreenshotFrame()
         composeRule.waitForIdle()
         assertCaptureSurfaceReady(name)
-        val bitmap = DeviceCapture.takeScreenshot()
-        assertScreenshotHasVisibleContent(bitmap, name)
+        val bitmap = takeVisibleScreenshot(name)
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
