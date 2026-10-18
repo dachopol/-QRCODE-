@@ -369,14 +369,8 @@ class VisualMatrixInstrumentedTest {
                     "activityPackage=$activityPackage"
         }
 
-        val activePackage = InstrumentationRegistry.getInstrumentation()
-            .uiAutomation
-            .rootInActiveWindow
-            ?.packageName
-            ?.toString()
-
         assertTrue(
-            "$name capture surface not ready: $activityDetails, activePackage=$activePackage",
+            "$name capture surface not ready: $activityDetails",
             activityReady && activityPackage == appContext.packageName
         )
     }
@@ -416,7 +410,13 @@ class VisualMatrixInstrumentedTest {
             instrumentation.waitForIdleSync()
             android.os.SystemClock.sleep(if (attempt == 1) 200L else 350L)
 
-            val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot()) {
+            val bitmap = requireNotNull(
+                if (android.os.Build.VERSION.SDK_INT >= 34) {
+                    instrumentation.uiAutomation.takeScreenshot(composeRule.activity.window)
+                } else {
+                    instrumentation.uiAutomation.takeScreenshot()
+                }
+            ) {
                 "$name UiAutomation screenshot unavailable on attempt $attempt"
             }
             val ratio = screenshotVisibleRatio(bitmap)
