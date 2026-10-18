@@ -341,21 +341,32 @@ class VisualMatrixInstrumentedTest {
 
     private fun assertCaptureSurfaceReady(name: String) {
         var activityReady = false
+        var activityPackage = ""
         var activityDetails = ""
         composeRule.runOnIdle {
             val activity = composeRule.activity
             val decor = activity.window.decorView
+            val resumed = activity.lifecycle.currentState
+                .isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+            activityPackage = activity.packageName
             activityReady =
                 !activity.isFinishing &&
                     !activity.isDestroyed &&
+                    resumed &&
+                    decor.isAttachedToWindow &&
                     decor.isShown &&
+                    decor.windowVisibility == android.view.View.VISIBLE &&
                     decor.width > 0 &&
                     decor.height > 0
             activityDetails =
                 "finishing=${activity.isFinishing}," +
                     "destroyed=${activity.isDestroyed}," +
+                    "resumed=$resumed," +
+                    "attached=${decor.isAttachedToWindow}," +
                     "shown=${decor.isShown}," +
-                    "size=${decor.width}x${decor.height}"
+                    "windowVisibility=${decor.windowVisibility}," +
+                    "size=${decor.width}x${decor.height}," +
+                    "activityPackage=$activityPackage"
         }
 
         val activePackage = InstrumentationRegistry.getInstrumentation()
@@ -366,7 +377,7 @@ class VisualMatrixInstrumentedTest {
 
         assertTrue(
             "$name capture surface not ready: $activityDetails, activePackage=$activePackage",
-            activityReady && activePackage == appContext.packageName
+            activityReady && activityPackage == appContext.packageName
         )
     }
 
