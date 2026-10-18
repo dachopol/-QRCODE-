@@ -10,6 +10,12 @@ Android app for scanning and generating QR codes for business use.
 - Min SDK: 24
 - Target SDK: 36
 
+## Verification gates (current source)
+- `versionCode = 19` in `app/build.gradle.kts` identifies source only; it does **not** prove an Internal Testing upload, review, or publication.
+- Physical RMX3241 install/launch, camera/QR, location/map, crash/ANR, TalkBack and large-font QA remain **TO VERIFY** until linked device evidence is recorded in [Issue #5](https://github.com/dachopol/-QRCODE-/issues/5).
+- Play Internal Testing release lifecycle and active artifact version remain **TO VERIFY** until an authorized read-only Play API response is recorded in [Issue #3](https://github.com/dachopol/-QRCODE-/issues/3).
+- Do not treat hosted CI, screenshots, or an earlier build as proof for the exact installed candidate. Do not merge, upload, or publish based on documentation alone.
+
 ## Testing configuration
 - Monetization UI is disabled for Play testing.
 - No real AdMob SDK is enabled in this build.
