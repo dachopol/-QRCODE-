@@ -5,7 +5,8 @@ Android app for scanning and generating QR codes for business use.
 ## Package / version
 - Application ID: `com.aistudio.qrgenerator.kmpzqr`
 - Version name: `18.0`
-- Version code: `18`
+- Version code (current `main` source): `19`
+- Play Console Internal Testing version: **TO VERIFY** independently; source version does not prove upload or rollout status.
 - Min SDK: 24
 - Target SDK: 36
 
