@@ -760,6 +760,44 @@ jobs:
           if (-not $validHeader) {
             throw "Physical launch screenshot is not valid PNG evidence"
           }
+
+          # A PNG header alone did not detect the genuine all-black launch.png in CI #332.
+          # Fail closed on blank/dark/flat captures; keep visual evidence separate
+          # from camera QR decode and physical accessibility acceptance.
+          Add-Type -AssemblyName System.Drawing -ErrorAction Stop
+          $launchBitmap = [System.Drawing.Bitmap]::FromFile((Resolve-Path $launchShotPath).Path)
+          try {
+            if ($launchBitmap.Width -lt 240 -or $launchBitmap.Height -lt 400) {
+              throw "Physical launch screenshot has implausible dimensions"
+            }
+            $stepX = [Math]::Max(1, [int][Math]::Floor($launchBitmap.Width / 32.0))
+            $stepY = [Math]::Max(1, [int][Math]::Floor($launchBitmap.Height / 32.0))
+            $sampleCount = 0
+            $visibleCount = 0
+            $minBrightness = 765
+            $maxBrightness = 0
+            for ($y = 0; $y -lt $launchBitmap.Height; $y += $stepY) {
+              for ($x = 0; $x -lt $launchBitmap.Width; $x += $stepX) {
+                $pixel = $launchBitmap.GetPixel($x, $y)
+                $brightness = [int]$pixel.R + [int]$pixel.G + [int]$pixel.B
+                $sampleCount++
+                if ($brightness -gt 45) { $visibleCount++ }
+                $minBrightness = [Math]::Min($minBrightness, $brightness)
+                $maxBrightness = [Math]::Max($maxBrightness, $brightness)
+              }
+            }
+            $visibleRatio = $visibleCount / [double]$sampleCount
+            $brightnessRange = $maxBrightness - $minBrightness
+            ("launch_screenshot_visible_ratio={0:F4}" -f $visibleRatio) | Add-Content "physical-evidence\summary.txt"
+            ("launch_screenshot_brightness_range={0}" -f $brightnessRange) | Add-Content "physical-evidence\summary.txt"
+            if ($visibleRatio -lt 0.05 -or $brightnessRange -lt 20) {
+              "launch_screenshot_content=failed" | Add-Content "physical-evidence\summary.txt"
+              throw "Physical launch screenshot is blank/black/flat; visibleRatio=$visibleRatio brightnessRange=$brightnessRange"
+            }
+            "launch_screenshot_content=passed" | Add-Content "physical-evidence\summary.txt"
+          } finally {
+            $launchBitmap.Dispose()
+          }
           "launch_screenshot=passed" | Add-Content "physical-evidence\summary.txt"
 
           $accessibilityEnabled = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "secure", "accessibility_enabled") -TimeoutSeconds 10).Trim()
