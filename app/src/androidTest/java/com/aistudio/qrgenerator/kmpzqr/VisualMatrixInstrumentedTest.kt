@@ -123,7 +123,7 @@ class VisualMatrixInstrumentedTest {
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
-            capture(outputDir, locale + "_08_language_currency_dialog")
+            capture(outputDir, locale + "_08_language_currency_dialog", includeOverlayWindows = true)
             open("close_lang_currency_dialog_button")
 
             // 09: scanner baseline.
@@ -141,7 +141,7 @@ class VisualMatrixInstrumentedTest {
             settleAnimations()
             waitUntilDisplayed("close_support_sheet_button")
             waitForScreenshotFrame()
-            capture(outputDir, locale + "_10_support_sheet")
+            capture(outputDir, locale + "_10_support_sheet", includeOverlayWindows = true)
             open("close_support_sheet_button")
 
             // 11: QR preview through the real generator flow.
@@ -157,7 +157,7 @@ class VisualMatrixInstrumentedTest {
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
-            capture(outputDir, locale + "_11_qr_preview")
+            capture(outputDir, locale + "_11_qr_preview", includeOverlayWindows = true)
             open("close_qr_preview_button")
             hideKeyboard()
 
@@ -215,7 +215,7 @@ class VisualMatrixInstrumentedTest {
             waitUntilDisplayed("history_delete_cancel_button", timeoutMillis = 5_000)
             settleAnimations()
             waitForScreenshotFrame()
-            capture(outputDir, locale + "_15_history_delete_dialog")
+            capture(outputDir, locale + "_15_history_delete_dialog", includeOverlayWindows = true)
             open("history_delete_cancel_button")
         }
 
@@ -400,7 +400,7 @@ class VisualMatrixInstrumentedTest {
         return if (sampled == 0) 0.0 else visible.toDouble() / sampled.toDouble()
     }
 
-    private fun takeVisibleScreenshot(name: String): Bitmap {
+    private fun takeVisibleScreenshot(name: String, includeOverlayWindows: Boolean): Bitmap {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val ratios = mutableListOf<Double>()
         for (attempt in 1..3) {
@@ -411,10 +411,10 @@ class VisualMatrixInstrumentedTest {
             android.os.SystemClock.sleep(if (attempt == 1) 200L else 350L)
 
             val bitmap =
-                if (android.os.Build.VERSION.SDK_INT >= 34) {
-                    instrumentation.uiAutomation.takeScreenshot(composeRule.activity.window)
-                } else {
+                if (includeOverlayWindows || android.os.Build.VERSION.SDK_INT < 34) {
                     instrumentation.uiAutomation.takeScreenshot()
+                } else {
+                    instrumentation.uiAutomation.takeScreenshot(composeRule.activity.window)
                 }
             if (bitmap == null) {
                 ratios += -1.0
@@ -431,13 +431,17 @@ class VisualMatrixInstrumentedTest {
         )
     }
 
-    private fun capture(outputDir: File, name: String) {
+    private fun capture(
+        outputDir: File,
+        name: String,
+        includeOverlayWindows: Boolean = false
+    ) {
         dismissRootWarningIfPresent()
         hideKeyboard()
         waitForScreenshotFrame()
         composeRule.waitForIdle()
         assertCaptureSurfaceReady(name)
-        val bitmap = takeVisibleScreenshot(name)
+        val bitmap = takeVisibleScreenshot(name, includeOverlayWindows)
         val file = File(outputDir, name + ".png")
         FileOutputStream(file).use { stream ->
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
