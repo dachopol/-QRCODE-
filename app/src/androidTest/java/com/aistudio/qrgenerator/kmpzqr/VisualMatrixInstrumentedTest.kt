@@ -410,14 +410,15 @@ class VisualMatrixInstrumentedTest {
             instrumentation.waitForIdleSync()
             android.os.SystemClock.sleep(if (attempt == 1) 200L else 350L)
 
-            val bitmap = requireNotNull(
+            val bitmap =
                 if (android.os.Build.VERSION.SDK_INT >= 34) {
                     instrumentation.uiAutomation.takeScreenshot(composeRule.activity.window)
                 } else {
                     instrumentation.uiAutomation.takeScreenshot()
                 }
-            ) {
-                "$name UiAutomation screenshot unavailable on attempt $attempt"
+            if (bitmap == null) {
+                ratios += -1.0
+                continue
             }
             val ratio = screenshotVisibleRatio(bitmap)
             ratios += ratio
@@ -426,7 +427,7 @@ class VisualMatrixInstrumentedTest {
             }
         }
         throw AssertionError(
-            "$name screenshot remains blank/black after 3 redraw attempts: visibleRatios=$ratios"
+            "$name screenshot unavailable or remains blank/black after 3 redraw attempts: visibleRatios=$ratios (-1.0 means null capture)"
         )
     }
 
