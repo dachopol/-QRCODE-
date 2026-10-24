@@ -433,8 +433,8 @@ jobs:
           retention-days: 7
 
   physical-device:
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 28 && github.event.pull_request.head.ref == 'integration/next-release' }}
-    needs: build
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 28 && github.event.pull_request.head.ref == 'integration/next-release' && github.event.pull_request.head.repo.full_name == 'dachopol/-QRCODE-' }}
+    needs: [build, instrumentation, android16-compat]
     runs-on: [self-hosted, Windows, X64, desktop-commander, dclite-project-quickqr-business]
     timeout-minutes: 25
 
@@ -444,6 +444,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -799,6 +800,7 @@ jobs:
             $launchBitmap.Dispose()
           }
           "launch_screenshot=passed" | Add-Content "physical-evidence\summary.txt"
+          "app_visible_ui_landmark_acceptance=to_verify" | Add-Content "physical-evidence\summary.txt"
 
           $accessibilityEnabled = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "secure", "accessibility_enabled") -TimeoutSeconds 10).Trim()
           $accessibilityServices = (Invoke-AdbBounded -AdbArgs @("-s", $serial, "shell", "settings", "get", "secure", "enabled_accessibility_services") -TimeoutSeconds 10).Trim()
@@ -849,6 +851,7 @@ jobs:
             throw "Physical camera/location smoke failed"
           }
           "camera_location_smoke=passed" | Add-Content "physical-evidence\summary.txt"
+          "real_camera_qr_decode_acceptance=to_verify" | Add-Content "physical-evidence\summary.txt"
 
           $mapProbe = ((& adb -s $serial shell am start -W -a android.intent.action.VIEW -d "geo:1,1?q=1,1" 2>&1) -join "`n")
           $mapProbe | Set-Content "physical-evidence\map-intent-probe.txt"
@@ -890,7 +893,10 @@ jobs:
             throw "Large-font physical accessibility smoke failed"
           }
           "large_font_core_controls=passed" | Add-Content "physical-evidence\summary.txt"
-          "accessibility_remaining_blocker=none" | Add-Content "physical-evidence\summary.txt"
+          "large_font_test_scope=debug_activity_override_only" | Add-Content "physical-evidence\summary.txt"
+          "system_large_font_acceptance=to_verify" | Add-Content "physical-evidence\summary.txt"
+          "talkback_focus_acceptance=to_verify" | Add-Content "physical-evidence\summary.txt"
+          "accessibility_remaining_blocker=manual_system_font_and_talkback_to_verify" | Add-Content "physical-evidence\summary.txt"
 
       - name: Final live-process and crash smoke
         shell: powershell
@@ -916,7 +922,8 @@ jobs:
             throw "QuickQR process is not alive after final relaunch"
           }
           "final_live_process=passed" | Add-Content "physical-evidence\summary.txt"
-          "crash_anr_smoke=passed_via_instrumentation_and_live_relaunch" | Add-Content "physical-evidence\summary.txt"
+          "final_relaunch=passed" | Add-Content "physical-evidence\summary.txt"
+          "crash_anr_acceptance=to_verify" | Add-Content "physical-evidence\summary.txt"
 
       - name: Restore physical-device QA state
         if: always()
