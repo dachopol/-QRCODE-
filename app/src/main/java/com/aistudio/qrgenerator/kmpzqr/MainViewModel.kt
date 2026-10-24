@@ -21,20 +21,27 @@ import com.aistudio.qrgenerator.kmpzqr.model.StorePlatform
 import com.aistudio.qrgenerator.kmpzqr.model.WifiSecurity
 import com.aistudio.qrgenerator.kmpzqr.util.CurrentLocationProvider
 import com.aistudio.qrgenerator.kmpzqr.util.ImageExporter
+import com.aistudio.qrgenerator.kmpzqr.util.LocalizationManager
+import com.aistudio.qrgenerator.kmpzqr.util.HistoryPromptPayResolver
+import com.aistudio.qrgenerator.kmpzqr.util.GalleryBitmapDecoder
+import com.aistudio.qrgenerator.kmpzqr.util.HistoryPrivacyUtil
 import com.aistudio.qrgenerator.kmpzqr.util.LocationError
 import com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
 import com.aistudio.qrgenerator.kmpzqr.util.QrCodeUtil
+import com.aistudio.qrgenerator.kmpzqr.util.QrGenerationRequestGuard
 import com.aistudio.qrgenerator.kmpzqr.util.QrScannerUtil
 import com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil
 import com.aistudio.qrgenerator.kmpzqr.util.ValidationResult
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,9 +60,16 @@ data class ActiveQrPreview(
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
+    private companion object {
+        // UI query batch only; this does not cap or delete stored history.
+        const val HISTORY_PAGE_SIZE = 100
+    }
+
     private val db = AppDatabase.getDatabase(application)
     private val dao = db.qrDao()
     private val centerLogoFile = File(application.filesDir, "qr_center_logo.png")
+    private val qrGenerationRequestGuard = QrGenerationRequestGuard()
+    private var qrGenerationJob: Job? = null
 
     // Active bottom navigation tab: 0=Generate, 1=Card Studio, 2=Scanner, 3=History
     private val _currentTab = MutableStateFlow(0)
@@ -147,10 +161,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val customCenterLogo: StateFlow<Bitmap?> = _customCenterLogo.asStateFlow()
 
     fun setIncludeCenterLogo(enabled: Boolean) {
+        cancelPendingQrGeneration()
         _includeCenterLogo.value = enabled
     }
 
     fun setCustomCenterLogo(uri: Uri?) {
+        cancelPendingQrGeneration()
         if (uri == null) return
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap = decodeCenterLogo(uri)
@@ -229,19 +245,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun centerLogoFor(type: String): Bitmap? {
-        if (!_includeCenterLogo.value) return null
-        return _customCenterLogo.value ?: QrCodeUtil.createDefaultCenterLogo(type)
-    }
+    
 
-    // History flows from Room - Lazily loaded on demand when user opens History tab
-    val historyItems: StateFlow<List<QrItemEntity>> = dao.getAllQrItems()
+    // History is stored without a retention cap. The UI loads a bounded window and expands
+    // only after an explicit user action so a large local history does not become one unbounded query.
+    private val _historyLimit = MutableStateFlow(HISTORY_PAGE_SIZE)
+
+    val historyItems: StateFlow<List<QrItemEntity>> = _historyLimit
+        .flatMapLatest { limit -> dao.getAllQrItems(limit) }
         .catch { emit(emptyList()) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = emptyList()
         )
+
+    val historyTotalCount: StateFlow<Int> = dao.getQrItemCount()
+        .catch { emit(0) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = 0
+        )
+
+    fun loadMoreHistory() {
+        if (historyItems.value.size >= historyTotalCount.value) return
+        _historyLimit.value = _historyLimit.value + HISTORY_PAGE_SIZE
+    }
 
     init {
         // Load an optional custom QR center image from app-private storage.
@@ -287,50 +317,62 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setTab(index: Int) {
+        cancelPendingQrGeneration()
         _currentTab.value = index
     }
 
     fun setGeneratorCategory(index: Int) {
+        cancelPendingQrGeneration()
         _generatorCategory.value = index
     }
 
     fun setPromptPayTarget(target: String) {
+        cancelPendingQrGeneration()
         _promptPayTarget.value = target
     }
 
     fun setPromptPayAmount(amount: String) {
+        cancelPendingQrGeneration()
         _promptPayAmount.value = amount
     }
 
     fun setPromptPayShopName(name: String) {
+        cancelPendingQrGeneration()
         _promptPayShopName.value = name
     }
 
     fun setWifiSsid(ssid: String) {
+        cancelPendingQrGeneration()
         _wifiSsid.value = ssid
     }
 
     fun setWifiPassword(pass: String) {
+        cancelPendingQrGeneration()
         _wifiPassword.value = pass
     }
 
     fun setWifiSecurity(security: WifiSecurity) {
+        cancelPendingQrGeneration()
         _wifiSecurity.value = security
     }
 
     fun setWifiHidden(hidden: Boolean) {
+        cancelPendingQrGeneration()
         _wifiHidden.value = hidden
     }
 
     fun setStorePlatform(platform: StorePlatform) {
+        cancelPendingQrGeneration()
         _storePlatform.value = platform
     }
 
     fun setStoreValue(value: String) {
+        cancelPendingQrGeneration()
         _storeValue.value = value
     }
 
     fun setRawText(text: String) {
+        cancelPendingQrGeneration()
         _rawText.value = text
     }
 
@@ -378,6 +420,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateBusinessCard(card: DigitalBusinessCard) {
+        cancelPendingQrGeneration()
         _businessCard.value = card
     }
 
@@ -405,7 +448,61 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun openPromptPayHistoryItem(item: QrItemEntity) {
+        cancelPendingQrGeneration()
+        val resolved = HistoryPromptPayResolver.resolve(item)
+        if (resolved == null) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow("ข้อมูลพร้อมเพย์ในประวัติไม่ถูกต้อง", "Saved PromptPay data is invalid"),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val amountStr = if (resolved.amount != null && resolved.amount > 0) {
+            "฿${String.format("%,.2f", resolved.amount)}"
+        } else {
+            localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
+        }
+        val title = localizedNow("พร้อมเพย์จากประวัติ", "PromptPay history")
+        val subtitle = localizedNow(
+            "เบอร์/เลขบัตร: ${resolved.target} ($amountStr)",
+            "PromptPay ID: ${resolved.target} ($amountStr)"
+        )
+
+        executeQrAction(
+            content = resolved.payload,
+            qrType = "PROMPTPAY",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
+                    qrBitmap = qrBitmap,
+                    title = "THAI QR PAYMENT",
+                    targetId = resolved.target,
+                    amount = resolved.amount,
+                    merchantName = "",
+                    backgroundColor = lightColor
+                )
+                ActiveQrPreview(
+                    title = title,
+                    subtitle = subtitle,
+                    rawContent = resolved.payload,
+                    qrBitmap = qrBitmap,
+                    standeeBitmap = standeeBitmap,
+                    targetId = resolved.target,
+                    amount = resolved.amount,
+                    type = "PROMPTPAY"
+                )
+            }
+        )
+    }
+
     fun closePreview() {
+        cancelPendingQrGeneration()
         _activePreview.value = null
     }
 
@@ -430,10 +527,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setQrForegroundColor(color: Color) {
+        cancelPendingQrGeneration()
         _qrForegroundColor.value = color
     }
 
     fun setQrBackgroundColor(color: Color) {
+        cancelPendingQrGeneration()
         _qrBackgroundColor.value = color
     }
 
@@ -441,14 +540,129 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Executes a QR action directly.
      * Monetization is not included in this build.
      */
-    private fun executeQrAction(onExecute: () -> Unit) {
-        onExecute()
+    private fun executeQrAction(
+        content: String,
+        qrType: String,
+        darkColor: Int,
+        lightColor: Int,
+        buildPreview: (Bitmap) -> ActiveQrPreview,
+        buildHistoryItem: ((ActiveQrPreview) -> QrItemEntity?)? = null
+    ) {
+        if (QrValidationUtil.checkColorContrast(darkColor, lightColor) is ValidationResult.Invalid) {
+            Toast.makeText(
+                getApplication(),
+                localizedNow(
+                    "สี QR กับพื้นหลังตัดกันไม่พอ กรุณาเลือกสีที่ต่างกันชัดเจน",
+                    "QR foreground and background need more contrast"
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val includeCenterLogo = _includeCenterLogo.value
+        val customCenterLogo = _customCenterLogo.value
+        val requestToken = qrGenerationRequestGuard.begin()
+
+        qrGenerationJob?.cancel()
+        qrGenerationJob = viewModelScope.launch(Dispatchers.Default) {
+            val centerLogo = if (!includeCenterLogo) {
+                null
+            } else {
+                customCenterLogo ?: QrCodeUtil.createDefaultCenterLogo(qrType)
+            }
+
+            if (!qrGenerationRequestGuard.isCurrent(requestToken)) return@launch
+
+            val qrBitmap = QrCodeUtil.generateQrBitmap(
+                content = content,
+                size = QrCodeUtil.DEFAULT_SIZE,
+                darkColor = darkColor,
+                lightColor = lightColor,
+                centerLogo = centerLogo
+            )
+            if (qrBitmap == null) {
+                showQrGenerationError(
+                    requestToken,
+                    "ไม่สามารถสร้าง QR ได้",
+                    "Could not generate the QR code"
+                )
+                return@launch
+            }
+
+            if (!qrGenerationRequestGuard.isCurrent(requestToken)) return@launch
+
+            val verification = QrValidationUtil.verifyGeneratedQrBitmap(qrBitmap, content)
+            if (!verification.isValid || verification.decodedContent != content) {
+                showQrGenerationError(
+                    requestToken,
+                    "QR ที่สร้างอ่านกลับไม่ตรงกับข้อมูลต้นฉบับ กรุณาเปลี่ยนสีหรือโลโก้",
+                    "The generated QR did not decode back to the original content. Try different colors or logo."
+                )
+                return@launch
+            }
+
+            if (!qrGenerationRequestGuard.isCurrent(requestToken)) return@launch
+
+            val preview = try {
+                buildPreview(qrBitmap)
+            } catch (_: Exception) {
+                showQrGenerationError(
+                    requestToken,
+                    "ไม่สามารถสร้างตัวอย่าง QR ได้",
+                    "Could not build the QR preview"
+                )
+                return@launch
+            }
+
+            if (!qrGenerationRequestGuard.isCurrent(requestToken)) return@launch
+
+            val historyItem = buildHistoryItem?.invoke(preview)
+            val accepted = withContext(Dispatchers.Main) {
+                if (qrGenerationRequestGuard.isCurrent(requestToken)) {
+                    _activePreview.value = preview
+                    true
+                } else {
+                    false
+                }
+            }
+
+            if (accepted && historyItem != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    dao.insertQrItem(historyItem)
+                }
+            }
+        }
+    }
+
+    private fun cancelPendingQrGeneration() {
+        qrGenerationRequestGuard.invalidate()
+        qrGenerationJob?.cancel()
+        qrGenerationJob = null
+    }
+
+    private suspend fun showQrGenerationError(
+        requestToken: Long,
+        thMessage: String,
+        enMessage: String
+    ) {
+        if (!qrGenerationRequestGuard.isCurrent(requestToken)) return
+        withContext(Dispatchers.Main) {
+            if (qrGenerationRequestGuard.isCurrent(requestToken)) {
+                Toast.makeText(
+                    getApplication(),
+                    localizedNow(thMessage, enMessage),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     /**
      * Generate PromptPay QR
      */
     fun generatePromptPay() {
+        cancelPendingQrGeneration()
         val target = _promptPayTarget.value.trim()
         if (target.isBlank()) {
             Toast.makeText(
@@ -460,87 +674,91 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         when (val validation = QrValidationUtil.validatePromptPayTarget(target)) {
             is ValidationResult.Invalid -> {
+                Toast.makeText(getApplication(), localizedNow(validation.reasonTh, validation.reasonEn), Toast.LENGTH_SHORT).show()
+                return
+            }
+            ValidationResult.Valid -> Unit
+        }
+
+        val amountInput = _promptPayAmount.value
+        when (val amountValidation = QrValidationUtil.validateAmount(amountInput)) {
+            is ValidationResult.Invalid -> {
                 Toast.makeText(
                     getApplication(),
-                    validation.reason,
+                    localizedNow(amountValidation.reasonTh, amountValidation.reasonEn),
                     Toast.LENGTH_SHORT
                 ).show()
                 return
             }
             ValidationResult.Valid -> Unit
         }
-        if (QrValidationUtil.validateAmount(_promptPayAmount.value) is ValidationResult.Invalid) {
-            Toast.makeText(
-                getApplication(),
-                localizedNow("จำนวนเงินไม่ถูกต้อง", "Invalid amount"),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
+
+        val amount = amountInput.toDoubleOrNull()
+        val payload = PromptPayGenerator.generatePayload(target, amount)
+        val merchantName = _promptPayShopName.value
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val amountStr = if (amount != null && amount > 0) {
+            "฿${String.format("%,.2f", amount)}"
+        } else {
+            localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
         }
+        val subtitle = localizedNow(
+            "เบอร์/เลขบัตร: $target ($amountStr)",
+            "PromptPay ID: $target ($amountStr)"
+        )
+        val previewTitle = localizedNow("พร้อมเพย์", "PromptPay")
+        val historyTitle = localizedNow("พร้อมเพย์ $amountStr", "PromptPay $amountStr")
 
-        executeQrAction {
-            val amount = _promptPayAmount.value.toDoubleOrNull()
-            val payload = PromptPayGenerator.generatePayload(target, amount)
-            val centerLogo = centerLogoFor("PROMPTPAY")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = payload,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
-            val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
-                qrBitmap = qrBitmap,
-                title = "THAI QR PAYMENT",
-                targetId = target,
-                amount = amount,
-                merchantName = _promptPayShopName.value,
-                backgroundColor = _qrBackgroundColor.value.toArgb()
-            )
-
-            val amountStr = if (amount != null && amount > 0) {
-                "฿${String.format("%,.2f", amount)}"
-            } else {
-                localizedNow("ไม่ระบุยอดเงิน", "Amount not specified")
-            }
-            val subtitle = localizedNow(
-                "เบอร์/เลขบัตร: $target ($amountStr)",
-                "PromptPay ID: $target ($amountStr)"
-            )
-
-            _activePreview.value = ActiveQrPreview(
-                title = localizedNow("พร้อมเพย์", "PromptPay"),
-                subtitle = subtitle,
-                rawContent = payload,
-                qrBitmap = qrBitmap,
-                standeeBitmap = standeeBitmap,
-                targetId = target,
-                amount = amount,
-                type = "PROMPTPAY"
-            )
-
-            // Save to History in Room
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "PROMPTPAY",
-                        title = localizedNow("พร้อมเพย์ $amountStr", "PromptPay $amountStr"),
-                        subtitle = subtitle,
-                        rawContent = payload,
-                        targetId = target,
-                        amount = amount,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = payload,
+            qrType = "PROMPTPAY",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                val standeeBitmap = QrCodeUtil.createPromptPayStandeeBitmap(
+                    qrBitmap = qrBitmap,
+                    title = "THAI QR PAYMENT",
+                    targetId = target,
+                    amount = amount,
+                    merchantName = merchantName,
+                    backgroundColor = lightColor
+                )
+                ActiveQrPreview(
+                    title = previewTitle,
+                    subtitle = subtitle,
+                    rawContent = payload,
+                    qrBitmap = qrBitmap,
+                    standeeBitmap = standeeBitmap,
+                    targetId = target,
+                    amount = amount,
+                    type = "PROMPTPAY"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "PROMPTPAY",
+                    title = historyTitle,
+                    subtitle = subtitle,
+                    rawContent = payload,
+                    targetId = target,
+                    amount = amount,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
      * Generate Wi-Fi QR
      */
     fun generateWifi() {
+        cancelPendingQrGeneration()
         val ssid = _wifiSsid.value.trim()
+        val password = _wifiPassword.value
+        val security = _wifiSecurity.value.code
+        val hidden = _wifiHidden.value
+
         if (ssid.isBlank()) {
             Toast.makeText(
                 getApplication(),
@@ -549,7 +767,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ).show()
             return
         }
-        if (QrValidationUtil.validateWifi(ssid, _wifiPassword.value, _wifiSecurity.value.code) is ValidationResult.Invalid) {
+        if (QrValidationUtil.validateWifi(ssid, password, security) is ValidationResult.Invalid) {
             Toast.makeText(
                 getApplication(),
                 localizedNow("ข้อมูล Wi-Fi ไม่ถูกต้อง", "Invalid Wi-Fi configuration"),
@@ -558,54 +776,60 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeQrAction {
-            val payload = QrCodeUtil.buildWifiPayload(
-                ssid = ssid,
-                pass = _wifiPassword.value,
-                security = _wifiSecurity.value.code,
-                isHidden = _wifiHidden.value
-            )
-            val centerLogo = centerLogoFor("WIFI")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = payload,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
+        val payload = QrCodeUtil.buildWifiPayload(
+            ssid = ssid,
+            pass = password,
+            security = security,
+            isHidden = hidden
+        )
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val previewSubtitle = localizedNow(
+            "รหัสผ่าน: ${password.ifBlank { "(ไม่มี)" }}",
+            "Password: ${password.ifBlank { "(none)" }}"
+        )
+        val historySubtitle = HistoryPrivacyUtil.wifiHistorySubtitle(
+            password.isNotBlank(),
+            LocalizationManager.effectiveLanguageCode()
+        )
 
-            _activePreview.value = ActiveQrPreview(
-                title = "Wi-Fi: $ssid",
-                subtitle = localizedNow(
-                    "รหัสผ่าน: ${_wifiPassword.value.ifBlank { "(ไม่มี)" }}",
-                    "Password: ${_wifiPassword.value.ifBlank { "(none)" }}"
-                ),
-                rawContent = payload,
-                qrBitmap = qrBitmap,
-                type = "WIFI"
-            )
-
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "WIFI",
-                        title = "Wi-Fi: $ssid",
-                        subtitle = localizedNow("รหัสผ่าน: ${_wifiPassword.value}", "Password: ${_wifiPassword.value}"),
-                        rawContent = payload,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = payload,
+            qrType = "WIFI",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                ActiveQrPreview(
+                    title = "Wi-Fi: $ssid",
+                    subtitle = previewSubtitle,
+                    rawContent = payload,
+                    qrBitmap = qrBitmap,
+                    type = "WIFI"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "WIFI",
+                    title = "Wi-Fi: $ssid",
+                    subtitle = historySubtitle,
+                    rawContent = payload,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
      * Generate Store Link QR
      */
     fun generateStoreLink() {
-        val model = StoreLinkModel(_storePlatform.value, _storeValue.value)
+        cancelPendingQrGeneration()
+        val platform = _storePlatform.value
+        val storeValue = _storeValue.value
+        val model = StoreLinkModel(platform, storeValue)
         val fullUrl = model.fullUrl
-        if (_storeValue.value.isBlank()) {
+
+        if (storeValue.isBlank()) {
             Toast.makeText(
                 getApplication(),
                 localizedNow("กรุณากรอกลิงก์หรือไอดีร้านค้า", "Enter a store link or ID"),
@@ -622,42 +846,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeQrAction {
-            val centerLogo = centerLogoFor("STORE")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = fullUrl,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val title = localizedNow(
+            "ลิงก์ร้าน ${platform.title}",
+            "Store link: ${platform.title}"
+        )
 
-            _activePreview.value = ActiveQrPreview(
-                title = localizedNow("ลิงก์ร้าน ${_storePlatform.value.title}", "Store link: ${_storePlatform.value.title}"),
-                subtitle = fullUrl,
-                rawContent = fullUrl,
-                qrBitmap = qrBitmap,
-                type = "STORE_LINK"
-            )
-
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "STORE_LINK",
-                        title = localizedNow("ลิงก์ร้าน ${_storePlatform.value.title}", "Store link: ${_storePlatform.value.title}"),
-                        subtitle = fullUrl,
-                        rawContent = fullUrl,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = fullUrl,
+            qrType = "STORE",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                ActiveQrPreview(
+                    title = title,
+                    subtitle = fullUrl,
+                    rawContent = fullUrl,
+                    qrBitmap = qrBitmap,
+                    type = "STORE_LINK"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "STORE_LINK",
+                    title = title,
+                    subtitle = fullUrl,
+                    rawContent = fullUrl,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
      * Generate a location QR from the real foreground device location.
      */
     fun generateLocation() {
+        cancelPendingQrGeneration()
         val point = _currentLocation.value
         if (point == null || !point.isValid()) {
             Toast.makeText(
@@ -668,88 +894,96 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeQrAction {
-            val payload = LocationQrUtil.buildGeoPayload(point)
-            val centerLogo = centerLogoFor("LOCATION")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = payload,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
+        val payload = LocationQrUtil.buildGeoPayload(point)
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val subtitle = LocationQrUtil.formatPoint(point)
+        val title = localizedNow("พิกัดปัจจุบัน", "Current location")
 
-            val subtitle = LocationQrUtil.formatPoint(point)
-            _activePreview.value = ActiveQrPreview(
-                title = localizedNow("พิกัดปัจจุบัน", "Current location"),
-                subtitle = subtitle,
-                rawContent = payload,
-                qrBitmap = qrBitmap,
-                type = "LOCATION"
-            )
-
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "LOCATION",
-                        title = localizedNow("พิกัดปัจจุบัน", "Current location"),
-                        subtitle = subtitle,
-                        rawContent = payload,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = payload,
+            qrType = "LOCATION",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                ActiveQrPreview(
+                    title = title,
+                    subtitle = subtitle,
+                    rawContent = payload,
+                    qrBitmap = qrBitmap,
+                    type = "LOCATION"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "LOCATION",
+                    title = title,
+                    subtitle = subtitle,
+                    rawContent = payload,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
      * Generate Text QR
      */
     fun generateText() {
+        cancelPendingQrGeneration()
         val text = _rawText.value.trim()
         if (text.isBlank()) {
-            Toast.makeText(getApplication(), localizedNow("กรุณากรอกข้อความ", "Enter text"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                getApplication(),
+                localizedNow("กรุณากรอกข้อความ", "Enter text"),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
-        executeQrAction {
-            val centerLogo = centerLogoFor("TEXT")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = text,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = _qrForegroundColor.value.toArgb(),
-                lightColor = _qrBackgroundColor.value.toArgb(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
+        val darkColor = _qrForegroundColor.value.toArgb()
+        val lightColor = _qrBackgroundColor.value.toArgb()
+        val previewTitle = localizedNow("ข้อความ QR", "Text QR")
+        val historyTitle = localizedNow("ข้อความ", "Text")
+        val previewSubtitle = if (text.length > 40) text.take(40) + "..." else text
 
-            _activePreview.value = ActiveQrPreview(
-                title = localizedNow("ข้อความ QR", "Text QR"),
-                subtitle = if (text.length > 40) text.take(40) + "..." else text,
-                rawContent = text,
-                qrBitmap = qrBitmap,
-                type = "TEXT"
-            )
-
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "TEXT",
-                        title = localizedNow("ข้อความ", "Text"),
-                        subtitle = text.take(40),
-                        rawContent = text,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = text,
+            qrType = "TEXT",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                ActiveQrPreview(
+                    title = previewTitle,
+                    subtitle = previewSubtitle,
+                    rawContent = text,
+                    qrBitmap = qrBitmap,
+                    type = "TEXT"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "TEXT",
+                    title = historyTitle,
+                    subtitle = text.take(40),
+                    rawContent = text,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
      * Generate Digital Business Card vCard & PromptPay QR
      */
     fun generateBusinessCardPreview() {
+        cancelPendingQrGeneration()
         val card = _businessCard.value
-        if (QrValidationUtil.validateBusinessCard(card.fullName.ifBlank { card.businessName }, card.phoneNumber) is ValidationResult.Invalid) {
+        if (QrValidationUtil.validateBusinessCard(
+                card.fullName.ifBlank { card.businessName },
+                card.phoneNumber
+            ) is ValidationResult.Invalid
+        ) {
             Toast.makeText(
                 getApplication(),
                 localizedNow("กรุณากรอกชื่อและเบอร์โทรศัพท์บนบัตร", "Enter a name and phone number for the card"),
@@ -758,57 +992,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        executeQrAction {
-            val noteContent = buildString {
-                if (card.profession.isNotBlank()) append("บริการ: ${card.profession}\n")
-                if (card.promptPayId.isNotBlank()) append("พร้อมเพย์: ${card.promptPayId}\n")
-                if (card.lineId.isNotBlank()) append("LINE: ${card.lineId}\n")
-                if (card.services.isNotBlank()) append("รายละเอียด: ${card.services}")
-            }
-            val vcard = QrCodeUtil.buildVCardPayload(
-                fullName = card.fullName,
-                org = card.businessName,
-                title = card.profession,
-                phone = card.phoneNumber,
-                email = card.email,
-                url = if (card.facebook.isNotBlank()) "https://facebook.com/${card.facebook}" else "",
-                note = noteContent
-            )
+        val noteContent = buildString {
+            if (card.profession.isNotBlank()) append("บริการ: ${card.profession}\n")
+            if (card.promptPayId.isNotBlank()) append("พร้อมเพย์: ${card.promptPayId}\n")
+            if (card.lineId.isNotBlank()) append("LINE: ${card.lineId}\n")
+            if (card.services.isNotBlank()) append("รายละเอียด: ${card.services}")
+        }
+        val vcard = QrCodeUtil.buildVCardPayload(
+            fullName = card.fullName,
+            org = card.businessName,
+            title = card.profession,
+            phone = card.phoneNumber,
+            email = card.email,
+            url = if (card.facebook.isNotBlank()) "https://facebook.com/${card.facebook}" else "",
+            note = noteContent
+        )
+        val darkColor = card.cardTheme.primaryColorHex.toInt()
+        val lightColor = Color.White.toArgb()
+        val name = card.businessName.ifBlank { card.fullName }
+        val previewTitle = localizedNow(
+            "นามบัตรดิจิทัล: $name",
+            "Digital business card: $name"
+        )
+        val historyTitle = localizedNow(
+            "นามบัตร: $name",
+            "Business card: $name"
+        )
+        val subtitle = "${card.profession} • ${card.phoneNumber}"
 
-            val centerLogo = centerLogoFor("VCARD")
-            val qrBitmap = QrCodeUtil.generateQrBitmap(
-                content = vcard,
-                size = QrCodeUtil.DEFAULT_SIZE,
-                darkColor = card.cardTheme.primaryColorHex.toInt(),
-                centerLogo = centerLogo
-            ) ?: return@executeQrAction
-
-            _activePreview.value = ActiveQrPreview(
-                title = localizedNow(
-                    "นามบัตรดิจิทัล: ${card.businessName.ifBlank { card.fullName }}",
-                    "Digital business card: ${card.businessName.ifBlank { card.fullName }}"
-                ),
-                subtitle = "${card.profession} • ${card.phoneNumber}",
-                rawContent = vcard,
-                qrBitmap = qrBitmap,
-                type = "VCARD"
-            )
-
-            viewModelScope.launch(Dispatchers.IO) {
-                dao.insertQrItem(
-                    QrItemEntity(
-                        type = "VCARD",
-                        title = localizedNow(
-                            "นามบัตร: ${card.businessName.ifBlank { card.fullName }}",
-                            "Business card: ${card.businessName.ifBlank { card.fullName }}"
-                        ),
-                        subtitle = "${card.profession} | ${card.phoneNumber}",
-                        rawContent = vcard,
-                        isScan = false
-                    )
+        executeQrAction(
+            content = vcard,
+            qrType = "VCARD",
+            darkColor = darkColor,
+            lightColor = lightColor,
+            buildPreview = { qrBitmap ->
+                ActiveQrPreview(
+                    title = previewTitle,
+                    subtitle = subtitle,
+                    rawContent = vcard,
+                    qrBitmap = qrBitmap,
+                    type = "VCARD"
+                )
+            },
+            buildHistoryItem = {
+                QrItemEntity(
+                    type = "VCARD",
+                    title = historyTitle,
+                    subtitle = "${card.profession} | ${card.phoneNumber}",
+                    rawContent = vcard,
+                    isScan = false
                 )
             }
-        }
+        )
     }
 
     /**
@@ -843,9 +1078,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun scanImageUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
-                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
+                val bitmap = GalleryBitmapDecoder.decode(
+                    resolver = getApplication<Application>().contentResolver,
+                    uri = uri
+                )
 
                 if (bitmap != null) {
                     val decodedText = QrScannerUtil.decodeBitmap(bitmap)
