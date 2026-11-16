@@ -497,21 +497,48 @@ jobs:
           $gradleUserHome = Join-Path $runnerCacheRoot "gradle-home"
           $distRoot = Join-Path $runnerCacheRoot "gradle-dist"
           $zipPath = Join-Path $runnerCacheRoot "gradle-9.3.1-bin.zip"
+          # https://gradle.org/release-checksums/ (Gradle 9.3.1 binary ZIP)
+          $expectedZipSha256 = "b266d5ff6b90eada6dc3b20cb090e3731302e553a27c5d3e4df1f0d76beaff06"
+
+          # Persistent runner: fail closed on project-cache junctions/symlinks.
+          $cachePart = $env:LOCALAPPDATA
+          foreach ($segment in @("DesktopCommanderLite", "project-runners", "quickqr-business", "qa-cache", "gradle-dist")) {
+            $cachePart = Join-Path $cachePart $segment
+            if (Test-Path -LiteralPath $cachePart) {
+              $item = Get-Item -LiteralPath $cachePart -Force
+              if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Gradle cache path contains an untrusted reparse point"
+              }
+            }
+          }
+          if (Test-Path -LiteralPath $zipPath) {
+            $zipItem = Get-Item -LiteralPath $zipPath -Force
+            if ($zipItem.PSIsContainer -or ($zipItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+              throw "Gradle distribution ZIP cache path is not a regular file"
+            }
+          }
           New-Item -ItemType Directory -Force -Path $runnerCacheRoot | Out-Null
           New-Item -ItemType Directory -Force -Path $gradleUserHome | Out-Null
+          if (-not (Test-Path -LiteralPath $zipPath -PathType Leaf)) {
+            Invoke-WebRequest -Uri "https://services.gradle.org/distributions/gradle-9.3.1-bin.zip" -OutFile $zipPath -UseBasicParsing
+          }
+          $actualZipSha256 = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualZipSha256 -ne $expectedZipSha256) {
+            throw "Gradle 9.3.1 distribution checksum mismatch; cached/downloaded binary must not execute"
+          }
 
+          # Re-extract from verified ZIP; do not reuse an unverified cached launcher.
+          if (Test-Path -LiteralPath $distRoot) {
+            Remove-Item -LiteralPath $distRoot -Recurse -Force -ErrorAction Stop
+          }
+          New-Item -ItemType Directory -Path $distRoot -ErrorAction Stop | Out-Null
+          Expand-Archive -LiteralPath $zipPath -DestinationPath $distRoot -ErrorAction Stop
           $gradleBin = Join-Path $distRoot "gradle-9.3.1\bin"
           $gradleExe = Join-Path $gradleBin "gradle.bat"
           if (-not (Test-Path -LiteralPath $gradleExe -PathType Leaf)) {
-            Remove-Item -LiteralPath $zipPath -Force -ErrorAction SilentlyContinue
-            Invoke-WebRequest -Uri "https://services.gradle.org/distributions/gradle-9.3.1-bin.zip" -OutFile $zipPath -UseBasicParsing
-            Remove-Item -LiteralPath $distRoot -Recurse -Force -ErrorAction SilentlyContinue
-            New-Item -ItemType Directory -Force -Path $distRoot | Out-Null
-            Expand-Archive -LiteralPath $zipPath -DestinationPath $distRoot -Force
+            throw ("Gradle 9.3.1 executable missing after verified provisioning: " + $gradleExe)
           }
-          if (-not (Test-Path -LiteralPath $gradleExe -PathType Leaf)) {
-            throw ("Gradle 9.3.1 executable missing after provisioning: " + $gradleExe)
-          }
+          ("QUICKQR_GRADLE_ZIP_SHA256=" + $actualZipSha256) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
           ("GRADLE_USER_HOME=" + $gradleUserHome) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $gradleBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -573,6 +600,19 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path "physical-evidence" | Out-Null
           "candidate_head=${{ github.event.pull_request.head.sha }}" | Set-Content "physical-evidence\summary.txt"
+          $sourceSha = ((& git rev-parse HEAD) -join "").Trim()
+          if ($LASTEXITCODE -ne 0 -or $sourceSha -ne "${{ github.event.pull_request.head.sha }}") {
+            throw "Physical QA checkout SHA does not match the exact PR head"
+          }
+          $appApk = "app\build\outputs\apk\debug\app-debug.apk"
+          if (-not (Test-Path -LiteralPath $appApk -PathType Leaf)) {
+            throw "Physical QA candidate APK is missing"
+          }
+          $appApkSha256 = (Get-FileHash -LiteralPath $appApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "source_checkout_sha=$sourceSha" | Add-Content "physical-evidence\summary.txt"
+          "apk_sha256=$appApkSha256" | Add-Content "physical-evidence\summary.txt"
+          "gradle_zip_sha256=$env:QUICKQR_GRADLE_ZIP_SHA256" | Add-Content "physical-evidence\summary.txt"
+          "physical_acceptance=to_verify_manual_qr_accessibility_and_anr" | Add-Content "physical-evidence\summary.txt"
           "model=$model" | Add-Content "physical-evidence\summary.txt"
           "device_count=1" | Add-Content "physical-evidence\summary.txt"
           "boot_completed=true" | Add-Content "physical-evidence\summary.txt"
@@ -966,6 +1006,6 @@ jobs:
         with:
           name: quickqr-physical-device-evidence
           path: physical-evidence/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
 
