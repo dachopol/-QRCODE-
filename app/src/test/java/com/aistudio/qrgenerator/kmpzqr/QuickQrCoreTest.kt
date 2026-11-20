@@ -167,6 +167,38 @@ class QuickQrCoreTest {
     }
 
     @Test
+    fun mapsUrl_readsExplicitLocationQueryParameters() {
+        val url = "https://www.google.com/maps/search/?api=1&query=13.7563%2C100.5018"
+        val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url)
+        assertNotNull(point)
+        assertEquals(13.7563, point!!.latitude, 0.0000001)
+        assertEquals(100.5018, point.longitude, 0.0000001)
+        assertEquals(ParsedQrType.GEO, QrScannerUtil.parseQrContent(url).type)
+    }
+
+    @Test
+    fun mapsUrl_doesNotUseUnrelatedQueryOrRouteOriginAsLocation() {
+        val url = "https://www.google.com/maps?campaign=13.7563%2C100.5018&origin=14.0%2C101.0"
+        assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url))
+        assertEquals(ParsedQrType.URL, QrScannerUtil.parseQrContent(url).type)
+    }
+
+    @Test
+    fun mapsDirections_usesDestinationCoordinatesNotOrigin() {
+        val url = "https://www.google.com/maps/dir/?api=1&origin=14.0%2C101.0&destination=13.7563%2C100.5018"
+        val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url)
+        assertNotNull(point)
+        assertEquals(13.7563, point!!.latitude, 0.0000001)
+        assertEquals(100.5018, point.longitude, 0.0000001)
+    }
+
+    @Test
+    fun mapsUrl_rejectsNonWebSchemesEvenWithGoogleHost() {
+        val raw = "customscheme://www.google.com/maps/@13.7563,100.5018"
+        assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(raw))
+    }
+
+    @Test
     fun qrPayloadVerification_requiresExactDecodedContent() {
         val exact = QrValidationUtil.verifyDecodedContent("expected", "expected")
         assertTrue(exact.isValid)

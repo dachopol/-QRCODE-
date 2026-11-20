@@ -70,15 +70,29 @@ object LocationQrUtil {
         } catch (_: Exception) {
             return null
         }
+        // Only web links are eligible for location extraction. A QR such as
+        // customscheme://google.com/maps/@lat,lng is not a Google Maps URL.
+        if (!uri.scheme.equals("https", ignoreCase = true) &&
+            !uri.scheme.equals("http", ignoreCase = true)
+        ) return null
         val host = uri.host?.lowercase(Locale.US) ?: return null
         val isMapsPath = uri.path.orEmpty().startsWith("/maps", ignoreCase = true)
         if (!isGoogleMapsHost(host) || (!isMapsPath && host != "maps.google.com" && host != "maps.app.goo.gl")) {
             return null
         }
 
+        // Never infer map coordinates from unrelated query fields (e.g.
+        // campaign, redirect or origin). A directions link uses destination.
+        val locationQueryKeys = setOf("q", "query", "ll", "center", "destination", "daddr")
         uri.rawQuery.orEmpty().split("&")
             .asSequence()
-            .map { decodeUrlComponent(it.substringAfter("=", "")) }
+            .mapNotNull { parameter ->
+                if (!parameter.contains("=")) return@mapNotNull null
+                val key = decodeUrlComponent(parameter.substringBefore("="))
+                    .lowercase(Locale.US)
+                if (key !in locationQueryKeys) return@mapNotNull null
+                decodeUrlComponent(parameter.substringAfter("=", ""))
+            }
             .mapNotNull(::parseCoordinatePair)
             .firstOrNull { it.isValid() }
             ?.let { return it }

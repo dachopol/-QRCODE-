@@ -34,6 +34,7 @@ import com.aistudio.qrgenerator.kmpzqr.util.QrScannerUtil
 import com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil
 import com.aistudio.qrgenerator.kmpzqr.util.ValidationResult
 import com.aistudio.qrgenerator.kmpzqr.util.localizedNow
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -1083,16 +1084,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     uri = uri
                 )
 
-                if (bitmap != null) {
-                    val decodedText = QrScannerUtil.decodeBitmap(bitmap)
+                if (bitmap == null) {
                     withContext(Dispatchers.Main) {
-                        if (decodedText != null) {
-                            onQrScanned(decodedText)
-                        } else {
-                            Toast.makeText(getApplication(), localizedNow("ไม่พบ QR ในรูปภาพที่เลือก", "No QR code found in the selected image"), Toast.LENGTH_SHORT).show()
-                        }
+                        Toast.makeText(
+                            getApplication(),
+                            localizedNow("ไม่สามารถเปิดรูปภาพที่เลือกได้", "Could not open the selected image"),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    return@launch
+                }
+
+                val decodedText = try {
+                    QrScannerUtil.decodeBitmap(bitmap)
+                } finally {
+                    // The picker bitmap belongs to this scan only. Free its
+                    // pixel buffer as soon as ZXing has finished reading it.
+                    bitmap.recycle()
+                }
+                withContext(Dispatchers.Main) {
+                    if (decodedText != null) {
+                        onQrScanned(decodedText)
+                    } else {
+                        Toast.makeText(
+                            getApplication(),
+                            localizedNow("ไม่พบ QR ในรูปภาพที่เลือก", "No QR code found in the selected image"),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(getApplication(), localizedNow("เกิดข้อผิดพลาดในการอ่านรูปภาพ", "Could not read the image"), Toast.LENGTH_SHORT).show()
