@@ -302,27 +302,64 @@
     "current_main_app_source_delta": "NONE VERIFIED THROUGH 07daf33ada6291abfbabc4058867bd88800b866f",
     "production": "NOT TOUCHED"
   },
-  "next_release_integration": {
-    "pr": 28,
+  "next_release_validation": {
+    "checked_at": "2026-10-09",
     "branch": "integration/next-release",
-    "verified_head": "6c5e663f81f3008bf1dfeec1aa5373a1e6dd0637",
-    "android_ci_run": 37881554876,
-    "android_ci_run_number": 267,
-    "build": "PASS",
-    "instrumentation": "PASS",
-    "android16_phone": "PASS",
-    "android16_large_screen_landscape": "PASS",
+    "exact_head": "4f4275599c0231f416230347d7d42b90b4ab08e8",
+    "versionName": "19.0",
+    "versionCode": 20,
+    "applicationId": "com.aistudio.qrgenerator.kmpzqr",
+    "ci": {
+      "workflow": "Android CI",
+      "run_number": 284,
+      "run_id": 37891439388,
+      "conclusion": "SUCCESS",
+      "build_compile_test_lint_bundle": "PASS",
+      "room_schema_and_artifacts": "PASS",
+      "instrumentation_api35": "PASS",
+      "android16_phone": "PASS",
+      "android16_large_screen_landscape": "PASS"
+    },
     "visual_matrix": {
-      "states_per_language": 15,
       "languages": [
         "th",
         "en"
       ],
-      "screenshot_count_required": 30,
-      "screenshot_collection": "PASS",
-      "truth_boundary": "runtime emulator captures; scan-result and root-warning are deterministic QA component fixtures, not live camera/root-device evidence"
+      "states_per_language": 15,
+      "api35": {
+        "png_count": 30,
+        "dimensions": "1080x1920",
+        "artifact_review": "PASS"
+      },
+      "android16_phone": {
+        "png_count": 30,
+        "dimensions": "1080x1920",
+        "artifact_review": "PASS"
+      },
+      "android16_large_screen": {
+        "png_count": 30,
+        "dimensions": "2560x1600",
+        "artifact_review": "PASS"
+      },
+      "reviewed_states": [
+        "PromptPay",
+        "Wi-Fi",
+        "Store Link",
+        "Text/URL",
+        "Location",
+        "Business Card baseline",
+        "History empty",
+        "Language/Currency dialog",
+        "Scanner",
+        "Support sheet",
+        "QR preview",
+        "History populated",
+        "Business Card populated",
+        "QR appearance",
+        "History delete confirmation"
+      ],
+      "anti_false_pass_note": "PASS only after opening the runtime artifacts; earlier count-only evidence was not accepted when the Support screenshot showed the underlying Location screen."
     },
-    "active_play_release_unchanged": true,
-    "production_untouched": true
+    "release_boundary": "Future-release validation only. Active Play Internal Testing v18.0/versionCode19 on main is unchanged; Production not touched."
   }
 }
