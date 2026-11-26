@@ -75,3 +75,33 @@ The latest source follows the permanent UI, localization, Card-only, and adaptiv
 - `DATA_SAFETY_V18.md`
 - `PRIVACY_POLICY_TH_EN.md`
 - `docs/privacy-policy.html`
+
+
+## UCISE Local — คู่มือเริ่มต้นและ Documentation Gate / Getting started
+
+<!-- UCISE_DOCUMENTATION_GATE_V1 -->
+
+**ขั้นตอนเริ่มต้น (TH):** อ่าน Package/version และ Verification gates → เปิดโปรเจกต์ด้วยวิธี Build/import ที่มีอยู่ → ตรวจ Testing configuration และ UI language rules → ทดสอบสแกนและสร้าง QR บนอุปกรณ์ที่ได้รับอนุญาต → ตรวจ Signing และ Google Play submission documents แยกจากผลทดสอบ source. ห้ามเผยแพร่หรือเปลี่ยน signing key โดยไม่มีสิทธิ์.
+
+**Getting started (EN):** Read the project-specific sections above. Confirm exact version, authorized workspace, platform and prerequisites before following any command. Run only documented, authorized steps; record actual output and errors. Do not infer runtime or release readiness from this documentation.
+
+### Required documentation before closing work
+
+- [ ] Purpose, exact version/source identity, prerequisites and installation/configuration.
+- [ ] Step-by-step user workflow, examples, expected outputs, and TH/EN guidance appropriate to the audience.
+- [ ] Build/run/test commands from actual source where applicable; record host, exact command, exit status and evidence. Untested commands are NOT_VERIFIED, not PASS.
+- [ ] Architecture, permissions, safety constraints, troubleshooting, recovery/rollback and limitations.
+- [ ] AI handoff: checkpoint, changed files, remaining tasks, dependency and next authorized action; research assumptions and evidence scope when applicable.
+- [ ] Review existing documentation first; update it without duplication; never copy secrets or local-only data to the cloud.
+
+Use README sections or existing linked guides; split into QUICKSTART, USER_GUIDE, AGENTS, TESTING, SECURITY, RESEARCH or RECOVERY files only when useful. Missing required documentation or evidence keeps the relevant DoD item INCOMPLETE/BLOCKED. This checklist is not a test receipt, native approval, release authorization or permission to bypass Owner/Watchdog Hold. Production and existing security gates remain unchanged. Documentation-only candidate; command execution and independent QA are NOT_RUN in this edit.
+
+### Device acceptance procedure / ขั้นตอนทดสอบบนเครื่องจริง
+
+Source identity verified at `190224f67742330df24a3430c1e5995e851b8ddd`: `app/build.gradle.kts`, `settings.gradle.kts`, `AI_STUDIO_IMPORT.md`. Source version 18.0 / 19; installed and Play artifact versions remain unverified. All device steps below are NOT_RUN in this edit.
+
+1. From the authorized isolated source checkout, follow AI_STUDIO_IMPORT.md and the Build/import section. Confirm compatible SDK and build tools before building a debug candidate; do not create a wrapper, sign a release, or upload to Play without separate approval. Record source SHA, APK SHA-256, build command/exit and exact tool versions.
+2. If an approved test device and existing Android platform-tools are available, use `adb devices -l` and, for one explicitly selected device, `adb -s SERIAL shell dumpsys package com.aistudio.qrgenerator.kmpzqr` (replace SERIAL with its actual authorized serial). Inspect installed versionName/versionCode locally; redact identifiers from shared reports. Do not install or replace the app automatically. Missing device or mismatched version means BLOCKED, not PASS.
+3. Open the candidate on that device. Generate a Text QR from `UCISE-QA-001` and scan its image or a second screen using the supported feature; expected decoded text matches exactly. Exercise camera permission denial and retry; no crash or silent success. Use non-personal sample payloads only.
+4. Test location/map only with explicit foreground permission and user consent; verify actual coordinates locally, then test permission denial. Do not publish coordinates or silently use background location. Check Thai/English labels, TalkBack, increased font size and small-screen layout. Record actual failures and crash/ANR evidence, not estimated counts.
+5. Keep any device-specific evidence under the existing Issue #5; separately verify the authorized read-only Play artifact lifecycle under Issue #3. หากผลไม่ตรง ให้หยุดที่ขั้นตอนแรกที่ล้มเหลวและบันทึกข้อผิดพลาด; preserve the installed app, personal history and signing keys. No production rollback or release operation is authorized by this guide.
