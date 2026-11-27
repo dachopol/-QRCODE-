@@ -560,3 +560,17 @@ Official references:
 - No `app/` source changed between active code19 source commit `c7304af1dc3040c13aff69b7e2ee6574a1192276` and `07daf33...`; only CI/Play-probe/docs/state changed. Active Play v18.0/code19 boundary remains intact.
 - Production remains untouched.
 
+
+
+## Future-release visual matrix closure — 2026-10-09
+- Future candidate branch: `integration/next-release`.
+- Exact verified head before this checkpoint: `4f4275599c0231f416230347d7d42b90b4ab08e8`.
+- Candidate identity from `app/build.gradle.kts`: versionName `19.0`, versionCode `20`, package `com.aistudio.qrgenerator.kmpzqr`.
+- Android CI #284 / run `37891439388`: **SUCCESS** on the exact head above.
+- Build gate: compile + unit tests + lint + release bundle + Room schema + artifact verification: **PASS**.
+- API35 instrumentation + VisualMatrix: **PASS**; artifact contains exactly **30 PNGs** (15 states × TH/EN), all **1080×1920**.
+- Android 16 phone: **PASS**; exactly **30 PNGs**, all **1080×1920**.
+- Android 16 large-screen landscape test configuration: **PASS**; exactly **30 PNGs**, all **2560×1600**.
+- Runtime artifact images were opened and checked, not accepted from filename/count alone. Verified states include Scanner, Support Sheet, QR Preview, populated History, populated Business Card, QR Appearance and History Delete Confirmation in both TH/EN.
+- A prior green count gate was explicitly rejected when the Support screenshot contained the underlying Location screen. The visual harness was hardened to wait for visible/rendered state and compositor presentation before capture; #284 is the superseding evidence.
+- Release boundary: this is **future-release branch validation only**. Active Play Internal Testing v18.0/code19 on `main` remains unchanged; no Production publish occurred.

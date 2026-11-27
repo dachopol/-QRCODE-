@@ -3,6 +3,7 @@ package com.aistudio.qrgenerator.kmpzqr
 import com.aistudio.qrgenerator.kmpzqr.model.ParsedQrType
 import com.aistudio.qrgenerator.kmpzqr.util.PromptPayGenerator
 import com.aistudio.qrgenerator.kmpzqr.util.QrScannerUtil
+import com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -25,7 +26,7 @@ class QuickQrCoreTest {
 
     @Test
     fun promptPayId_roundTripWithoutAmount() {
-        val target = "1101700203451"
+        val target = "1101700203450"
         val payload = PromptPayGenerator.generatePayload(target, null)
 
         assertTrue(PromptPayGenerator.verifyCrc(payload))
@@ -141,8 +142,9 @@ class QuickQrCoreTest {
     fun promptPayShortPhone_isRejectedWithSpecificReason() {
         val result = com.aistudio.qrgenerator.kmpzqr.util.QrValidationUtil.validatePromptPayTarget("0895469")
         assertTrue(result is com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid)
-        val reason = (result as com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid).reason
-        assertTrue(reason.contains("10 หลัก"))
+        val invalid = result as com.aistudio.qrgenerator.kmpzqr.util.ValidationResult.Invalid
+        assertTrue(invalid.reasonTh.contains("10 หลัก"))
+        assertTrue(invalid.reasonEn.contains("10-digit"))
     }
 
     @Test
@@ -164,4 +166,127 @@ class QuickQrCoreTest {
         assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull("geo:13,181"))
     }
 
+    @Test
+    fun mapsUrl_readsExplicitLocationQueryParameters() {
+        val url = "https://www.google.com/maps/search/?api=1&query=13.7563%2C100.5018"
+        val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url)
+        assertNotNull(point)
+        assertEquals(13.7563, point!!.latitude, 0.0000001)
+        assertEquals(100.5018, point.longitude, 0.0000001)
+        assertEquals(ParsedQrType.GEO, QrScannerUtil.parseQrContent(url).type)
+    }
+
+    @Test
+    fun mapsUrl_doesNotUseUnrelatedQueryOrRouteOriginAsLocation() {
+        val url = "https://www.google.com/maps?campaign=13.7563%2C100.5018&origin=14.0%2C101.0"
+        assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url))
+        assertEquals(ParsedQrType.URL, QrScannerUtil.parseQrContent(url).type)
+    }
+
+    @Test
+    fun mapsDirections_usesDestinationCoordinatesNotOrigin() {
+        val url = "https://www.google.com/maps/dir/?api=1&origin=14.0%2C101.0&destination=13.7563%2C100.5018"
+        val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url)
+        assertNotNull(point)
+        assertEquals(13.7563, point!!.latitude, 0.0000001)
+        assertEquals(100.5018, point.longitude, 0.0000001)
+    }
+
+    @Test
+    fun mapsUrl_rejectsNonWebSchemesEvenWithGoogleHost() {
+        val raw = "customscheme://www.google.com/maps/@13.7563,100.5018"
+        assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(raw))
+    }
+
+    @Test
+    fun luminancePlane_respectsBufferPositionAndStridesAcrossLayouts() {
+        val random = kotlin.random.Random(20261127)
+        for (width in 1..16) for (height in 1..12) {
+            for (pixelStride in 1..4) for (padding in 0..3) {
+                val span = (width - 1) * pixelStride + 1
+                val rowStride = span + padding
+                val prefix = random.nextInt(0, 8)
+                val bytes = ByteArray(prefix + (height - 1) * rowStride + span) {
+                    random.nextInt().toByte()
+                }
+                val source = java.nio.ByteBuffer.wrap(bytes)
+                source.position(prefix)
+                val expected = ByteArray(width * height) { index ->
+                    bytes[prefix + (index / width) * rowStride + (index % width) * pixelStride]
+                }
+                val actual = QrScannerUtil.copyLuminancePlane(
+                    source, width, height, rowStride, pixelStride
+                )
+                org.junit.Assert.assertArrayEquals(expected, actual)
+                assertEquals(prefix, source.position())
+                assertEquals(bytes.size, source.limit())
+            }
+        }
+    }
+
+    @Test
+    fun luminancePlane_rejectsTruncationInvalidStrideAndExcessiveDimensions() {
+        val invalid = listOf(
+            intArrayOf(2, 2, 2, 1), intArrayOf(2, 2, 1, 1),
+            intArrayOf(0, 1, 1, 1), intArrayOf(1, -1, 1, 1),
+            intArrayOf(1, 1, 1, 0),
+            intArrayOf(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE),
+            intArrayOf(4097, 4096, 4097, 1),
+            intArrayOf(1, 2, Int.MAX_VALUE, 1)
+        )
+        for (layout in invalid) {
+            val error = runCatching {
+                QrScannerUtil.copyLuminancePlane(
+                    java.nio.ByteBuffer.allocate(3),
+                    layout[0], layout[1], layout[2], layout[3]
+                )
+            }.exceptionOrNull()
+            assertTrue(error is IllegalArgumentException)
+        }
+    }
+
+    @Test
+    fun mapsUrl_abstainsOnConflictingOrInvalidExplicitCoordinates() {
+        val base = "https://www.google.com/maps"
+        for (suffix in listOf(
+            "?q=13.7563,100.5018&query=14,101",
+            "?q=13.7563,100.5018&q=invalid",
+            "/dir/?destination=13.7563,100.5018&daddr=14,101",
+            "/dir/?center=14,101&origin=14,101",
+            "/dir/@14,101",
+            "/dir/?destination=91,101"
+        )) {
+            val url = base + suffix
+            assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url))
+            assertEquals(ParsedQrType.URL, QrScannerUtil.parseQrContent(url).type)
+        }
+    }
+
+    @Test
+    fun mapsUrl_usesUniqueDestinationAndAllowsIdenticalDuplicateCoordinates() {
+        val base = "https://www.google.com/maps"
+        for (suffix in listOf(
+            "?q=13.7563,100.5018&q=13.7563,100.5018",
+            "/dir/?q=14,101&destination=13.7563,100.5018"
+        )) {
+            val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(base + suffix)
+            assertEquals(com.aistudio.qrgenerator.kmpzqr.model.GeoPoint(13.7563, 100.5018), point)
+        }
+    }
+
+    @Test
+    fun qrPayloadVerification_requiresExactDecodedContent() {
+        val exact = QrValidationUtil.verifyDecodedContent("expected", "expected")
+        assertTrue(exact.isValid)
+        assertEquals("expected", exact.decodedContent)
+
+        val mismatch = QrValidationUtil.verifyDecodedContent("different", "expected")
+        assertFalse(mismatch.isValid)
+        assertEquals("different", mismatch.decodedContent)
+        assertTrue(mismatch.errorMessage?.contains("ไม่ตรง") == true)
+
+        val unreadable = QrValidationUtil.verifyDecodedContent(null, "expected")
+        assertFalse(unreadable.isValid)
+        assertEquals(null, unreadable.decodedContent)
+    }
 }

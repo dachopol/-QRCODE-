@@ -1,9 +1,16 @@
 package com.aistudio.qrgenerator.kmpzqr.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "qr_items")
+@Entity(
+    tableName = "qr_items",
+    indices = [
+        Index(value = ["timestamp"]),
+        Index(value = ["isScan", "timestamp"])
+    ]
+)
 data class QrItemEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

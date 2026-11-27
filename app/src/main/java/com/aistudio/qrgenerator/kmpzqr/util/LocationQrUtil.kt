@@ -70,18 +70,39 @@ object LocationQrUtil {
         } catch (_: Exception) {
             return null
         }
+        // Only web links are eligible for location extraction. A QR such as
+        // customscheme://google.com/maps/@lat,lng is not a Google Maps URL.
+        if (!uri.scheme.equals("https", ignoreCase = true) &&
+            !uri.scheme.equals("http", ignoreCase = true)
+        ) return null
         val host = uri.host?.lowercase(Locale.US) ?: return null
         val isMapsPath = uri.path.orEmpty().startsWith("/maps", ignoreCase = true)
         if (!isGoogleMapsHost(host) || (!isMapsPath && host != "maps.google.com" && host != "maps.app.goo.gl")) {
             return null
         }
 
-        uri.rawQuery.orEmpty().split("&")
-            .asSequence()
-            .map { decodeUrlComponent(it.substringAfter("=", "")) }
-            .mapNotNull(::parseCoordinatePair)
-            .firstOrNull { it.isValid() }
-            ?.let { return it }
+        // A directions URL describes a route, not its viewport or origin.
+        // Only a unique, valid explicit destination can be extracted from it.
+        val path = uri.path.orEmpty().trimEnd('/')
+        val isDirections = path.equals("/maps/dir", ignoreCase = true) ||
+            path.startsWith("/maps/dir/", ignoreCase = true)
+        val locationQueryKeys = if (isDirections) setOf("destination", "daddr")
+            else setOf("q", "query", "ll", "center", "destination", "daddr")
+        val explicitValues = uri.rawQuery.orEmpty().split("&")
+            .mapNotNull { parameter ->
+                if (!parameter.contains("=")) return@mapNotNull null
+                val key = decodeUrlComponent(parameter.substringBefore("="))
+                    .lowercase(Locale.US)
+                if (key !in locationQueryKeys) return@mapNotNull null
+                decodeUrlComponent(parameter.substringAfter("=", ""))
+            }
+        if (explicitValues.isNotEmpty()) {
+            val points = explicitValues.map { parseCoordinatePair(it)?.takeIf { point -> point.isValid() } }
+            if (points.any { it == null }) return null
+            return points.filterNotNull().distinct().singleOrNull()
+        }
+        // Do not reinterpret a route's path/viewport as its destination.
+        if (isDirections) return null
 
         val pathAndFragment = listOfNotNull(uri.rawPath, uri.rawFragment).joinToString("/")
         Regex("""@([-+]?\d+(?:\.\d+)?),([-+]?\d+(?:\.\d+)?)""")

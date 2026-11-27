@@ -125,22 +125,32 @@ object QrScannerUtil {
         val height: Int
     )
 
-    private fun copyLuminancePlane(
+    internal fun copyLuminancePlane(
         buffer: java.nio.ByteBuffer,
         width: Int,
         height: Int,
         rowStride: Int,
         pixelStride: Int
     ): ByteArray {
+        require(width > 0 && height > 0 && rowStride > 0 && pixelStride > 0)
+        val pixelCount = width.toLong() * height
+        // App memory budget: at most 16 MiB for one packed luminance plane.
+        require(pixelCount <= 16L * 1024 * 1024)
+        val rowSpan = (width - 1L) * pixelStride + 1L
+        require(rowSpan <= rowStride)
+        val requiredBytes = (height - 1L) * rowStride + rowSpan
         val src = buffer.duplicate()
-        val output = ByteArray(width * height)
-
+        require(requiredBytes <= src.remaining().toLong())
+        val start = src.position()
+        val output = ByteArray(pixelCount.toInt())
         for (row in 0 until height) {
-            val rowOffset = row * rowStride
-            for (col in 0 until width) {
-                val sourceIndex = rowOffset + col * pixelStride
-                if (sourceIndex < src.limit()) {
-                    output[row * width + col] = src.get(sourceIndex)
+            val rowOffset = start + row * rowStride
+            if (pixelStride == 1) {
+                src.position(rowOffset)
+                src.get(output, row * width, width)
+            } else {
+                for (col in 0 until width) {
+                    output[row * width + col] = src.get(rowOffset + col * pixelStride)
                 }
             }
         }
@@ -215,6 +225,32 @@ object QrScannerUtil {
         return fields
     }
 
+    private fun unescapeVCardText(value: String): String {
+        val output = StringBuilder(value.length)
+        var index = 0
+        while (index < value.length) {
+            val current = value[index]
+            if (current == '\\' && index + 1 < value.length) {
+                val next = value[index + 1]
+                when (next) {
+                    '\\' -> output.append('\\')
+                    ';' -> output.append(';')
+                    ',' -> output.append(',')
+                    'n', 'N' -> output.append('\n')
+                    else -> {
+                        output.append('\\')
+                        output.append(next)
+                    }
+                }
+                index += 2
+            } else {
+                output.append(current)
+                index += 1
+            }
+        }
+        return output.toString()
+    }
+
     /**
      * Classifies a decoded QR payload into PromptPay, Wi-Fi, URL, vCard or text.
      */
@@ -281,16 +317,16 @@ object QrScannerUtil {
 
             trimmed.lines().forEach { line ->
                 val l = line.trim()
-                if (l.startsWith("FN:", ignoreCase = true)) fn = l.substring(3).trim()
+                if (l.startsWith("FN:", ignoreCase = true)) fn = unescapeVCardText(l.substring(3).trim())
                 if (l.startsWith("TEL", ignoreCase = true)) {
                     val colonIdx = l.indexOf(':')
-                    if (colonIdx != -1) tel = l.substring(colonIdx + 1).trim()
+                    if (colonIdx != -1) tel = unescapeVCardText(l.substring(colonIdx + 1).trim())
                 }
                 if (l.startsWith("EMAIL", ignoreCase = true)) {
                     val colonIdx = l.indexOf(':')
-                    if (colonIdx != -1) email = l.substring(colonIdx + 1).trim()
+                    if (colonIdx != -1) email = unescapeVCardText(l.substring(colonIdx + 1).trim())
                 }
-                if (l.startsWith("ORG:", ignoreCase = true)) org = l.substring(4).trim()
+                if (l.startsWith("ORG:", ignoreCase = true)) org = unescapeVCardText(l.substring(4).trim())
             }
 
             return ParsedQrResult(
