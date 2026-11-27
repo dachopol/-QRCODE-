@@ -199,6 +199,82 @@ class QuickQrCoreTest {
     }
 
     @Test
+    fun luminancePlane_respectsBufferPositionAndStridesAcrossLayouts() {
+        val random = kotlin.random.Random(20261127)
+        for (width in 1..16) for (height in 1..12) {
+            for (pixelStride in 1..4) for (padding in 0..3) {
+                val span = (width - 1) * pixelStride + 1
+                val rowStride = span + padding
+                val prefix = random.nextInt(0, 8)
+                val bytes = ByteArray(prefix + (height - 1) * rowStride + span) {
+                    random.nextInt().toByte()
+                }
+                val source = java.nio.ByteBuffer.wrap(bytes)
+                source.position(prefix)
+                val expected = ByteArray(width * height) { index ->
+                    bytes[prefix + (index / width) * rowStride + (index % width) * pixelStride]
+                }
+                val actual = QrScannerUtil.copyLuminancePlane(
+                    source, width, height, rowStride, pixelStride
+                )
+                org.junit.Assert.assertArrayEquals(expected, actual)
+                assertEquals(prefix, source.position())
+                assertEquals(bytes.size, source.limit())
+            }
+        }
+    }
+
+    @Test
+    fun luminancePlane_rejectsTruncationInvalidStrideAndExcessiveDimensions() {
+        val invalid = listOf(
+            intArrayOf(2, 2, 2, 1), intArrayOf(2, 2, 1, 1),
+            intArrayOf(0, 1, 1, 1), intArrayOf(1, -1, 1, 1),
+            intArrayOf(1, 1, 1, 0),
+            intArrayOf(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE),
+            intArrayOf(4097, 4096, 4097, 1),
+            intArrayOf(1, 2, Int.MAX_VALUE, 1)
+        )
+        for (layout in invalid) {
+            val error = runCatching {
+                QrScannerUtil.copyLuminancePlane(
+                    java.nio.ByteBuffer.allocate(3),
+                    layout[0], layout[1], layout[2], layout[3]
+                )
+            }.exceptionOrNull()
+            assertTrue(error is IllegalArgumentException)
+        }
+    }
+
+    @Test
+    fun mapsUrl_abstainsOnConflictingOrInvalidExplicitCoordinates() {
+        val base = "https://www.google.com/maps"
+        for (suffix in listOf(
+            "?q=13.7563,100.5018&query=14,101",
+            "?q=13.7563,100.5018&q=invalid",
+            "/dir/?destination=13.7563,100.5018&daddr=14,101",
+            "/dir/?center=14,101&origin=14,101",
+            "/dir/@14,101",
+            "/dir/?destination=91,101"
+        )) {
+            val url = base + suffix
+            assertEquals(null, com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(url))
+            assertEquals(ParsedQrType.URL, QrScannerUtil.parseQrContent(url).type)
+        }
+    }
+
+    @Test
+    fun mapsUrl_usesUniqueDestinationAndAllowsIdenticalDuplicateCoordinates() {
+        val base = "https://www.google.com/maps"
+        for (suffix in listOf(
+            "?q=13.7563,100.5018&q=13.7563,100.5018",
+            "/dir/?q=14,101&destination=13.7563,100.5018"
+        )) {
+            val point = com.aistudio.qrgenerator.kmpzqr.util.LocationQrUtil.parseGeoOrNull(base + suffix)
+            assertEquals(com.aistudio.qrgenerator.kmpzqr.model.GeoPoint(13.7563, 100.5018), point)
+        }
+    }
+
+    @Test
     fun qrPayloadVerification_requiresExactDecodedContent() {
         val exact = QrValidationUtil.verifyDecodedContent("expected", "expected")
         assertTrue(exact.isValid)

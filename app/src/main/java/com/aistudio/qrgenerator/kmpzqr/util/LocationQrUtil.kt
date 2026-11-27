@@ -81,11 +81,14 @@ object LocationQrUtil {
             return null
         }
 
-        // Never infer map coordinates from unrelated query fields (e.g.
-        // campaign, redirect or origin). A directions link uses destination.
-        val locationQueryKeys = setOf("q", "query", "ll", "center", "destination", "daddr")
-        uri.rawQuery.orEmpty().split("&")
-            .asSequence()
+        // A directions URL describes a route, not its viewport or origin.
+        // Only a unique, valid explicit destination can be extracted from it.
+        val path = uri.path.orEmpty().trimEnd('/')
+        val isDirections = path.equals("/maps/dir", ignoreCase = true) ||
+            path.startsWith("/maps/dir/", ignoreCase = true)
+        val locationQueryKeys = if (isDirections) setOf("destination", "daddr")
+            else setOf("q", "query", "ll", "center", "destination", "daddr")
+        val explicitValues = uri.rawQuery.orEmpty().split("&")
             .mapNotNull { parameter ->
                 if (!parameter.contains("=")) return@mapNotNull null
                 val key = decodeUrlComponent(parameter.substringBefore("="))
@@ -93,9 +96,13 @@ object LocationQrUtil {
                 if (key !in locationQueryKeys) return@mapNotNull null
                 decodeUrlComponent(parameter.substringAfter("=", ""))
             }
-            .mapNotNull(::parseCoordinatePair)
-            .firstOrNull { it.isValid() }
-            ?.let { return it }
+        if (explicitValues.isNotEmpty()) {
+            val points = explicitValues.map { parseCoordinatePair(it)?.takeIf { point -> point.isValid() } }
+            if (points.any { it == null }) return null
+            return points.filterNotNull().distinct().singleOrNull()
+        }
+        // Do not reinterpret a route's path/viewport as its destination.
+        if (isDirections) return null
 
         val pathAndFragment = listOfNotNull(uri.rawPath, uri.rawFragment).joinToString("/")
         Regex("""@([-+]?\d+(?:\.\d+)?),([-+]?\d+(?:\.\d+)?)""")

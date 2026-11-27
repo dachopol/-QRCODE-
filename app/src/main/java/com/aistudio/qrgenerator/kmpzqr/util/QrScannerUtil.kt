@@ -125,22 +125,32 @@ object QrScannerUtil {
         val height: Int
     )
 
-    private fun copyLuminancePlane(
+    internal fun copyLuminancePlane(
         buffer: java.nio.ByteBuffer,
         width: Int,
         height: Int,
         rowStride: Int,
         pixelStride: Int
     ): ByteArray {
+        require(width > 0 && height > 0 && rowStride > 0 && pixelStride > 0)
+        val pixelCount = width.toLong() * height
+        // App memory budget: at most 16 MiB for one packed luminance plane.
+        require(pixelCount <= 16L * 1024 * 1024)
+        val rowSpan = (width - 1L) * pixelStride + 1L
+        require(rowSpan <= rowStride)
+        val requiredBytes = (height - 1L) * rowStride + rowSpan
         val src = buffer.duplicate()
-        val output = ByteArray(width * height)
-
+        require(requiredBytes <= src.remaining().toLong())
+        val start = src.position()
+        val output = ByteArray(pixelCount.toInt())
         for (row in 0 until height) {
-            val rowOffset = row * rowStride
-            for (col in 0 until width) {
-                val sourceIndex = rowOffset + col * pixelStride
-                if (sourceIndex < src.limit()) {
-                    output[row * width + col] = src.get(sourceIndex)
+            val rowOffset = start + row * rowStride
+            if (pixelStride == 1) {
+                src.position(rowOffset)
+                src.get(output, row * width, width)
+            } else {
+                for (col in 0 until width) {
+                    output[row * width + col] = src.get(rowOffset + col * pixelStride)
                 }
             }
         }
